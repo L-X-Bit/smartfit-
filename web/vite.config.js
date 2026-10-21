@@ -16,11 +16,16 @@ export default defineConfig({
     alias: { '@': path.resolve(process.cwd(), 'src') },
   },
   server: {
+    // host: '0.0.0.0' 的两个好处：
+    //   ① 避免浏览器把 localhost 解析成 IPv6 ::1 却连不上（Windows 上常见坑）；
+    //   ② 手机 / 同局域网设备可用 http://本机IP:5173 访问，方便现场演示。
+    host: '0.0.0.0',
     port: 5173,
+    strictPort: true, // 端口被占用时直接报错，而不是悄悄换端口导致地址对不上
     open: false,
     proxy: {
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
-      '/uploads': { target: 'http://localhost:3000', changeOrigin: true },
+      '/api': { target: 'http://127.0.0.1:3000', changeOrigin: true },
+      '/uploads': { target: 'http://127.0.0.1:3000', changeOrigin: true },
     },
   },
   build: {
