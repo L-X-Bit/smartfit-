@@ -1,0 +1,17 @@
+# 统一换行符与文件类型（跨平台协作友好）
+# 代码统一 LF，二进制与文档保持原样
+* text=auto eol=lf
+
+*.js   text eol=lf
+*.vue  text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.sql  text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+*.ps1  text eol=crlf
+
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.db   binary
