@@ -75,14 +75,18 @@ export function validatePlan(raw, { exerciseMap, weeks = 4, daysPerWeek = 3 }) {
   }
 
   // ---- 顶层字段
+  // 注意：周期与每周天数一律以「系统请求」为准，不信任模型自报的 weeks/daysPerWeek。
+  // 原因：我们要求模型只输出第 1 周模板（避免 JSON 过长被截断），模型常会把 weeks 写成 1，
+  // 若采信它，用户要的 4 周就会缩水成 1 周。
   const plan = {
     title: String(raw.title || 'AI 定制训练计划').slice(0, 40),
     goal: ['lose', 'gain', 'keep', 'shape'].includes(raw.goal) ? raw.goal : undefined,
     level: ['beginner', 'intermediate', 'advanced'].includes(raw.level) ? raw.level : 'beginner',
-    weeks: clampInt(raw.weeks, 1, 12, weeks),
-    daysPerWeek: clampInt(raw.daysPerWeek, 1, 7, daysPerWeek),
+    weeks: clampInt(weeks, 1, 12, 4),
+    daysPerWeek: clampInt(daysPerWeek, 1, 7, 3),
     summary: String(raw.summary || '').slice(0, 600),
     nutritionTips: String(raw.nutritionTips || '').slice(0, 600),
+    progression: String(raw.progression || '').slice(0, 200),
     safetyNotes: Array.isArray(raw.safetyNotes) ? raw.safetyNotes.slice(0, 5).map((s) => String(s).slice(0, 120)) : [],
     weeklySchedule: [],
   };
@@ -136,25 +140,40 @@ export function validatePlan(raw, { exerciseMap, weeks = 4, daysPerWeek = 3 }) {
     return { ok: false, plan, errors: [...errors, '没有任何有效训练日'], repaired };
   }
 
-  // ---- 周次完整性检查（不足则复制最后一周并递进，保证 4 周都可用）
+  // ---- 周次展开（渐进超负荷）
+  // 设计思路：让模型只生成第 1 周模板（输出短、成功率高、速度快），
+  // 后续周次由这段确定性规则展开——这也是真实生产环境控制大模型输出成本的常用做法。
+  // 递进规则：第 2 周沿用；第 3 周起力量动作 +1 组、有氧类 +4 分钟；第 4 周起再加码。
   const weekSet = new Set(plan.weeklySchedule.map((d) => d.week));
+  let expansionNote = '';
   if (weekSet.size < plan.weeks) {
-    repair(`模型只生成了 ${weekSet.size} 周，已按渐进超负荷补全至 ${plan.weeks} 周`);
-    const lastWeek = Math.max(...weekSet);
-    const template = plan.weeklySchedule.filter((d) => d.week === lastWeek);
-    for (let w = lastWeek + 1; w <= plan.weeks; w += 1) {
+    // 注意：这属于「预期的正常流程」，不记入 repaired（否则会误触发修复重试，白白多花一次模型调用）
+    const baseWeek = Math.min(...weekSet);
+    expansionNote = `按渐进超负荷规则由第 ${baseWeek} 周展开至 ${plan.weeks} 周`;
+    const template = plan.weeklySchedule.filter((d) => d.week === baseWeek);
+    for (let w = baseWeek + 1; w <= plan.weeks; w += 1) {
       for (const d of template) {
         plan.weeklySchedule.push({
           ...d,
           week: w,
-          items: d.items.map((it) => ({ ...it, note: it.note || `第 ${w} 周：次数或重量较上周提升 5%` })),
+          items: d.items.map((it) => {
+            const isCardio = (it.durationMin || 0) > 0;
+            const step = w - baseWeek; // 距基准周的周数
+            return {
+              ...it,
+              // 第 3 周起加量：力量每组数 +1（上限 6 组），有氧时长 +4 分钟/周
+              sets: isCardio || w < 3 ? it.sets : Math.min(6, (it.sets || 3) + 1),
+              durationMin: isCardio ? (it.durationMin || 0) + 4 * step : it.durationMin,
+              note: it.note || (isCardio ? `第 ${w} 周：时长较第 1 周增加 ${4 * step} 分钟` : `第 ${w} 周：组数或次数较第 1 周略有提升`),
+            };
+          }),
         });
       }
     }
   }
 
   plan.weeklySchedule.sort((a, b) => a.week - b.week || a.day - b.day);
-  return { ok: true, plan, errors, repaired };
+  return { ok: true, plan, errors, repaired, expansionNote };
 }
 
 /**

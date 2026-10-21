@@ -218,7 +218,9 @@ export async function generatePlan({ userId, req = {} }) {
 
     try {
       const t1 = Date.now();
-      const res = await chatComplete({ messages, jsonMode: true, maxTokens: 3200 });
+      // maxTokens 说明：模型只输出第 1 周模板（约 2000~2600 token），3800 足以留出余量，
+      // 又不会因为上限过高而放任模型输出冗长内容。
+      const res = await chatComplete({ messages, jsonMode: true, maxTokens: 3800 });
       llmLatency = res.latencyMs;
       retryCount += res.retryCount;
       stages.push({ stage: 'llm_generate', ms: Date.now() - t1, note: `模型 ${res.model}` });
@@ -231,7 +233,11 @@ export async function generatePlan({ userId, req = {} }) {
         planObj = v1.plan;
         provider = 'llm';
         model = res.model;
-        stages.push({ stage: 'validate', ms: 0, note: `通过校验（自动修复 ${v1.repaired} 处）` });
+        stages.push({
+          stage: 'validate',
+          ms: 0,
+          note: `通过校验（自动修复 ${v1.repaired} 处${v1.expansionNote ? '；' + v1.expansionNote : ''}）`,
+        });
       } else {
         // ---- 修复重试：把校验错误回灌给模型，要求只输出修正后的 JSON
         stages.push({ stage: 'validate', ms: 0, note: `校验未通过：${v1.errors.slice(0, 3).join('；')}` });

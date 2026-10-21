@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 饮食配比 Agent（结构化输出 + 热量对齐校验）
  * ---------------------------------------------------------------------------
  * 业务闭环：身体数据 → 目标热量 → 一日餐单 → 一键写入饮食记录
@@ -162,6 +162,11 @@ export async function generateDiet({ userId, goal }) {
     fallback = config.ai.enabled;
   }
 
+  // ---------- 份量自动校正（确定性兜底）----------
+  // 实测：大模型偶尔把份量给得偏小（目标 2255 kcal 只配到 1373 kcal，偏差 −39%）。
+  // 这里以食物库为准按比例缩放每份克数，再重新换算营养值，保证方案落地即达标。
+  const scaleResult = rescaleDietToTarget(diet, metrics.targetCalories);
+
   // ---------- 热量对齐校验：以食物库数据为准重新计算，并给出偏差 ----------
   const diff = diet.totalKcal - metrics.targetCalories;
   diet.targetKcal = metrics.targetCalories;
@@ -169,6 +174,8 @@ export async function generateDiet({ userId, goal }) {
   diet.kcalDiff = diff;
   diet.kcalDeviation = Number(((diff / metrics.targetCalories) * 100).toFixed(1));
   diet.inRange = Math.abs(diet.kcalDeviation) <= 8; // 误差 ±8% 视为达标
+  diet.autoScaled = scaleResult.scaled;             // 是否做了份量校正（前端会提示）
+  diet.scaleFactor = scaleResult.factor;
 
   if (config.aiCacheEnabled) cacheSet(cacheKey, diet);
 
@@ -184,7 +191,49 @@ export async function generateDiet({ userId, goal }) {
     errorMsg,
   });
 
-  return { diet, refs, meta: { provider, model, fallback, deviation: diet.kcalDeviation } };
+  return {
+    diet,
+    refs,
+    meta: { provider, model, fallback, deviation: diet.kcalDeviation, autoScaled: diet.autoScaled, scaleFactor: diet.scaleFactor },
+  };
+}
+
+/**
+ * 份量自动校正：把全天总热量按比例拉回目标值
+ * @param {object} diet validateDiet 产出的方案（包含 meals[].items[].foodId / amountG）
+ * @param {number} targetKcal 目标热量
+ * @returns {{scaled: boolean, factor: number}}
+ */
+function rescaleDietToTarget(diet, targetKcal) {
+  if (!diet?.totalKcal || !diet.meals?.length) return { scaled: false, factor: 1 };
+
+  const factor = targetKcal / diet.totalKcal;
+  // 偏差已在 ±8% 内则不动，避免来回改动
+  if (Math.abs(factor - 1) <= 0.08) return { scaled: false, factor: 1 };
+
+  for (const meal of diet.meals) {
+    for (const it of meal.items) {
+      const food = it.foodId ? get('SELECT * FROM foods WHERE id = ?', [it.foodId]) : get('SELECT * FROM foods WHERE name = ?', [it.foodName]);
+      if (!food) continue;
+      // 按 5g 取整，并限制单份 10~600g（避免出现 8g 或 900g 这类不合理份量）
+      const amountG = Math.min(600, Math.max(10, Math.round((it.amountG * factor) / 5) * 5));
+      const k = amountG / 100;
+      it.foodId = food.id;
+      it.foodName = food.name;
+      it.amountG = amountG;
+      it.kcal = Math.round(food.kcal * k);
+      it.protein = Number((food.protein * k).toFixed(1));
+      it.fat = Number((food.fat * k).toFixed(1));
+      it.carb = Number((food.carb * k).toFixed(1));
+    }
+  }
+
+  const sum = (key) => Math.round(diet.meals.reduce((s, m) => s + m.items.reduce((a, i) => a + i[key], 0), 0));
+  diet.totalKcal = sum('kcal');
+  diet.totalProtein = sum('protein');
+  diet.totalFat = sum('fat');
+  diet.totalCarb = sum('carb');
+  return { scaled: true, factor: Number(factor.toFixed(2)) };
 }
 
 /**

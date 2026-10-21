@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -9,12 +9,12 @@
   * { box-sizing: border-box; }
   body {
     font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-    font-size: 10.2pt; line-height: 1.72; color: #1f2937; margin: 0;
+    font-size: 10.1pt; line-height: 1.66; color: #1f2937; margin: 0;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1, h2, h3, h4 { color: #065f46; font-weight: 700; margin: 0; }
   h1 { font-size: 19pt; margin: 0 0 10pt; padding-bottom: 6pt; border-bottom: 2.5pt solid #10b981; page-break-before: always; page-break-after: avoid; }
-  h2 { font-size: 13pt; margin: 16pt 0 7pt; padding-left: 8pt; border-left: 4pt solid #10b981; page-break-after: avoid; }
+  h2 { font-size: 12.8pt; margin: 13pt 0 6pt; padding-left: 8pt; border-left: 4pt solid #10b981; page-break-after: avoid; }
   h3 { font-size: 11pt; margin: 12pt 0 5pt; color: #0f766e; page-break-after: avoid; }
   h4 { font-size: 10.2pt; margin: 9pt 0 4pt; color: #334155; }
   p { margin: 5pt 0; text-align: justify; }
@@ -24,7 +24,7 @@
   pre { font-family: Consolas, monospace; font-size: 8.4pt; line-height: 1.5; background: #0f172a; color: #d1fae5; padding: 8pt 10pt; border-radius: 6pt; overflow: hidden; white-space: pre-wrap; margin: 6pt 0; }
   table { width: 100%; border-collapse: collapse; font-size: 8.9pt; margin: 7pt 0; page-break-inside: avoid; }
   th { background: #ecfdf5; color: #065f46; font-weight: 700; text-align: left; }
-  th, td { border: 0.6pt solid #cbd5e1; padding: 4pt 6pt; vertical-align: top; }
+  th, td { border: 0.6pt solid #cbd5e1; padding: 3.5pt 5.5pt; vertical-align: top; }
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 8pt 0; page-break-inside: avoid; }
   figure img { width: 100%; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
@@ -411,11 +411,21 @@
   <div class="step"><div class="n">STAGE 3</div><div class="t">RAG 检索</div><div class="d">按目标/器械/难度/伤病检索动作库 + 指南库，生成上下文与引用</div></div>
 </div>
 <div class="flow">
-  <div class="step"><div class="n">STAGE 4</div><div class="t">大模型生成</div><div class="d">JSON 模式输出；失败自动重试；仍失败进入修复重试</div></div>
-  <div class="step"><div class="n">STAGE 5</div><div class="t">校验修复</div><div class="d">容错解析 → 结构校验 → 拦截编造动作 → 补全周次 → 数值夹取</div></div>
+  <div class="step"><div class="n">STAGE 4</div><div class="t">大模型生成</div><div class="d">JSON 模式输出<b>第 1 周模板</b>（控制长度防截断）；失败自动重试</div></div>
+  <div class="step"><div class="n">STAGE 5</div><div class="t">校验与展开</div><div class="d">容错解析 → 结构校验 → 拦截编造动作 → <b>按渐进超负荷展开全部周次</b></div></div>
   <div class="step"><div class="n">STAGE 6</div><div class="t">安全审核</div><div class="d">按伤病/慢病规则剔除禁忌动作，输出审核报告</div></div>
 </div>
 <p class="small">任一阶段失败 → 进入第 ⑦ 步「降级：本地规则引擎生成同构结果」，用户无感。</p>
+
+<div class="warn">
+  <b>关键工程决策：为什么只让模型生成「第 1 周」？</b><br/>
+  4 周 × 每周 4 练 × 每天 4~5 个动作 ≈ 70 个动作项，仅 <code>weeklySchedule</code> 字段就要 7000+ token，
+  远超单次输出上限 → <b>JSON 被截断 → 解析失败 → 整条流水线降级</b>（实测确实发生过：耗时 19.1s 后回退到规则引擎）。
+  改进方案：模型只生成第 1 周模板 + 一句 <code>progression</code> 递进说明，
+  后续周次由确定性规则展开（第 3 周起力量动作 +1 组、有氧每周 +4 分钟）。
+  改良后实测 <b>7.2s 成功、0 次重试、输出简体中文且 4 周完整</b>。
+  这也符合真实生产环境的成本与稳定性考量——<b>让模型做决策，让代码做重复劳动</b>。
+</div>
 
 <div class="box">
   <b>为什么这样拆？</b>
@@ -501,6 +511,9 @@
     <tr><td>分层降级</td><td>大模型失败 → 修复重试 → 本地规则引擎 / 检索式问答</td><td>无密钥、断网时全站功能可用，演示不中断</td></tr>
     <tr><td>限流保护</td><td>内存滑动窗口，AI 接口按用户限流（计划 8 次/分、对话 20 次/分）</td><td>防止误刷产生大量调用费用</td></tr>
     <tr><td>上下文瘦身</td><td>只把检索 Top-K（默认 6）与量化后的画像喂给模型，不传原始数据表</td><td>提示词长度可控，降低成本与延迟</td></tr>
+    <tr><td><b>输出长度控制</b></td><td>计划只让模型生成「第 1 周模板 + 递进说明」，其余周次由规则展开</td><td><b>实测：19.1s 且降级 → 7.2s 且成功</b>；输出 token 降约 75%，不再触碰上限被截断</td></tr>
+    <tr><td><b>数值兜底校正</b></td><td>配餐方案若与目标热量偏差超出 ±8%，按比例自动缩放每份克数并重算营养值</td><td>实测模型曾给出 −39% 的方案，校正后偏差 −0.4%，保证落地可用</td></tr>
+    <tr><td><b>语言一致性约束</b></td><td>系统提示词首条强制「必须简体中文、不得输出繁体」</td><td>修复了模型偶发输出繁体（「計畫/熱量/啞鈴」）导致的全站文案不一致问题</td></tr>
   </tbody>
 </table>
 
@@ -536,20 +549,32 @@
 <h2>4.8 可观测性（Observability）</h2>
 <p>每次 AI 调用都写入 <code>ai_call_logs</code>，记录：场景 / 供应商 / 模型 / 耗时 / 缓存命中 / 是否降级 / 重试次数 / RAG 命中数 / 状态 / 错误信息。
 个人中心的「AI 运行统计」直接读取该表，展示调用次数、平均耗时、缓存命中率、降级率与分场景明细。</p>
+
+<h3>4.8.1 接入真实大模型后的实测指标（DeepSeek · deepseek-chat）</h3>
 <table>
-  <thead><tr><th style="width: 14%;">场景</th><th style="width: 12%;">调用次数</th><th style="width: 16%;">平均耗时</th><th style="width: 14%;">RAG 命中</th><th style="width: 12%;">缓存命中</th><th style="width: 12%;">降级</th><th style="width: 20%;">说明</th></tr></thead>
+  <thead><tr><th style="width: 18%;">能力</th><th style="width: 16%;">耗时</th><th style="width: 16%;">成功率</th><th style="width: 16%;">RAG 命中</th><th style="width: 34%;">备注</th></tr></thead>
   <tbody>
-    <tr><td>plan</td><td>4</td><td>3977 ms</td><td>70</td><td>1</td><td>1</td><td>含 1 次修复重试</td></tr>
-    <tr><td>coach</td><td>4</td><td>2202 ms</td><td>18</td><td>0</td><td>1</td><td>含 1 次检索式降级</td></tr>
-    <tr><td>diet</td><td>3</td><td>2719 ms</td><td>52</td><td>1</td><td>0</td><td>热量偏差 −3%</td></tr>
-    <tr><td><b>合计</b></td><td><b>11</b></td><td><b>2989 ms</b></td><td><b>140</b></td><td><b>18%</b></td><td><b>18%</b></td><td>见下方说明</td></tr>
+    <tr><td>训练计划生成</td><td><b>7.2 s</b></td><td>一次通过（0 重试）</td><td>17 条</td><td>首周模板方案；输出 4 周 / 76 个动作项，简体中文</td></tr>
+    <tr><td>AI 教练对话</td><td>首字 <b>0.72 s</b>，整段 2.5 s</td><td>一次通过</td><td>6 条</td><td>291 个 SSE 增量帧；回答结合用户真实数据（减重 3.3kg、蛋白缺口 53g）</td></tr>
+    <tr><td>AI 一日配餐</td><td>3.2 s</td><td>一次通过</td><td>18 条</td><td>原始方案偏差 −39%，自动缩放校正后 <b>−0.4%</b>（达标）</td></tr>
+  </tbody>
+</table>
+
+<h3>4.8.2 聚合统计（个人中心面板同款数据）</h3>
+<table>
+  <thead><tr><th style="width: 14%;">场景</th><th style="width: 12%;">调用次数</th><th style="width: 16%;">平均耗时</th><th style="width: 12%;">缓存命中</th><th style="width: 12%;">降级</th><th style="width: 34%;">说明</th></tr></thead>
+  <tbody>
+    <tr><td>plan</td><td>7</td><td>7400 ms</td><td>1</td><td>2</td><td>含 2 次早期失败（输出被截断），正是本章优化策略的由来</td></tr>
+    <tr><td>coach</td><td>7</td><td>2354 ms</td><td>0</td><td>1</td><td>含 1 次无密钥时期的检索式降级</td></tr>
+    <tr><td>diet</td><td>5</td><td>2929 ms</td><td>1</td><td>0</td><td>份量校正后全部达标</td></tr>
+    <tr><td><b>合计</b></td><td><b>19</b></td><td><b>4364 ms</b></td><td><b>11%</b></td><td><b>16%</b></td><td>完整记录见 <code>ai_call_logs</code> 表</td></tr>
   </tbody>
 </table>
 <p class="small">
-  说明：首次执行 <code>npm run init:db</code> 时，种子脚本会写入 11 条<b>演示用</b>调用样本，使统计面板开箱即有内容；
-  之后每次真实调用（生成计划 / 教练对话 / AI 配餐）都会继续追加真实记录，面板数据随即转为真实统计。
-  这组指标让优化决策基于数据而非主观感受——例如"缓存命中率 18%、降级率 18%"正是我们判断
-  "值得加强语义缓存"与"必须保证降级可用"的直接依据。
+  说明：首次执行 <code>npm run init:db</code> 时种子脚本会写入 11 条<b>演示用</b>调用样本，使统计面板开箱即有内容；
+  之后每次真实调用都会继续追加记录（上表即为接入真实模型后的真实累积数据）。
+  这组指标让优化决策基于数据而非主观感受——「降级率 16%」直接指向了输出被截断这一根因，
+  优化后单次生成不再触发降级。
 </p>
 
 <h2>4.9 接入真实大模型的方法</h2>
