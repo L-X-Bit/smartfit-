@@ -1,0 +1,24 @@
+{
+  "name": "smartfit-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "智练 SmartFit 后端服务：Express + node:sqlite + AI Agent/RAG",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "seed": "node src/db/seed.js",
+    "reset:db": "node src/db/seed.js --reset"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.1"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}
