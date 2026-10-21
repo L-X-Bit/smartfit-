@@ -24,6 +24,8 @@ const API = process.env.API_URL || 'http://127.0.0.1:3000';
 const ONLY = process.argv.slice(2).filter((a) => !a.startsWith('-'));
 /** --mobile：用 390x844（iPhone 14 逻辑分辨率）验证移动端布局，截图输出到 screenshots/mobile/ */
 const MOBILE = process.argv.includes('--mobile');
+/** --full：截整页长图（captureBeyondViewport），用于核对页面区块完整性 */
+const FULL_PAGE = process.argv.includes('--full');
 const OUT_DIR = MOBILE ? path.join(ROOT, 'docs', 'screenshots', 'mobile') : path.join(ROOT, 'docs', 'screenshots');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -61,8 +63,16 @@ class CDP {
     if (r.exceptionDetails) throw new Error('页面 JS 异常: ' + JSON.stringify(r.exceptionDetails).slice(0, 300));
     return r.result?.value;
   }
-  async shot(file) {
-    const r = await this.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  async shot(file, fullPage = false) {
+    let params = { format: 'png', captureBeyondViewport: false };
+    if (fullPage) {
+      // 整页长图：取文档实际尺寸作为 clip，一次截完（含滚动区域外的内容）
+      const m = await this.send('Page.getLayoutMetrics');
+      const w = Math.ceil(m.cssContentSize?.width || m.contentSize?.width || 1600);
+      const h = Math.min(20000, Math.ceil(m.cssContentSize?.height || m.contentSize?.height || 1100));
+      params = { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: w, height: h, scale: 1 } };
+    }
+    const r = await this.send('Page.captureScreenshot', params);
     fs.writeFileSync(file, Buffer.from(r.data, 'base64'));
     return file;
   }
@@ -148,6 +158,34 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
   }
   async function save(name) {
     const f = path.join(OUT_DIR, name + '.png');
+    if (FULL_PAGE) {
+      /**
+       * 整页长图：本项目的滚动容器是 .content（不是 document —— 布局是 .layout{100vh;overflow:hidden}），
+       * 所以要把视口临时拉到「顶栏 + .content 的 scrollHeight」，让内容一次性全部铺开再截图，
+       * 截完再恢复原视口，避免影响后续步骤。
+       */
+      const need = await cdp.eval(`(() => {
+        const c = document.querySelector('.content');
+        const h = c ? c.scrollHeight : document.documentElement.scrollHeight;
+        return Math.min(20000, Math.max(1100, h + 90));
+      })()`);
+      await cdp.send('Emulation.setDeviceMetricsOverride', {
+        width: MOBILE ? 390 : 1600,
+        height: need,
+        deviceScaleFactor: MOBILE ? 2 : 1,
+        mobile: MOBILE,
+      });
+      await sleep(900);
+      await cdp.shot(f);
+      await cdp.send('Emulation.setDeviceMetricsOverride', {
+        width: MOBILE ? 390 : 1600,
+        height: MOBILE ? 844 : 1100,
+        deviceScaleFactor: MOBILE ? 2 : 1,
+        mobile: MOBILE,
+      });
+      console.log(`  ✓ ${name}.png (${(fs.statSync(f).size / 1024).toFixed(0)} KB, 整页高 ${need}px)`);
+      return;
+    }
     await cdp.shot(f);
     console.log(`  ✓ ${name}.png (${(fs.statSync(f).size / 1024).toFixed(0)} KB)`);
   }
