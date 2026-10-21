@@ -24,6 +24,28 @@ export default defineConfig({
     strictPort: true, // 端口被占用时直接报错，而不是悄悄换端口导致地址对不上
     open: false,
     /**
+     * 允许通过内网穿透域名访问（手机用 4G/任何网络打开演示用）
+     * -----------------------------------------------------------------------
+     * Vite 默认会校验请求的 Host 头，只接受 localhost / IP / 已配置的域名，
+     * 否则返回 403「Blocked request. This host is not allowed.」——
+     * 这是防止 DNS 重绑定攻击的安全机制，不是 bug。
+     * 因此走隧道（localhost.run / Cloudflare / ngrok 等）时必须显式放行对应域名。
+     * 也可用环境变量 VITE_ALLOWED_HOSTS 追加自定义域名（逗号分隔）。
+     */
+    allowedHosts: [
+      '.lhr.life', // localhost.run 免费隧道
+      '.trycloudflare.com', // Cloudflare 快速隧道
+      '.ngrok-free.app', // ngrok
+      '.ngrok.io',
+      '.loca.lt', // localtunnel
+      '.serveo.net',
+      '.cpolar.cn', // cpolar（国内）
+      '.natapp.cn',
+      ...(process.env.VITE_ALLOWED_HOSTS
+        ? process.env.VITE_ALLOWED_HOSTS.split(',').map((s) => s.trim()).filter(Boolean)
+        : []),
+    ],
+    /**
      * 文件监视忽略规则（重要，避免 dev server 无故崩溃）：
      * 某些编辑器/工具写文件时会在同目录生成「.文件名.PID.xxxx.tmpdir/文件名.tmp」这样的原子写临时目录。
      * Vite 的 chokidar 监视器一旦去 watch 这个临时文件，Windows 会返回 EBUSY（文件被占用），

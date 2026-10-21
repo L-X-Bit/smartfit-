@@ -23,7 +23,43 @@
 
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
-import * as echarts from 'echarts';
+/**
+ * ECharts 按需引入（体积优化，对慢网络/手机流量场景很关键）
+ * ---------------------------------------------------------------------------
+ * 全量 import 'echarts' 会把所有图表类型与组件都打进包里（约 1MB），
+ * 而本项目只用到 6 种图表 + 6 个组件，按需引入后体积可降到约 1/3。
+ * 注意：新增图表类型时必须在这里补上，否则运行时会报
+ *      "Series xxx is used but not imported"。
+ */
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart, PieChart, RadarChart, GaugeChart, HeatmapChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  VisualMapComponent,
+  CalendarComponent,
+  MarkLineComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([
+  BarChart,
+  LineChart,
+  PieChart,
+  RadarChart,
+  GaugeChart,
+  HeatmapChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  VisualMapComponent,
+  CalendarComponent,
+  MarkLineComponent,
+  CanvasRenderer,
+]);
 
 const props = defineProps({
   option: { type: Object, default: () => ({}) },

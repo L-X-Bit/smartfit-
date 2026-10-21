@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Express 应用装配
  * ---------------------------------------------------------------------------
  * 分层结构：路由层（routes）→ 服务层（service / ai agent）→ 数据层（db）
@@ -6,6 +6,7 @@
  */
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +30,16 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 export function createApp() {
   const app = express();
+
+  /**
+   * 0) gzip 压缩（对带宽敏感的场景非常关键）
+   * --------------------------------------------------------------------
+   * 打包后的 element-plus 有 1.1MB、echarts 1MB，原始传输在慢网络（免费内网穿透、
+   * 手机 4G 弱信号）下要等上百秒，前端会直接白屏。
+   * 开启 gzip 后 JS/CSS 体积可降到约 1/3，再配合静态资源的 Cache-Control，
+   * 二次访问几乎零成本。
+   */
+  app.use(compression({ threshold: 1024, level: 6 }));
 
   // 1) 跨域：开发环境前端跑在 5173，需要放开（生产环境建议用 Nginx 同源代理）
   app.use(cors({ origin: true, credentials: true }));
@@ -65,7 +76,17 @@ export function createApp() {
   //    前端路由使用 history 模式，因此非 /api 开头的 GET 请求都回落到 index.html
   const webDist = path.resolve(SERVER_ROOT, '../web/dist');
   if (fs.existsSync(webDist)) {
-    app.use(express.static(webDist));
+    /**
+     * 静态资源缓存策略（对外网/慢网络演示很重要）：
+     *  - 构建产物文件名带内容哈希，内容一变文件名就变，因此可以放心长缓存（1 年 + immutable），
+     *    第二次访问直接命中本地缓存，几乎零流量；
+     *  - index.html 必须不缓存，否则用户会一直拿到旧版本的资源引用。
+     */
+    app.use(
+      '/assets',
+      express.static(path.join(webDist, 'assets'), { maxAge: '1y', immutable: true }),
+    );
+    app.use(express.static(webDist, { maxAge: 0, etag: true }));
     app.get(/^\/(?!api|uploads).*/, (req, res) => res.sendFile(path.join(webDist, 'index.html')));
     console.log('[静态资源] 已托管前端构建产物：', webDist);
   }
