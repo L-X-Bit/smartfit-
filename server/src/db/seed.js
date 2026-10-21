@@ -354,14 +354,40 @@ function seedDemoData() {
     }
   });
 
-  // 重算热度分（公式见 modules/community/service.js 说明）
+  // 重算热度分（公式见 modules/community/routes.js 说明）
   const allPosts = db.prepare('SELECT id, like_count, comment_count, created_at FROM posts').all();
   for (const p of allPosts) {
     const score = p.like_count * 3 + p.comment_count * 5 + 6;
     run('UPDATE posts SET hot_score = ? WHERE id = ?', [score, p.id]);
   }
 
-  console.log('[3/3] 演示数据生成完成：身体数据 / 打卡记录 / 训练计划 / 饮食记录 / 社区帖子');
+  /**
+   * AI 调用统计样本（演示用）
+   * 说明：这些是「演示数据」，用于让个人中心的 AI 运行统计面板在首次启动时就有内容可看；
+   *      真实调用（生成计划 / 教练对话 / AI 配餐）会继续追加记录，统计随即变为真实数据。
+   */
+  const aiSamples = [
+    ['plan', 'llm', 'deepseek-chat', 8240, 0, 0, 0, 18, 'ok'],
+    ['plan', 'llm', 'deepseek-chat', 7610, 0, 0, 1, 17, 'ok'],
+    ['plan', 'cache', 'deepseek-chat', 12, 1, 0, 0, 18, 'ok'],
+    ['plan', 'fallback', 'rule-engine-v1', 46, 0, 1, 2, 17, 'error'],
+    ['coach', 'llm', 'deepseek-chat', 2380, 0, 0, 0, 5, 'ok'],
+    ['coach', 'llm', 'deepseek-chat', 3120, 0, 0, 0, 6, 'ok'],
+    ['coach', 'llm', 'deepseek-chat', 1890, 0, 0, 1, 4, 'ok'],
+    ['coach', 'fallback', 'extractive-rag', 1420, 0, 1, 0, 3, 'ok'],
+    ['diet', 'llm', 'deepseek-chat', 4260, 0, 0, 0, 16, 'ok'],
+    ['diet', 'llm', 'deepseek-chat', 3890, 0, 0, 1, 18, 'ok'],
+    ['diet', 'cache', 'deepseek-chat', 9, 1, 0, 0, 18, 'ok'],
+  ];
+  for (const [scene, provider, model, latency, cacheHit, fallback, retry, ragHits, status] of aiSamples) {
+    run(
+      `INSERT INTO ai_call_logs (user_id, scene, provider, model, latency_ms, cache_hit, fallback, retry_count, rag_hits, status)
+       VALUES (?,?,?,?,?,?,?,?,?,?)`,
+      [demoId, scene, provider, model, latency, cacheHit, fallback, retry, ragHits, status],
+    );
+  }
+
+  console.log('[3/3] 演示数据生成完成：身体数据 / 打卡记录 / 训练计划 / 饮食记录 / 社区帖子 / AI 调用样本');
 }
 
 seedDemoData();

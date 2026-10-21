@@ -537,14 +537,20 @@
 <p>每次 AI 调用都写入 <code>ai_call_logs</code>，记录：场景 / 供应商 / 模型 / 耗时 / 缓存命中 / 是否降级 / 重试次数 / RAG 命中数 / 状态 / 错误信息。
 个人中心的「AI 运行统计」直接读取该表，展示调用次数、平均耗时、缓存命中率、降级率与分场景明细。</p>
 <table>
-  <thead><tr><th style="width: 14%;">场景</th><th style="width: 14%;">调用次数</th><th style="width: 18%;">平均耗时</th><th style="width: 18%;">RAG 命中</th><th style="width: 36%;">说明</th></tr></thead>
+  <thead><tr><th style="width: 14%;">场景</th><th style="width: 12%;">调用次数</th><th style="width: 16%;">平均耗时</th><th style="width: 14%;">RAG 命中</th><th style="width: 12%;">缓存命中</th><th style="width: 12%;">降级</th><th style="width: 20%;">说明</th></tr></thead>
   <tbody>
-    <tr><td>plan</td><td>2</td><td>48 ms</td><td>36</td><td>无密钥环境走规则引擎，故耗时极低；接入大模型后为秒级</td></tr>
-    <tr><td>coach</td><td>2</td><td>1436 ms</td><td>12</td><td>含模拟流式推送的节奏延迟（18ms/片）</td></tr>
-    <tr><td>diet</td><td>2</td><td>4 ms</td><td>36</td><td>贪心配餐算法，热力对齐偏差 −3%</td></tr>
+    <tr><td>plan</td><td>4</td><td>3977 ms</td><td>70</td><td>1</td><td>1</td><td>含 1 次修复重试</td></tr>
+    <tr><td>coach</td><td>4</td><td>2202 ms</td><td>18</td><td>0</td><td>1</td><td>含 1 次检索式降级</td></tr>
+    <tr><td>diet</td><td>3</td><td>2719 ms</td><td>52</td><td>1</td><td>0</td><td>热量偏差 −3%</td></tr>
+    <tr><td><b>合计</b></td><td><b>11</b></td><td><b>2989 ms</b></td><td><b>140</b></td><td><b>18%</b></td><td><b>18%</b></td><td>见下方说明</td></tr>
   </tbody>
 </table>
-<p class="small">上表为本地冒烟测试期间的真实数据（<code>GET /api/ai/stats</code> 输出）。这些指标让我们能用数据而非感觉来判断优化是否有效。</p>
+<p class="small">
+  说明：首次执行 <code>npm run init:db</code> 时，种子脚本会写入 11 条<b>演示用</b>调用样本，使统计面板开箱即有内容；
+  之后每次真实调用（生成计划 / 教练对话 / AI 配餐）都会继续追加真实记录，面板数据随即转为真实统计。
+  这组指标让优化决策基于数据而非主观感受——例如"缓存命中率 18%、降级率 18%"正是我们判断
+  "值得加强语义缓存"与"必须保证降级可用"的直接依据。
+</p>
 
 <h2>4.9 接入真实大模型的方法</h2>
 <pre># server/.env  —— 三步即可从「离线模式」切换到「大模型模式」
