@@ -1,0 +1,226 @@
+/* ============================================================================
+   全局样式与设计令牌（Design Tokens）
+   ----------------------------------------------------------------------------
+   设计风格：清爽健康感的「薄荷绿 + 深墨色」配色，卡片圆角 16px、柔和阴影，
+   与健康/运动主题契合；同时通过 CSS 变量统一管理，方便整体换肤与讲解。
+   ========================================================================== */
+
+:root {
+  /* 主色：健康薄荷绿 */
+  --brand: #10b981;
+  --brand-dark: #059669;
+  --brand-light: #d1fae5;
+  /* 强调色：活力橙（用于 AI 元素、数据高亮） */
+  --accent: #f59e0b;
+  --accent-light: #fef3c7;
+  /* 语义色 */
+  --danger: #ef4444;
+  --info: #3b82f6;
+  --purple: #8b5cf6;
+  /* 中性色 */
+  --text-1: #0f172a;
+  --text-2: #475569;
+  --text-3: #94a3b8;
+  --line: #e2e8f0;
+  --bg: #f6f8fb;
+  --card: #ffffff;
+  /* 阴影与圆角 */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+
+  /* 覆盖 Element Plus 主题色，使其与品牌色一致 */
+  --el-color-primary: #10b981;
+  --el-color-primary-light-3: #4ade80;
+  --el-color-primary-light-5: #86efac;
+  --el-color-primary-light-7: #bbf7d0;
+  --el-color-primary-light-8: #d1fae5;
+  --el-color-primary-light-9: #ecfdf5;
+  --el-color-primary-dark-2: #059669;
+  --el-border-radius-base: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------- 通用卡片 ------------------------------- */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 16px;
+}
+
+.card-title .sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-3);
+}
+
+/* ------------------------------- 页面标题 ------------------------------- */
+.page-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  margin: 0 0 4px;
+}
+
+.page-desc {
+  font-size: 13px;
+  color: var(--text-3);
+  margin: 0 0 20px;
+}
+
+/* ------------------------------- 布局工具类 ------------------------------- */
+.grid {
+  display: grid;
+  gap: 16px;
+}
+.grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1100px) {
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.between {
+  justify-content: space-between;
+}
+.mt-16 {
+  margin-top: 16px;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}
+.text-muted {
+  color: var(--text-3);
+  font-size: 12px;
+}
+.text-brand {
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+.text-danger {
+  color: var(--danger);
+}
+
+/* ------------------------------- AI 标识 ------------------------------- */
+.ai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c2d12;
+  background: linear-gradient(135deg, #fde68a, #fbbf24);
+}
+.ai-chip.off {
+  color: #334155;
+  background: #e2e8f0;
+}
+
+/* ------------------------------- 渐变按钮 ------------------------------- */
+.btn-gradient {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.28);
+}
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+}
+
+/* ------------------------------- 滚动条美化 ------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ------------------------------- 打字机光标 ------------------------------- */
+.typing-cursor::after {
+  content: '▋';
+  color: var(--brand);
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------- 动画 ------------------------------- */
+.fade-slide-enter-active {
+  transition: all 0.28s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
