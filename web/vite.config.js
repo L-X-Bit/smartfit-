@@ -8,10 +8,31 @@
  */
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import Components from 'unplugin-vue-components/vite';
+import AutoImport from 'unplugin-auto-import/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import path from 'node:path';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    /**
+     * Element Plus 按需引入（体积优化）
+     * ---------------------------------------------------------------------
+     * 原来 main.js 里 `app.use(ElementPlus)` 会把全部组件 + 全量 CSS 打进包里（约 1.15MB），
+     * 对慢网络（免费内网穿透、手机弱网）非常致命。
+     * 这两个插件会在编译期扫描模板中用到的 <el-xxx> 与 ElMessage 等 API，
+     * 只引入实际用到的组件与对应样式，包体可降到约 1/3，且不会漏（无需手写导入清单）。
+     */
+    Components({
+      resolvers: [ElementPlusResolver({ importStyle: 'css' })],
+      dts: false,
+    }),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+      dts: false,
+    }),
+  ],
   resolve: {
     alias: { '@': path.resolve(process.cwd(), 'src') },
   },
@@ -72,9 +93,16 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
+        /**
+         * 手动分包
+         * 注意：这里**不要**把 'element-plus' 写进 manualChunks。
+         * 对象形式的 manualChunks 会把列出的包当成 chunk 根，
+         * 一旦写了 'element-plus' 就会把整个库（含所有组件）强制打进一个 1.15MB 的 chunk，
+         * 直接抵消上面的按需引入。只保留图表库与图标库即可。
+         */
         manualChunks: {
-          echarts: ['echarts'],
-          element: ['element-plus', '@element-plus/icons-vue'],
+          echarts: ['echarts/core'],
+          icons: ['@element-plus/icons-vue'],
         },
       },
     },
