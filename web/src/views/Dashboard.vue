@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   数据总览（首页 / 仪表盘）
   ---------------------------------------------------------------
   这是演示视频的「主镜头」页面，聚合了平台最核心的四类信息：
@@ -353,5 +353,26 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--text-2);
   line-height: 1.65;
+}
+
+/* ---------------- 移动端：欢迎条换行、按钮不挤压 ---------------- */
+@media (max-width: 900px) {
+  .welcome {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .welcome-right {
+    width: 100%;
+  }
+  .welcome-right .el-button {
+    flex: 1;
+  }
+  .hello {
+    font-size: 17px;
+  }
+  .plan-head {
+    padding: 10px 12px;
+  }
 }
 </style>

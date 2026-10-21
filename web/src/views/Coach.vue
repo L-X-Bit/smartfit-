@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   AI 健身教练（流式对话）
   ===============================================================
   这是「AI 原生 Web 应用」体验的核心页面，技术要点：
@@ -450,5 +450,36 @@ onMounted(async () => {
   font-family: 'Consolas', 'Menlo', monospace;
   max-height: 320px;
   overflow-y: auto;
+}
+
+/* ---------------- 移动端：对话区占满一屏，气泡更宽 ---------------- */
+@media (max-width: 900px) {
+  /* 用 dvh 让手机浏览器地址栏收起/展开时高度自适应；vh 作为旧浏览器兜底 */
+  .coach-page {
+    height: calc(100vh - 108px);
+    height: calc(100dvh - 108px);
+  }
+  .chat-card {
+    height: 100%;
+  }
+  .chat-body {
+    padding: 12px;
+  }
+  .welcome {
+    padding: 18px 8px;
+  }
+  .welcome-emoji {
+    font-size: 34px;
+  }
+  .msg-main {
+    max-width: 86%;
+  }
+  .bubble {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .chat-input {
+    padding: 10px 12px 12px;
+  }
 }
 </style>

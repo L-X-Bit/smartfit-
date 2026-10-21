@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CDP 驱动的页面截图工具（本地验收用，不参与项目运行）
  * ---------------------------------------------------------------------------
  * 用途：录制演示前自动走一遍「登录 → 进页 → 点按钮 → 等真实 AI 返回 → 截图」，
@@ -19,10 +19,12 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const EDGE = process.env.EDGE_PATH || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const PORT = Number(process.env.CDP_PORT || 9333);
 const PROFILE = path.join(process.env.TEMP || '.', 'edge-cdp-prof');
-const OUT_DIR = path.join(ROOT, 'docs', 'screenshots');
 const APP = process.env.APP_URL || 'http://127.0.0.1:5173';
 const API = process.env.API_URL || 'http://127.0.0.1:3000';
 const ONLY = process.argv.slice(2).filter((a) => !a.startsWith('-'));
+/** --mobile：用 390x844（iPhone 14 逻辑分辨率）验证移动端布局，截图输出到 screenshots/mobile/ */
+const MOBILE = process.argv.includes('--mobile');
+const OUT_DIR = MOBILE ? path.join(ROOT, 'docs', 'screenshots', 'mobile') : path.join(ROOT, 'docs', 'screenshots');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const need = (key) => ONLY.length === 0 || ONLY.includes(key);
@@ -66,6 +68,17 @@ class CDP {
   }
 }
 
+/** 等待页面加载完成且 origin 可写（about:blank 属于 opaque origin，此时访问 localStorage 会抛 SecurityError） */
+async function waitReady(cdp, timeoutMs = 20000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeoutMs) {
+    const ok = await cdp.eval(`document.readyState === 'complete' && location.origin !== 'null'`).catch(() => false);
+    if (ok) return true;
+    await sleep(300);
+  }
+  return false;
+}
+
 async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
@@ -104,14 +117,33 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
   const cdp = new CDP(ws);
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
-  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1100, deviceScaleFactor: 1, mobile: false });
+  if (MOBILE) {
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+    await cdp.send('Emulation.setUserAgentOverride', {
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    });
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+    fs.mkdirSync(OUT_DIR, { recursive: true });
+  } else {
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1100, deviceScaleFactor: 1, mobile: false });
+  }
 
   async function goto(route) {
     await cdp.send('Page.navigate', { url: APP + '/login' });
-    await sleep(1200);
-    await cdp.eval(`localStorage.setItem('smartfit_token', ${JSON.stringify(token)}); localStorage.setItem('smartfit_user', ${JSON.stringify(user)}); 'ok'`);
+    await waitReady(cdp);
+    // 注入登录态，失败时重试（移动端模拟下页面就绪偶有延迟）
+    let injected = false;
+    for (let i = 0; i < 6 && !injected; i += 1) {
+      try {
+        await cdp.eval(`localStorage.setItem('smartfit_token', ${JSON.stringify(token)}); localStorage.setItem('smartfit_user', ${JSON.stringify(user)}); 'ok'`);
+        injected = true;
+      } catch {
+        await sleep(500);
+      }
+    }
+    if (!injected) throw new Error('无法注入登录态（localStorage 不可写）');
     await cdp.send('Page.navigate', { url: APP + route });
-    await sleep(2500);
+    await sleep(2600);
   }
   async function save(name) {
     const f = path.join(OUT_DIR, name + '.png');
@@ -123,7 +155,8 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
   if (need('login')) {
     console.log('[login]');
     await cdp.send('Page.navigate', { url: APP + '/login' });
-    await sleep(2500);
+    await waitReady(cdp);
+    await sleep(2000);
     await save('00-login');
   }
 
@@ -193,7 +226,7 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
       if (b) { b.click(); return 'sent'; }
       return 'no-button';
     })()`);
-    await waitFor(cdp, `document.querySelectorAll('.msg.assistant').length >= 2`, 150000, 'coach-answer');
+    await waitFor(cdp, `document.querySelectorAll('.msg.assistant').length >= 1 && !document.querySelector('.bubble.typing') && ((document.querySelector('.msg.assistant .bubble') || {}).innerText || '').length > 60`, 150000, 'coach-answer');
     await sleep(3500);
     await save('06-coach');
   }

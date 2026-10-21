@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -337,6 +337,35 @@
   <li><b>特殊协议：</b>AI 对话使用 <code>POST /api/ai/coach</code> + <code>text/event-stream</code> 流式返回（事件序列 meta → delta × N → done）。</li>
   <li><b>鉴权：</b>除登录/注册/动作库/社区浏览外，全部需要 <code>Authorization: Bearer &lt;JWT&gt;</code>。</li>
 </ul>
+
+<h2>3.6 前端响应式设计（桌面 / 平板 / 手机）</h2>
+<p>同一套代码同时适配桌面与移动端，采用「两档断点 + 覆盖式降级」策略，不为移动端另维护一套页面：</p>
+<table>
+  <thead><tr><th style="width: 16%;">断点</th><th style="width: 46%;">布局变化</th><th style="width: 38%;">实现方式</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>≤900px</b><br/>平板</td>
+      <td>侧边导航折叠为抽屉（顶栏汉堡按钮唤出）；多栏卡片降为单栏；图表高度统一 240px；隐藏日期与连续打卡</td>
+      <td>MainLayout 用 <code>el-drawer</code> + media query；页面内联 grid 由属性选择器统一覆盖</td>
+    </tr>
+    <tr>
+      <td><b>≤600px</b><br/>手机</td>
+      <td>字号与内边距收紧、图表降到 210px、弹窗宽 92%、发帖栏与表单控件纵向堆叠、卡片标题的说明文字独占一行</td>
+      <td>全局 CSS 覆盖（对内联宽度与 scoped 特异性用 <code>!important</code> 精确处理）</td>
+    </tr>
+  </tbody>
+</table>
+<div class="tip">
+  <b>为什么用「覆盖式」而不是「改造式」：</b>7 个页面各自写了 <code>380px 1fr</code>、<code>1fr 330px</code>、<code>1.6fr 1fr</code> 这类桌面布局，
+  逐个改成 class 需要动 7 个文件且容易漏改；用一条属性选择器
+  <code>.grid[style*="grid-template-columns"]{grid-template-columns:1fr !important}</code>
+  统一覆盖，维护成本最低、不会漏。代价是必须清楚 CSS 特异性优先级——这也是写进注释的原因。
+</div>
+<p class="small">
+  <b>实机验证：</b>用 CDP（Chrome DevTools Protocol）驱动无头浏览器，以 390×844 视口 + 移动 UA 逐页真实渲染并截图核对，
+  工具见 <code>tools/cdp-shot.mjs</code>（支持 <code>--mobile</code> 与指定单页重截），结果见 <code>docs/screenshots/mobile/</code>。
+  该过程发现并修复了 3 处移动端问题：卡片标题被右侧说明挤断行、社区发帖栏三控件横向溢出、对话区高度在移动端塌陷。
+</p>
 
 <!-- ==================================================================== 四 -->
 <h1>四、AI 技术方案</h1>
