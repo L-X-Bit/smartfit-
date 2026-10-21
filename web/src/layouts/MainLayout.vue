@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   主布局：左侧导航 + 顶部栏 + 内容区
   ---------------------------------------------------------------
   导航项直接由路由表 meta 生成，新增页面只需在 router 里加一条，侧边栏自动出现。
@@ -127,11 +127,20 @@ const streak = ref(0);
 /** 移动端导航抽屉开关（≤900px 时由顶栏汉堡按钮控制） */
 const navOpen = ref(false);
 
-/** 菜单由路由表生成（只取布局下的子路由） */
+/**
+ * 菜单由路由表生成（只取布局下的子路由）
+ * ---------------------------------------------------------------------------
+ * 这里必须用 router.options.routes（原始配置）而不是 router.getRoutes()。
+ * 踩过的坑：getRoutes() 返回的是「扁平化 + 规范化」后的记录列表，children 里的
+ * `{ path: '', redirect: '/dashboard' }` 会被规范化成 path === '/'，与父路由撞车；
+ * find(r => r.path === '/') 一旦命中那条空子路由（它没有 children），菜单就会变成空数组，
+ * 表现为「侧边栏整块消失、只剩当前页面」——看起来像所有功能都没了。
+ * 用原始配置则结构稳定：父路由的 children 就是那 10 个页面。
+ */
 const menus = computed(() => {
-  const layoutRoute = router.getRoutes().find((r) => r.path === '/');
-  return (layoutRoute?.children || [])
-    .filter((c) => c.meta?.title && c.path !== '')
+  const rootRoute = router.options.routes.find((r) => r.path === '/' && Array.isArray(r.children) && r.children.length);
+  return (rootRoute?.children || [])
+    .filter((c) => c.meta?.title && c.path)   // 过滤掉 path 为空的 redirect 占位项
     .map((c) => ({ path: `/${c.path}`, title: c.meta.title, icon: c.meta.icon, ai: c.meta.ai }));
 });
 
