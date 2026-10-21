@@ -60,7 +60,11 @@
 - **≤900px**：侧边导航折叠为抽屉（顶栏汉堡按钮唤出），多栏卡片降为单栏，图表高度自适应
 - **≤600px**：字号/内边距/弹窗宽度进一步收紧，发帖栏与表单控件纵向堆叠
 - 手机与电脑在同一 Wi-Fi 下，可用 `http://<电脑IP>:5173` 访问（`npm run dev` 启动日志会直接打印该地址）
-- 移动端界面截图：`docs/screenshots/mobile/`
+- 移动端已逐页体检：**10 个页面全部通过、零横向溢出**（`node tools/audit-pages.mjs --mobile`）
+
+| 手机 · 数据总览 | 手机 · 抽屉导航 | 手机 · AI 拍照识热量 |
+| --- | --- | --- |
+| ![移动端总览](docs/screenshots/mobile/01-dashboard.png) | ![移动端导航](docs/screenshots/mobile/12-drawer.png) | ![移动端识图](docs/screenshots/mobile/10-foodscan.png) |
 
 ### 界面预览
 

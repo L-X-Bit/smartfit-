@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   AI 健身教练（流式对话）
   ===============================================================
   这是「AI 原生 Web 应用」体验的核心页面，技术要点：
@@ -63,6 +63,15 @@
 
             <div v-if="m.provider === 'fallback'" class="msg-note">⚙️ 本条由离线知识库（RAG 检索）生成</div>
           </div>
+        </div>
+      </div>
+
+      <!-- 移动端补充：右侧「推荐提问」面板在窄屏被隐藏，这里常驻一条横向滚动的推荐提问，
+           保证不论有没有对话历史，用户都能随时一键发问 -->
+      <div class="quick-bar">
+        <span class="qb-label">推荐提问</span>
+        <div class="qb-scroll">
+          <button v-for="q in quickQuestions" :key="q" type="button" class="qb-chip" @click="ask(q)">{{ q }}</button>
         </div>
       </div>
 
@@ -421,6 +430,42 @@ onMounted(async () => {
 }
 
 /* ---------------- 输入区 ---------------- */
+/* 移动端推荐提问条：桌面端隐藏（右侧面板已提供同样内容） */
+.quick-bar {
+  display: none;
+}
+.qb-label {
+  font-size: 11.5px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+.qb-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.qb-scroll::-webkit-scrollbar {
+  display: none;
+}
+.qb-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  color: var(--text-2);
+  font-size: 11.5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.qb-chip:active {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: var(--brand-dark);
+}
+
 .chat-input {
   padding: 12px 16px 14px;
   border-top: 1px solid var(--line);
@@ -453,6 +498,22 @@ onMounted(async () => {
 }
 
 /* ---------------- 移动端：对话区占满一屏，气泡更宽 ---------------- */
+@media (max-width: 1100px) {
+  /* 窄屏隐藏右侧面板后，把推荐提问条显示出来，补回「推荐提问」入口 */
+  .quick-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+  }
+  /* 欢迎语里已有一份同样的问题列表，窄屏下隐藏避免与底部提问条重复 */
+  .welcome .quick-list {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   /* 用 dvh 让手机浏览器地址栏收起/展开时高度自适应；vh 作为旧浏览器兜底 */
   .coach-page {
