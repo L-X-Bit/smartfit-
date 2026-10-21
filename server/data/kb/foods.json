@@ -74,5 +74,11 @@
   { "id": "fd_hotpot_base", "name": "麻辣火锅（人均）", "category": "外食", "kcal": 180, "protein": 9.0, "fat": 13.0, "carb": 6.0, "fiber": 1.0, "sodium": 700, "portion": "按 100g 估算" },
   { "id": "fd_rice_noodle", "name": "米粉（熟）", "category": "主食", "kcal": 97, "protein": 1.6, "fat": 0.2, "carb": 22.0, "fiber": 0.4, "sodium": 3, "portion": "1 碗约 250g" },
   { "id": "fd_quinoa", "name": "藜麦（熟）", "category": "主食", "kcal": 120, "protein": 4.4, "fat": 1.9, "carb": 21.3, "fiber": 2.8, "sodium": 7, "portion": "1 份约 150g" },
-  { "id": "fd_yogurt_drink", "name": "风味酸奶（含糖）", "category": "奶类", "kcal": 86, "protein": 2.9, "fat": 2.5, "carb": 13.0, "fiber": 0, "sodium": 50, "portion": "1 瓶约 200g" }
+  { "id": "fd_yogurt_drink", "name": "风味酸奶（含糖）", "category": "奶类", "kcal": 86, "protein": 2.9, "fat": 2.5, "carb": 13.0, "fiber": 0, "sodium": 50, "portion": "1 瓶约 200g" },
+{ "id": "fd_red_cabbage", "name": "紫甘蓝", "category": "蔬菜", "kcal": 25, "protein": 1.2, "fat": 0.2, "carb": 6.2, "fiber": 3.0, "sodium": 27, "portion": "1 份约 100g" },
+  { "id": "fd_cherry_tomato", "name": "圣女果", "category": "蔬菜", "kcal": 22, "protein": 0.9, "fat": 0.2, "carb": 5.8, "fiber": 1.8, "sodium": 5, "portion": "10 颗约 100g" },
+  { "id": "fd_quail_egg", "name": "鹌鹑蛋", "category": "蛋白", "kcal": 160, "protein": 12.8, "fat": 11.1, "carb": 2.1, "fiber": 0, "sodium": 106, "portion": "5 个约 45g" },
+  { "id": "fd_corn_kernel", "name": "玉米粒（煮）", "category": "主食", "kcal": 106, "protein": 3.6, "fat": 1.2, "carb": 22.8, "fiber": 2.9, "sodium": 2, "portion": "1 小碗约 100g" },
+  { "id": "fd_lettuce_ice", "name": "球生菜", "category": "蔬菜", "kcal": 14, "protein": 0.9, "fat": 0.2, "carb": 2.4, "fiber": 1.4, "sodium": 8, "portion": "1 份约 100g" },
+  { "id": "fd_salad_dressing", "name": "沙拉酱", "category": "油脂", "kcal": 680, "protein": 1.0, "fat": 74.0, "carb": 3.0, "fiber": 0, "sodium": 600, "portion": "1 勺约 15g" }
 ]

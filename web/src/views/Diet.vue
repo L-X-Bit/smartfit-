@@ -96,6 +96,127 @@
       </div>
     </div>
 
+    <!-- ==================== 📷 拍照识别食物热量（多模态） ==================== -->
+    <div class="card mt-16">
+      <div class="card-title">
+        <span>📷 拍照识别食物热量</span>
+        <span class="ai-chip" :class="{ off: !visionEnabled }">
+          {{ visionEnabled ? '多模态 AI · 视觉识别' : '未配置视觉模型' }}
+        </span>
+      </div>
+
+      <!-- 未选择图片：上传区 -->
+      <div v-if="!visionPreview" class="vision-drop" @click="pickImage">
+        <div class="vision-drop-inner">
+          <div class="vision-icon">📸</div>
+          <div class="vision-title">拍一张食物照片，自动算出热量</div>
+          <div class="vision-desc">
+            支持拍照或选择相册图片，AI 会识别食物种类、估算份量，并与食物库匹配后自动换算热量
+          </div>
+          <div class="vision-actions">
+            <el-button type="primary" class="btn-gradient" :icon="Camera" @click.stop="pickImage('camera')">拍照</el-button>
+            <el-button :icon="Picture" @click.stop="pickImage('album')">从相册选择</el-button>
+          </div>
+          <div v-if="!visionEnabled" class="vision-warn">
+            ⚠️ 当前未配置视觉模型：在 <code>server/.env</code> 设置 <code>AI_VISION_MODEL</code> 后重启后端即可使用
+          </div>
+        </div>
+      </div>
+
+      <!-- 已选择图片：预览 + 识别结果 -->
+      <div v-else class="vision-body">
+        <div class="vision-left">
+          <img :src="visionPreview" class="vision-img" alt="食物照片" />
+          <div class="vision-img-meta">{{ visionImageSize }} KB · {{ visionLoading ? '识别中…' : '已识别' }}</div>
+          <div class="row" style="gap: 8px; margin-top: 8px">
+            <el-button size="small" :icon="Refresh" :disabled="visionLoading" @click="runVision">重新识别</el-button>
+            <el-button size="small" :icon="Close" :disabled="visionLoading" @click="resetVision">换一张</el-button>
+          </div>
+        </div>
+
+        <div class="vision-right">
+          <!-- 识别中 -->
+          <div v-if="visionLoading" class="vision-loading">
+            <el-icon class="is-loading" :size="22"><Loading /></el-icon>
+            <div>
+              <div class="vision-loading-title">AI 正在识别食物…</div>
+              <div class="text-muted">通常需要 2~5 秒，请稍候</div>
+            </div>
+          </div>
+
+          <template v-else-if="visionResult">
+            <el-alert
+              v-if="visionResult.advice"
+              :title="visionResult.advice"
+              type="success"
+              :closable="false"
+              show-icon
+              class="mb-8"
+            />
+
+            <div v-if="visionResult.items.length" class="vision-items">
+              <div v-for="(it, idx) in visionResult.items" :key="idx" class="vision-item">
+                <div class="vi-name">
+                  <span class="vi-model-name">{{ it.name }}</span>
+                  <el-tag v-if="it.matchedFoodId" size="small" type="success" effect="plain">已匹配食物库</el-tag>
+                  <el-tag v-else size="small" type="warning" effect="plain">未匹配，请手动选择</el-tag>
+                </div>
+                <div class="vi-controls">
+                  <el-select
+                    :model-value="it.matchedFoodId"
+                    filterable
+                    placeholder="选择食物库条目"
+                    size="small"
+                    class="vi-select"
+                    @change="(v) => changeVisionFood(idx, v)"
+                  >
+                    <el-option v-for="c in it.candidates" :key="c.id" :label="`${c.name}（${c.kcal}kcal/100g）`" :value="c.id" />
+                    <el-option v-for="f in foods" :key="'all-' + f.id" :label="`${f.name}（${f.kcal}kcal/100g）`" :value="f.id" />
+                  </el-select>
+                  <el-input-number
+                    :model-value="it.amountG"
+                    :min="10"
+                    :max="800"
+                    :step="10"
+                    size="small"
+                    controls-position="right"
+                    class="vi-amount"
+                    @change="(v) => changeVisionAmount(idx, v)"
+                  />
+                  <span class="vi-kcal">{{ it.kcal }} kcal</span>
+                  <span class="vi-macro">蛋白 {{ it.protein }}g · 脂肪 {{ it.fat }}g</span>
+                </div>
+              </div>
+            </div>
+
+            <el-empty v-else description="没有识别到食物，换一张更清晰的照片试试" :image-size="50" />
+
+            <div v-if="visionResult.items.length" class="vision-footer">
+              <div class="row">
+                <span class="vision-total">合计 <b>{{ visionTotalKcal }}</b> kcal</span>
+                <span class="text-muted">（按匹配后的食物库数据计算）</span>
+              </div>
+              <div class="row">
+                <el-select v-model="visionMeal" size="small" style="width: 110px">
+                  <el-option label="早餐" value="breakfast" />
+                  <el-option label="午餐" value="lunch" />
+                  <el-option label="晚餐" value="dinner" />
+                  <el-option label="加餐" value="snack" />
+                </el-select>
+                <el-button type="success" class="btn-gradient" size="small" :loading="visionAdding" :icon="Check" @click="adoptVision">
+                  加入{{ mealNameMap[visionMeal] }}
+                </el-button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- 隐藏的文件输入：capture=environment 让手机直接调用后置摄像头 -->
+      <input ref="cameraInput" type="file" accept="image/*" capture="environment" style="display: none" @change="onFileChange" />
+      <input ref="albumInput" type="file" accept="image/*" style="display: none" @change="onFileChange" />
+    </div>
+
     <!-- ==================== AI 配餐 ==================== -->
     <div class="card mt-16">
       <div class="card-title">
@@ -194,8 +315,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Plus, Close, MagicStick, Check } from '@element-plus/icons-vue';
+import { Plus, Close, MagicStick, Check, Camera, Picture, Refresh, Loading } from '@element-plus/icons-vue';
 import dayjsLike from '@/utils/date';
+import { compressImage, dataUrlSize } from '@/utils/image';
 import { api } from '@/api';
 import { useUserStore } from '@/stores/user';
 import ChartBox from '@/components/ChartBox.vue';
@@ -216,6 +338,129 @@ const addMeal = ref('breakfast');
 const addForm = reactive({ foodId: '', amountG: 100 });
 
 const mealNameMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
+
+// ---------------- 拍照识别（多模态）状态 ----------------
+const visionEnabled = computed(() => Boolean(store.aiStatus?.vision));
+const cameraInput = ref(null);
+const albumInput = ref(null);
+const visionPreview = ref('');
+const visionImageSize = ref(0);
+const visionLoading = ref(false);
+const visionAdding = ref(false);
+const visionResult = ref(null);
+const visionMeal = ref('lunch');
+
+/** 识别结果按当前克数/匹配项实时合计（改克数时立刻反映） */
+const visionTotalKcal = computed(() =>
+  Math.round((visionResult.value?.items || []).reduce((s, i) => s + (Number(i.kcal) || 0), 0)),
+);
+
+/** 打开相机或相册 */
+function pickImage(mode = 'album') {
+  if (!visionEnabled.value) {
+    ElMessage.warning('未配置视觉模型（AI_VISION_MODEL），无法识别照片');
+    return;
+  }
+  const el = mode === 'camera' ? cameraInput.value : albumInput.value;
+  el?.click();
+}
+
+/** 选中图片 → 压缩 → 自动开始识别 */
+async function onFileChange(e) {
+  const file = e.target.files?.[0];
+  e.target.value = ''; // 允许重复选同一张
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    ElMessage.warning('请选择图片文件');
+    return;
+  }
+  try {
+    const dataUrl = await compressImage(file, { maxEdge: 1280, quality: 0.82 });
+    visionPreview.value = dataUrl;
+    visionImageSize.value = dataUrlSize(dataUrl);
+    await runVision();
+  } catch (err) {
+    ElMessage.error(err.message || '图片处理失败');
+  }
+}
+
+/** 调用多模态识别接口 */
+async function runVision() {
+  if (!visionPreview.value) return;
+  visionLoading.value = true;
+  visionResult.value = null;
+  try {
+    const res = await api.visionFood(visionPreview.value);
+    visionResult.value = res;
+    if (!res.items?.length) ElMessage.warning('没有识别到食物，换一张更清晰的照片试试');
+  } catch {
+    /* 错误提示由 axios 拦截器统一处理 */
+  } finally {
+    visionLoading.value = false;
+  }
+}
+
+/** 改选匹配的食物库条目 → 按库内营养值重算该项 */
+function changeVisionFood(idx, foodId) {
+  const item = visionResult.value?.items[idx];
+  const food = foods.value.find((f) => f.id === foodId) || item?.candidates?.find((c) => c.id === foodId);
+  if (!item || !food) return;
+  item.matchedFoodId = food.id;
+  item.matchedFoodName = food.name;
+  const k = item.amountG / 100;
+  item.kcal = Math.round(food.kcal * k);
+  item.protein = Number((food.protein * k).toFixed(1));
+  item.fat = Number((food.fat * k).toFixed(1));
+  item.carb = Number((food.carb * k).toFixed(1));
+}
+
+/** 调整克数 → 重算该项 */
+function changeVisionAmount(idx, amountG) {
+  const item = visionResult.value?.items[idx];
+  if (!item || !amountG) return;
+  item.amountG = amountG;
+  if (item.matchedFoodId) {
+    changeVisionFood(idx, item.matchedFoodId);
+  } else {
+    // 未匹配时按模型值的比例缩放（近似）
+    const ratio = amountG / (item.amountG || amountG);
+    item.kcal = Math.round((item.modelKcal || 0) * (amountG / 100) * 1);
+  }
+}
+
+/** 把识别结果写入今日饮食记录 */
+async function adoptVision() {
+  const items = (visionResult.value?.items || []).filter((i) => i.matchedFoodId);
+  if (!items.length) {
+    ElMessage.warning('请先为识别到的食物选择食物库条目');
+    return;
+  }
+  visionAdding.value = true;
+  try {
+    const res = await api.addDietBatch({
+      date: date.value,
+      meals: [
+        {
+          mealType: visionMeal.value,
+          items: items.map((i) => ({ foodId: i.matchedFoodId, foodName: i.matchedFoodName, amountG: i.amountG })),
+        },
+      ],
+    });
+    ElMessage.success(`已把 ${res.count} 项食物加入${mealNameMap[visionMeal.value]}`);
+    resetVision();
+    await loadSummary();
+  } finally {
+    visionAdding.value = false;
+  }
+}
+
+/** 清空识别状态 */
+function resetVision() {
+  visionPreview.value = '';
+  visionImageSize.value = 0;
+  visionResult.value = null;
+  visionLoading.value = false;
+}
 
 const remaining = computed(() => {
   const t = summary.value.target?.kcal || 0;
@@ -487,5 +732,165 @@ onMounted(async () => {
   border: 1px solid #fef3c7;
   padding: 12px 14px;
   border-radius: 10px;
+}
+
+/* ---------------- 拍照识别（多模态）---------------- */
+.vision-drop {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbfdff, #f8fafc);
+  padding: 26px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.vision-drop:hover {
+  border-color: var(--brand);
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+}
+.vision-icon {
+  font-size: 34px;
+  margin-bottom: 6px;
+}
+.vision-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.vision-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.7;
+  max-width: 460px;
+  margin: 0 auto 14px;
+}
+.vision-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.vision-warn {
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: inline-block;
+}
+
+.vision-body {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+}
+.vision-left {
+  text-align: center;
+}
+.vision-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+.vision-img-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 6px;
+}
+.vision-right {
+  min-width: 0;
+}
+.vision-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1px solid #d1fae5;
+}
+.vision-loading-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.vision-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.vision-item {
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #fbfdfe;
+  border: 1px solid #f1f5f9;
+}
+.vi-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.vi-model-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.vi-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vi-select {
+  width: 190px;
+}
+.vi-amount {
+  width: 110px;
+}
+.vi-kcal {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--brand-dark);
+  min-width: 66px;
+}
+.vi-macro {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.vision-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.vision-total {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.vision-total b {
+  font-size: 18px;
+  color: var(--brand-dark);
+}
+
+@media (max-width: 900px) {
+  .vision-body {
+    grid-template-columns: 1fr;
+  }
+  .vision-img {
+    max-height: 200px;
+  }
+  .vi-select {
+    width: 100%;
+  }
 }
 </style>

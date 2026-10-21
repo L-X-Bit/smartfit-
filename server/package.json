@@ -6,7 +6,7 @@
   "description": "智练 SmartFit 后端服务：Express + node:sqlite + AI Agent/RAG",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node --watch src/index.js",
+    "dev": "node --watch-path=./src src/index.js",
     "start": "node src/index.js",
     "seed": "node src/db/seed.js",
     "reset:db": "node src/db/seed.js --reset"

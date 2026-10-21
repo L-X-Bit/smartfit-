@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -9,29 +9,29 @@
   * { box-sizing: border-box; }
   body {
     font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-    font-size: 10.1pt; line-height: 1.66; color: #1f2937; margin: 0;
+    font-size: 9.9pt; line-height: 1.56; color: #1f2937; margin: 0;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1, h2, h3, h4 { color: #065f46; font-weight: 700; margin: 0; }
   h1 { font-size: 19pt; margin: 0 0 10pt; padding-bottom: 6pt; border-bottom: 2.5pt solid #10b981; page-break-before: always; page-break-after: avoid; }
-  h2 { font-size: 12.8pt; margin: 13pt 0 6pt; padding-left: 8pt; border-left: 4pt solid #10b981; page-break-after: avoid; }
+  h2 { font-size: 12.4pt; margin: 11pt 0 5pt; padding-left: 8pt; border-left: 4pt solid #10b981; page-break-after: avoid; }
   h3 { font-size: 11pt; margin: 12pt 0 5pt; color: #0f766e; page-break-after: avoid; }
   h4 { font-size: 10.2pt; margin: 9pt 0 4pt; color: #334155; }
-  p { margin: 5pt 0; text-align: justify; }
+  p { margin: 4pt 0; text-align: justify; }
   ul, ol { margin: 5pt 0 5pt 0; padding-left: 18pt; }
   li { margin: 2.5pt 0; }
   code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; background: #f1f5f9; padding: 0.5pt 3pt; border-radius: 3pt; color: #0f766e; }
-  pre { font-family: Consolas, monospace; font-size: 8.4pt; line-height: 1.5; background: #0f172a; color: #d1fae5; padding: 8pt 10pt; border-radius: 6pt; overflow: hidden; white-space: pre-wrap; margin: 6pt 0; }
+  pre { font-family: Consolas, monospace; font-size: 8pt; line-height: 1.45; background: #0f172a; color: #d1fae5; padding: 8pt 10pt; border-radius: 6pt; overflow: hidden; white-space: pre-wrap; margin: 6pt 0; }
   table { width: 100%; border-collapse: collapse; font-size: 8.9pt; margin: 7pt 0; page-break-inside: avoid; }
   th { background: #ecfdf5; color: #065f46; font-weight: 700; text-align: left; }
-  th, td { border: 0.6pt solid #cbd5e1; padding: 3.5pt 5.5pt; vertical-align: top; }
+  th, td { border: 0.6pt solid #cbd5e1; padding: 3pt 5pt; font-size: 8.4pt; vertical-align: top; }
   tbody tr:nth-child(even) { background: #f8fafc; }
-  figure { margin: 8pt 0; page-break-inside: avoid; }
+  figure { margin: 6pt 0; page-break-inside: avoid; }
   figure img { width: 100%; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
-  .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 7pt 10pt; margin: 8pt 0; font-size: 9.6pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
-  .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 7pt 10pt; margin: 8pt 0; font-size: 9.6pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
-  .box { border: 0.8pt solid #a7f3d0; background: #f0fdfa; border-radius: 6pt; padding: 9pt 11pt; margin: 8pt 0; page-break-inside: avoid; }
+  .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
+  .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
+  .box { border: 0.8pt solid #a7f3d0; background: #f0fdfa; border-radius: 6pt; padding: 7pt 10pt; margin: 7pt 0; page-break-inside: avoid; }
   .kv { display: flex; gap: 8pt; font-size: 9.4pt; margin: 3pt 0; }
   .kv b { color: #065f46; min-width: 84pt; }
   .center { text-align: center; }
@@ -596,6 +596,7 @@
     <tr><td>plan</td><td>7</td><td>7400 ms</td><td>1</td><td>2</td><td>含 2 次早期失败（输出被截断），正是本章优化策略的由来</td></tr>
     <tr><td>coach</td><td>7</td><td>2354 ms</td><td>0</td><td>1</td><td>含 1 次无密钥时期的检索式降级</td></tr>
     <tr><td>diet</td><td>5</td><td>2929 ms</td><td>1</td><td>0</td><td>份量校正后全部达标</td></tr>
+    <tr><td>vision</td><td>2</td><td>2550 ms</td><td>0</td><td>0</td><td>拍照识别，平均识别 8 种食材，8/8 匹配食物库</td></tr>
     <tr><td><b>合计</b></td><td><b>19</b></td><td><b>4364 ms</b></td><td><b>11%</b></td><td><b>16%</b></td><td>完整记录见 <code>ai_call_logs</code> 表</td></tr>
   </tbody>
 </table>
@@ -611,8 +612,83 @@
 AI_API_KEY=sk-xxxxxxxxxxxxxxxx           # 在模型服务商控制台获取
 AI_BASE_URL=https://api.deepseek.com/v1  # 或通义千问 / Moonshot / 本地 vLLM 的兼容地址
 AI_MODEL=deepseek-chat                   # 通义：qwen-plus，Moonshot：moonshot-v1-8k
-AI_VISION_MODEL=                         # 可选，配置后开放"拍照识别食物"</pre>
+AI_VISION_MODEL=deepseek-chat            # 多模态：配置后开放「拍照识别食物热量」</pre>
 <p>切换后无需改动任何业务代码：<code>aiCapability()</code> 会自动变更为"大模型在线"，前端标签、生成过程面板与 README 说明同步更新。</p>
+
+<h2>4.10 多模态：拍照识别食物热量（Vision → RAG 对齐）</h2>
+<p>
+健康饮食模块最大的使用门槛不是"算不对"，而是"懒得录"——手动搜索食物、估算克数极其繁琐。
+本作品用多模态模型解决这一环：<b>拍一张照片，自动识别食物、估算份量、匹配食物库并换算热量，一键写入饮食记录。</b>
+</p>
+
+<h3>4.10.1 完整链路（六步）</h3>
+<div class="flow">
+  <div class="step"><div class="n">①</div><div class="t">拍照/选图</div><div class="d">手机上 <code>capture=environment</code> 直调后置摄像头</div></div>
+  <div class="step"><div class="n">②</div><div class="t">前端压缩</div><div class="d">canvas 压到最长边 1280px / JPEG 0.82（实测 8MB→140KB）</div></div>
+  <div class="step"><div class="n">③</div><div class="t">视觉识别</div><div class="d">dataURL → 多模态模型，强制 JSON 输出</div></div>
+</div>
+<div class="flow">
+  <div class="step"><div class="n">④</div><div class="t">名称对齐</div><div class="d">BM25 + 名称相似度<b>双阈值</b>，对齐到食物库标准名</div></div>
+  <div class="step"><div class="n">⑤</div><div class="t">以库为准重算</div><div class="d">用库内每 100g 营养值 × 识别克数，与全站口径一致</div></div>
+  <div class="step"><div class="n">⑥</div><div class="t">用户确认</div><div class="d">可改选食物/改克数，确认后批量写入 diet_logs</div></div>
+</div>
+
+<h3>4.10.2 核心难点：模型说的名字，库里没有</h3>
+<p>
+模型识别出的是"香煎鸡胸肉""甜玉米粒""水煮蛋"，而食物库的标准名是"鸡胸肉（熟）""玉米粒（煮）""鸡蛋"。
+最初只用 BM25 做匹配，实测出现 3 个<b>错配</b>：
+</p>
+<table>
+  <thead><tr><th style="width: 22%;">模型识别</th><th style="width: 22%;">BM25 误匹配</th><th style="width: 26%;">原因</th><th style="width: 30%;">修复后</th></tr></thead>
+  <tbody>
+    <tr><td>紫甘蓝</td><td>紫薯</td><td>中文字法检索只共享一个「紫」字</td><td>正确匹配「紫甘蓝」（新增该食物）</td></tr>
+    <tr><td>圣女果</td><td>苹果</td><td>只共享一个「果」字</td><td>正确匹配「圣女果」</td></tr>
+    <tr><td>鹌鹑蛋</td><td>蛋清</td><td>只共享一个「蛋」字</td><td>正确匹配「鹌鹑蛋」</td></tr>
+  </tbody>
+</table>
+<p><b>解决方案：双阈值判定。</b>只有「BM25 得分 ≥ 1.0」<b>且</b>「去修饰词后的字符重叠率 ≥ 0.6」才认为匹配成功，否则标记"未匹配"交给用户在下拉里选：</p>
+<pre>function nameSimilarity(recognized, standard) {
+  const clean = (s) =&gt; s.replace(/[（(][^)）]*[)）]/g, '')          // 去括号说明
+                       .replace(/香煎|水煮|清蒸|烤|炒|煎|蒸|熟|生|干/g, '')  // 去烹饪方式
+                       .replace(/[^\u4e00-\u9fa5]/g, '');          // 只留中文
+  const a = clean(recognized), b = clean(standard);
+  if (a === b) return 1;
+  if (a.includes(b) || b.includes(a)) return 0.9;                 // 包含关系
+  const setB = new Set(b.split(''));
+  const hit = a.split('').filter((ch) =&gt; setB.has(ch)).length;    // 字符重叠率
+  return hit / Math.min(a.length, b.length);
+}</pre>
+<div class="tip">
+  <b>为什幺不以模型给的营养值为准？</b>模型估算的热量是"看起来合理"的近似值，而食物库是权威静态数据。
+  所以只要匹配成功，一律用<b>库内数值重算</b>（<code>库值 ÷ 100 × 克数</code>），
+  与手动记录、AI 配餐的算法完全一致——保证同一份食物在全站任何入口录入，热量口径都相同。
+  未匹配成功的项才回退展示模型估算值，并明确标注"未匹配，请手动选择"。
+</div>
+
+<h3>4.10.3 实测效果</h3>
+<table>
+  <thead><tr><th style="width: 24%;">指标</th><th style="width: 76%;">结果</th></tr></thead>
+  <tbody>
+    <tr><td>识别耗时</td><td>1.8 ~ 3.3 秒（含 140KB 图片传输）</td></tr>
+    <tr><td>识别准确率</td><td>测试图（沙拉碗）识别出 <b>8 种食材</b>：鸡胸肉、鹌鹑蛋、甜玉米粒、毛豆、紫甘蓝、圣女果、黄瓜、生菜 —— 与肉眼所见完全一致</td></tr>
+    <tr><td>库匹配率</td><td>修复后 <b>8 / 8 全部正确匹配</b>（匹配分 9.4~19.2）</td></tr>
+    <tr><td>热量合计</td><td>377 kcal（按库内数据重算），并给出"建议搭配全谷物主食"的饮食建议</td></tr>
+    <tr><td>降级行为</td><td>未配置 <code>AI_VISION_MODEL</code> 时，入口仍展示但明确提示需配置模型，不会静默失败</td></tr>
+  </tbody>
+</table>
+<figure>
+  <img src="screenshots/10-vision.png" alt="拍照识别食物热量" />
+  <figcaption>图 4-1 拍照识别：上传照片 → AI 识别 8 种食材 → 逐个匹配食物库（可改选）→ 实时合计热量 → 一键加入某一餐</figcaption>
+</figure>
+
+<h3>4.10.4 隐私与成本控制</h3>
+<ul>
+  <li><b>图片不落盘</b>：识别用的一次性图片仅在前端内存与请求体中出现，不写入 <code>uploads/</code>（只有用户主动发帖/打卡时才会保存图片）。</li>
+  <li><b>压缩后上传</b>：前端先压到 1280px / 0.82 质量，单张约 100~200KB，既省流量也省 token（多模态按图块计费，尺寸越大越贵）。</li>
+  <li><b>限流</b>：该接口按用户限流 10 次/分钟，防止误连点产生费用。</li>
+  <li><b>可关闭</b>：清空 <code>AI_VISION_MODEL</code> 后该入口自动变为不可用状态，不影响其它功能。</li>
+</ul>
+
 
 <!-- ==================================================================== 五 -->
 <h1>五、核心功能实现</h1>

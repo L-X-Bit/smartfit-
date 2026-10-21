@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CDP 驱动的页面截图工具（本地验收用，不参与项目运行）
  * ---------------------------------------------------------------------------
  * 用途：录制演示前自动走一遍「登录 → 进页 → 点按钮 → 等真实 AI 返回 → 截图」，
@@ -117,6 +117,7 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
   const cdp = new CDP(ws);
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
+  await cdp.send('DOM.enable');
   if (MOBILE) {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     await cdp.send('Emulation.setUserAgentOverride', {
@@ -254,7 +255,33 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
     await save('08-community');
   }
 
-  // ============ 10. 个人中心
+  // ============ 11. 拍照识别食物热量（多模态，需要真实图片）
+  if (need('vision')) {
+    const imgPath = process.env.TEST_FOOD_IMAGE || path.join(process.env.TEMP || '.', 'test-food.jpg');
+    if (!fs.existsSync(imgPath)) {
+      console.log('[vision] 跳过：未找到测试图片 ' + imgPath + '（可用 TEST_FOOD_IMAGE 环境变量指定）');
+    } else {
+      console.log('[vision] 上传食物照片，等待 AI 识别…');
+      await goto('/diet');
+      await waitFor(cdp, `document.body.innerText.includes('拍照识别食物热量')`, 30000, 'diet-vision');
+      await sleep(1000);
+      // 通过 CDP 给隐藏的 file input 设置本地文件（等价于用户选图），会自动派发 change 事件
+      const doc = await cdp.send('DOM.getDocument', { depth: 2 });
+      const found = await cdp.send('DOM.querySelector', { nodeId: doc.root.nodeId, selector: 'input[type=file]' });
+      if (!found.nodeId) throw new Error('未找到 file input');
+      await cdp.send('DOM.setFileInputFiles', { files: [imgPath], nodeId: found.nodeId });
+      await waitFor(cdp, `document.querySelectorAll('.vision-item').length > 0`, 150000, 'vision-result');
+      await sleep(1200);
+      // 滚动到拍照识别卡片，保证截图能拍到识别结果区
+      await cdp.eval(`document.querySelector('.vision-body')?.scrollIntoView({ block: 'start' }); 'ok'`);
+      await sleep(900);
+      const summary = await cdp.eval(`(document.body.innerText.match(/合计\\s*\\d+\\s*kcal/) || [''])[0]`);
+      console.log('  ' + summary);
+      await save('10-vision');
+    }
+  }
+
+  // ============ 12. 个人中心
   if (need('profile')) {
     console.log('[profile]');
     await goto('/profile');
