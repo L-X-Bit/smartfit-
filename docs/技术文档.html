@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -28,7 +28,7 @@
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 6pt 0; page-break-inside: avoid; }
   /* 限制图片高度并居中：11 张界面截图若都按宽度铺满，会额外吃掉 2~3 页 */
-  figure img { max-height: 88mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
+  figure img { max-height: 80mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
   .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
   .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
@@ -839,6 +839,40 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
 <figure>
   <img src="screenshots/10-foodscan.png" alt="AI 拍照识热量" />
   <figcaption>图 5-8 AI 拍照识热量板块：上传区 + 识别结果（标注数据来源与置信度）+ 今日剩余额度对比 + 识别历史（可回看并记入饮食）</figcaption>
+</figure>
+
+<h3>5.8.5 份量试算 + 个性化饮食建议（规则与大模型分层协作）</h3>
+<p>
+识别完成后，用户可在「份量试算」区逐项调整克数（热量与三大营养素<b>实时重算、不发请求</b>），
+点「AI 分析这一餐」即可得到结合自身身体条件的点评——这正是「拍完照才知道该不该吃」的闭环。
+</p>
+<table>
+  <thead><tr><th style="width: 18%;">层次</th><th style="width: 48%;">职责</th><th style="width: 34%;">输出示例</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>规则层</b><br/><span class="small">确定性</span></td>
+      <td>按餐次判定热量占每日目标比例（早 20~32%、午 30~42%、晚 22~32%、加餐 3~12%），并计算蛋白达成度、脂肪供能比、吃完后剩余额度、是否含蔬菜</td>
+      <td>「热量只占今日目标 20%，低于午餐建议的 30~42%」</td>
+    </tr>
+    <tr>
+      <td><b>大模型层</b><br/><span class="small">表达与建议</span></td>
+      <td>把规则结论 + 体重/BMI/目标/今日已摄入翻译成有针对性的点评，要求引用具体数字、建议落到食物与克数</td>
+      <td>「加 100g 熟牛肉（约 150 kcal、蛋白 20g+），把这一餐蛋白提到 45g 左右」</td>
+    </tr>
+    <tr>
+      <td><b>降级</b></td>
+      <td>模型不可用时直接用规则结论拼模板输出，功能不中断</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+<div class="tip">
+  单餐是否"合适"<b>不能交给模型凭感觉判断</b>：占比区间来自《中国居民膳食指南》的三餐分配，由代码判定；
+  模型只负责把它说成人话，并给出具体到克数的调整方案。这是「规则算事实、模型做表达」原则在多模态场景的延续。
+</div>
+<figure>
+  <img src="screenshots/11-food-advice.png" alt="份量试算与饮食建议" />
+  <figcaption>图 5-9 份量试算 + AI 饮食建议：改克数实时重算热量与三大营养素，AI 结合体重/BMI/减脂目标给出可执行的调整方案</figcaption>
 </figure>
 
 <h2>5.7 鉴权与安全实现</h2>

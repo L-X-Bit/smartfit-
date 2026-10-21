@@ -284,47 +284,51 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
     await save('07-diet');
   }
 
-  // ============ AI 拍照识热量（自动上传一张测试图，走完整前端流程）
+  // ============ AI 拍照识热量（识别 + 份量试算 + AI 饮食建议）
   if (need('foodscan')) {
-    console.log('[foodscan] 上传测试图并等待识别…');
+    console.log('[foodscan] 准备识别记录…');
     const testImg = process.env.FOOD_TEST_IMG || path.join(process.env.TEMP || '.', 'food-noodles.jpg');
+    // 识别模型对「AI 合成的照片」偶尔会判定为非真实照片（真实拍摄不受影响），
+    // 因此这里在 Node 端重试几次，确保拿到一条可用于展示的识别记录。
+    if (fs.existsSync(testImg)) {
+      const dataUrl = 'data:image/jpeg;base64,' + fs.readFileSync(testImg).toString('base64');
+      let created = false;
+      for (let attempt = 1; attempt <= 4 && !created; attempt += 1) {
+        const r = await fetch(API + '/api/food-scan/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ imageDataUrl: dataUrl }),
+        });
+        const j = await r.json();
+        console.log(`   第 ${attempt} 次识别: ${j.message}`);
+        if (j.data && !j.data.notFood) created = true;
+      }
+      if (!created) console.log('   ⚠ 4 次均未识别成功（合成图偶发），将只截空状态');
+    }
+
     await goto('/food-scan');
     await waitFor(cdp, `document.body.innerText.includes('AI 拍照识热量')`, 30000, 'foodscan');
-    await sleep(1000);
-    if (fs.existsSync(testImg)) {
-      const b64 = fs.readFileSync(testImg).toString('base64');
-      // 通过 DataTransfer 把图片塞进隐藏的 input，并派发 change 事件 —— 完全走真实前端流程
-      // （等价于用户点「从相册选择」，而不是绕过 UI 直接调接口）
-      const dispatch = await cdp.eval(`(async () => {
-        const dataUrl = 'data:image/jpeg;base64,${b64}';
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], 'food.jpg', { type: 'image/jpeg' });
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        const input = document.querySelector('input[type="file"]');
-        if (!input) return 'no-input';
-        input.files = dt.files;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        return 'dispatched';
-      })()`);
-      console.log('   注入文件:', dispatch);
-      await waitFor(
-        cdp,
-        `document.body.innerText.includes('库内精确') || document.body.innerText.includes('模型估算') || document.body.innerText.includes('没有识别到食物')`,
-        150000,
-        'foodscan-result',
-      );
-      await sleep(2200);
-      const info = await cdp.eval(`(document.body.innerText.match(/这一餐约\\s*\\d+\\s*kcal|识别完成[^\\n]*/) || [''])[0]`);
-      console.log('   结果:', info);
-      // 继续验证「份量试算 + AI 建议」：带入识别结果 → 点 AI 分析 → 等建议返回
+    await sleep(1200);
+
+    // 点第一条历史记录载入识别结果（走真实前端交互，不绕过 UI）
+    const histCount = await cdp.eval(`document.querySelectorAll('.hist-card').length`);
+    console.log('   历史记录:', histCount, '条');
+    if (histCount > 0) {
+      await cdp.eval(`document.querySelector('.hist-card').click(); 'clicked'`);
+      await waitFor(cdp, `document.body.innerText.includes('已载入历史结果') || document.body.innerText.includes('库内精确') || document.body.innerText.includes('模型估算')`, 30000, 'hist-loaded');
+      await sleep(1200);
+
+      // 带入份量试算区
       const filled = await cdp.eval(`(() => {
         const b = [...document.querySelectorAll('button')].find(x => x.textContent.includes('带入上方识别结果'));
         if (!b) return 'no-button';
         b.click(); return 'clicked';
       })()`);
       console.log('   带入试算:', filled);
-      await sleep(1000);
+      await waitFor(cdp, `!!document.querySelector('.calc-row')`, 20000, 'calc-rows');
+      await sleep(800);
+
+      // 点「AI 分析这一餐」，等后端结合身体条件返回建议
       const asked = await cdp.eval(`(() => {
         const b = [...document.querySelectorAll('button')].find(x => x.textContent.includes('AI 分析这一餐'));
         if (!b) return 'no-button';
@@ -332,12 +336,32 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
       })()`);
       console.log('   AI 分析:', asked);
       await waitFor(cdp, `document.body.innerText.includes('依据你的身体条件')`, 120000, 'meal-advice');
-      await sleep(1500);
-    } else {
-      console.log('   ⚠ 未找到测试图片，仅截图空状态：', testImg);
+      await sleep(1800);
+      const adv = await cdp.eval(`(document.body.innerText.match(/(搭配合理|热量偏高|热量偏低)[^\\n]{0,40}/) || [''])[0]`);
+      console.log('   评估结论:', adv);
+
+      // 上图：页面顶部（识别结果）
+      await cdp.eval(`window.scrollTo(0, 0); 'top'`);
       await sleep(600);
+      await save('10-foodscan');
+
+      // 下图：滚动到「份量试算 & 饮食建议」，让 AI 建议完整入镜
+      // 注意：主布局的滚动容器是 .content（overflow-y:auto），不是 window，
+      // 所以必须用 scrollIntoView 让最近的可滚动祖先自动滚动。
+      await cdp.eval(`(() => {
+        const t = [...document.querySelectorAll('.card-title span')].find(s => s.textContent.includes('份量试算'));
+        const card = t ? t.closest('.card') : null;
+        if (!card) return 'not-found';
+        card.scrollIntoView({ block: 'start' });
+        const box = document.querySelector('.content');
+        if (box) box.scrollTop -= 10;
+        return 'scrolled';
+      })()`);
+      await sleep(1200);
+      await save('11-food-advice');
+    } else {
+      await save('10-foodscan');
     }
-    await save('10-foodscan');
   }
   // ============ 9. 社区
   if (need('community')) {
