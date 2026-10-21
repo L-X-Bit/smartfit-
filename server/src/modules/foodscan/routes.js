@@ -16,6 +16,7 @@ import { requireAuth } from '../../middleware/auth.js';
 import { rateLimit } from '../../middleware/common.js';
 import { config } from '../../config/index.js';
 import { analyzeFoodImage, listScans, getScan, removeScan, markScanLogged } from '../../ai/foodVision.js';
+import { adviseMeal } from '../../ai/mealAdvisor.js';
 import { buildProfile } from '../../ai/profile.js';
 
 const router = Router();
