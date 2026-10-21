@@ -169,6 +169,28 @@
             class="mb-8"
           />
 
+          <!-- ⚖️ 快速精确：家里有厨房秤时，直接输入整餐总重量，一步算出精确热量 -->
+          <div class="weigh-bar">
+            <span class="wb-title">⚖️ 更精确（可选）</span>
+            <el-input-number
+              v-model="totalWeightInput"
+              :min="10"
+              :max="5000"
+              :step="10"
+              size="small"
+              controls-position="right"
+              placeholder="整餐克数"
+              style="width: 128px"
+            />
+            <span class="wb-unit">g</span>
+            <el-button size="small" type="primary" :icon="Check" @click="calibrateByTotal">按总重校准</el-button>
+            <el-button v-if="calibrated" size="small" link @click="undoCalibration">撤销</el-button>
+            <span v-if="calibrated" class="wb-badge">
+              ✓ 已按{{ calibrated.mode === 'total' ? '总重' : '单项' }}校准（×{{ calibrated.factor }}）· 热量已精确换算
+            </span>
+            <span v-else class="wb-hint">用厨房秤称一下整盘，输入总克数即按识别比例自动分配</span>
+          </div>
+
           <!-- 食物清单 -->
           <div class="fs-items">
             <div v-for="(it, idx) in result.items" :key="idx" class="fs-item" :class="{ conflict: it.conflict }">
@@ -207,6 +229,15 @@
                   <span class="preset-hint" :class="{ warn: !inEstimateRange(it) }">
                     {{ inEstimateRange(it) ? `✓ 在估计区间 ${it.amountMin}~${it.amountMax}g 内` : `⚠ 已超出估计区间 ${it.amountMin}~${it.amountMax}g` }}
                   </span>
+                  <!-- 只知道某一种食材的实际重量时，用它推算整盘 -->
+                  <button
+                    v-if="Math.abs(Number(it.amountG) - Number(it._estG || it.amountG)) >= 5"
+                    type="button"
+                    class="preset preset-accent"
+                    @click="calibrateByItem(it)"
+                  >
+                    按此推算全部
+                  </button>
                 </div>
               </div>
 
@@ -591,6 +622,83 @@ function inEstimateRange(it) {
 /** 点快捷份量：按比例重算热量与三大营养素 */
 function setAmountPreset(it, gram) {
   onAmountChange(it, gram);
+}
+
+// ---------------- 快速精确校准（拍照后输入实际重量） ----------------
+const totalWeightInput = ref(null);
+/** 校准状态：{ mode: 'total' | 'single', value: 输入克数, factor: 缩放倍数 } */
+const calibrated = ref(null);
+
+/** 当前各项克数合计 */
+const currentTotalG = computed(() => (result.value?.items || []).reduce((s, i) => s + (Number(i.amountG) || 0), 0));
+
+/**
+ * 按「整餐实际总重量」等比校准
+ * ---------------------------------------------------------------------------
+ * 真实场景里多数人只能用厨房秤称整盘、称不了一份份食材。
+ * 所以这里按模型识别出的各食材比例，把总重量分配下去，一步得到精确热量。
+ * 全程在本地计算，不发请求，改完立即看到结果。
+ */
+function calibrateByTotal() {
+  const target = Number(totalWeightInput.value);
+  const items = result.value?.items || [];
+  if (!items.length) {
+    ElMessage.warning('还没有识别结果');
+    return;
+  }
+  if (!target || target < 10) {
+    ElMessage.warning('请输入整餐的实际克数（大于 10g）');
+    return;
+  }
+  const current = currentTotalG.value;
+  if (!current) return;
+
+  const factor = target / current;
+  for (const it of items) {
+    const newG = Math.max(5, Math.round((Number(it.amountG) * factor) / 5) * 5);
+    onAmountChange(it, newG);
+  }
+  calibrated.value = { mode: 'total', value: target, factor: Number(factor.toFixed(2)) };
+
+  const actual = currentTotalG.value;
+  const diff = Math.abs(actual - target);
+  ElMessage.success(
+    diff <= 15
+      ? `已按总重 ${target}g 校准，各项按识别比例分配完成`
+      : `已按总重 ${target}g 校准（因按 5g 取整，实际合计 ${actual}g）`,
+  );
+}
+
+/**
+ * 按「某一种食材的实际重量」推算整盘
+ * 适用：只称了米饭（200g）或只称了主菜的情况 —— 用这一项的偏差比例，等比修正其他项。
+ */
+function calibrateByItem(item) {
+  const est = Number(item._estG) || Number(item.amountG) || 0;
+  const cur = Number(item.amountG) || 0;
+  if (!est || !cur) return;
+  const factor = cur / est;
+  if (Math.abs(factor - 1) < 0.03) {
+    ElMessage.info('这一项的克数与估计值接近，无需推算');
+    return;
+  }
+  for (const it of result.value?.items || []) {
+    if (it === item) continue;
+    const newG = Math.max(5, Math.round((Number(it.amountG) * factor) / 5) * 5);
+    onAmountChange(it, newG);
+  }
+  calibrated.value = { mode: 'single', value: cur, factor: Number(factor.toFixed(2)) };
+  ElMessage.success(`已按「${item.name} ${cur}g」推算，其余食材按同一比例(×${factor.toFixed(2)})同步修正`);
+}
+
+/** 撤销校准：把各项克数恢复为模型原始估计值，热量随之还原 */
+function undoCalibration() {
+  for (const it of result.value?.items || []) {
+    if (it._estG) onAmountChange(it, it._estG);
+  }
+  calibrated.value = null;
+  totalWeightInput.value = null;
+  ElMessage.info('已恢复到 AI 原始估算值');
 }
 
 // ---------------- 上传与识别 ----------------
@@ -1131,6 +1239,51 @@ onMounted(async () => {
   font-size: 11.5px;
   color: var(--text-3);
   line-height: 1.6;
+}
+
+/* ---------------- 快速精确校准条 ---------------- */
+.weigh-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  border: 1px solid #c7d2fe;
+  flex-wrap: wrap;
+}
+.wb-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #3730a3;
+}
+.wb-unit {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.wb-hint {
+  font-size: 11.5px;
+  color: #6366f1;
+}
+.wb-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #047857;
+  background: #d1fae5;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+.preset-accent {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 600;
+}
+.preset-accent:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #3730a3;
 }
 
 /* ---------------- 尺度参照信息 ---------------- */
