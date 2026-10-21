@@ -113,12 +113,16 @@
 
         <div class="diet-meta">
           <el-tag type="success" effect="plain">合计 {{ diet.totalKcal }} kcal</el-tag>
-          <el-tag type="primary" effect="plain">蛋白 {{ diet.totalProtein }}g</el-tag>
+          <el-tag :type="proteinOk ? 'primary' : 'warning'" effect="plain">蛋白 {{ diet.totalProtein }}g / 目标 {{ diet.targetProtein }}g</el-tag>
           <el-tag type="warning" effect="plain">脂肪 {{ diet.totalFat }}g</el-tag>
           <el-tag type="info" effect="plain">碳水 {{ diet.totalCarb }}g</el-tag>
           <el-tag :type="diet.inRange ? 'success' : 'danger'" effect="dark">
             与目标偏差 {{ diet.kcalDeviation }}%{{ diet.inRange ? '（达标）' : '（超出 ±8%）' }}
           </el-tag>
+          <el-tag v-if="diet.autoScaled" type="info" effect="plain" title="模型给出的份量偏离目标较大，已按食物库自动校正">
+            🔧 份量已自动校正
+          </el-tag>
+          <el-tag v-if="diet.cacheHit" type="info" effect="plain">⚡ 缓存复用</el-tag>
         </div>
 
         <div class="diet-meals">
@@ -227,6 +231,14 @@ const intakePercent = computed(() => {
 
 const pickedFood = computed(() => foods.value.find((f) => f.id === addForm.foodId));
 
+/** 蛋白质是否接近目标（超出 +25% 或低于 -25% 视为偏离，界面会变黄提示） */
+const proteinOk = computed(() => {
+  const target = diet.value?.targetProtein;
+  const actual = diet.value?.totalProtein;
+  if (!target || !actual) return true;
+  return Math.abs(actual - target) / target <= 0.25;
+});
+
 /** 供能比环形图 */
 const macroOption = computed(() => {
   const r = summary.value.ratio || {};
@@ -304,7 +316,10 @@ async function recommend() {
   try {
     const res = await api.recommendDiet({ goal: summary.value.profile?.goal });
     diet.value = res.diet;
-    ElMessage.success(`配餐已生成（${res.meta?.provider === 'llm' ? '大模型' : '本地引擎'}）`);
+    // 明确区分三种来源，避免"缓存命中"被误显示成"本地引擎"（会让人误以为没用上大模型）
+    const sourceText =
+      res.meta?.provider === 'llm' ? '大模型生成' : res.meta?.cacheHit ? '缓存复用（同一画像，秒级返回）' : '本地规则引擎';
+    ElMessage.success(`配餐已生成 · ${sourceText}`);
   } finally {
     recommending.value = false;
   }

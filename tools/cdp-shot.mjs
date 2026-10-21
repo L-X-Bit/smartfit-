@@ -1,0 +1,240 @@
+/**
+ * CDP 驱动的页面截图工具（本地验收用，不参与项目运行）
+ * ---------------------------------------------------------------------------
+ * 用途：录制演示前自动走一遍「登录 → 进页 → 点按钮 → 等真实 AI 返回 → 截图」，
+ *      确认在真实大模型数据下每页布局没有被长文本/大数据撑坏。
+ * 原理：启动 Edge 无头模式并开远程调试端口，用 CDP 通过 WebSocket 发命令。
+ *
+ * 用法：
+ *   node tools/cdp-shot.mjs                # 全部 10 个页面
+ *   node tools/cdp-shot.mjs diet plan      # 只重截指定页面
+ */
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// 路径与地址都做成可配置项，避免在仓库里写死某台机器的绝对路径
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const EDGE = process.env.EDGE_PATH || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const PORT = Number(process.env.CDP_PORT || 9333);
+const PROFILE = path.join(process.env.TEMP || '.', 'edge-cdp-prof');
+const OUT_DIR = path.join(ROOT, 'docs', 'screenshots');
+const APP = process.env.APP_URL || 'http://127.0.0.1:5173';
+const API = process.env.API_URL || 'http://127.0.0.1:3000';
+const ONLY = process.argv.slice(2).filter((a) => !a.startsWith('-'));
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const need = (key) => ONLY.length === 0 || ONLY.includes(key);
+
+class CDP {
+  constructor(ws) {
+    this.ws = ws;
+    this.id = 0;
+    this.pending = new Map();
+    ws.addEventListener('message', (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.id && this.pending.has(msg.id)) {
+        const { resolve, reject } = this.pending.get(msg.id);
+        this.pending.delete(msg.id);
+        msg.error ? reject(new Error(JSON.stringify(msg.error))) : resolve(msg.result);
+      }
+    });
+  }
+  send(method, params = {}) {
+    const id = ++this.id;
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      this.ws.send(JSON.stringify({ id, method, params }));
+      setTimeout(() => {
+        if (this.pending.has(id)) {
+          this.pending.delete(id);
+          reject(new Error(`CDP 超时: ${method}`));
+        }
+      }, 200000);
+    });
+  }
+  async eval(expression) {
+    const r = await this.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+    if (r.exceptionDetails) throw new Error('页面 JS 异常: ' + JSON.stringify(r.exceptionDetails).slice(0, 300));
+    return r.result?.value;
+  }
+  async shot(file) {
+    const r = await this.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(file, Buffer.from(r.data, 'base64'));
+    return file;
+  }
+}
+
+async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      if (await cdp.eval(`Boolean(${expression})`)) return true;
+    } catch {}
+    await sleep(500);
+  }
+  throw new Error(`等待超时(${label}): ${expression}`);
+}
+
+(async () => {
+  const login = await (await fetch(API + '/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'demo', password: '123456' }),
+  })).json();
+  const token = login.data.token;
+  const user = JSON.stringify(login.data.user);
+
+  fs.rmSync(PROFILE, { recursive: true, force: true });
+  const proc = spawn(EDGE, [
+    '--headless=new', '--disable-gpu', '--hide-scrollbars',
+    `--remote-debugging-port=${PORT}`, `--user-data-dir=${PROFILE}`,
+    '--window-size=1600,1100', 'about:blank',
+  ], { stdio: 'ignore' });
+
+  let targets = null;
+  for (let i = 0; i < 40; i += 1) {
+    await sleep(500);
+    try { targets = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json(); if (targets.length) break; } catch {}
+  }
+  if (!targets?.length) throw new Error('无法连接 Edge 调试端口');
+  const ws = new WebSocket(targets.find((t) => t.type === 'page').webSocketDebuggerUrl);
+  await new Promise((res, rej) => { ws.addEventListener('open', res); ws.addEventListener('error', rej); });
+  const cdp = new CDP(ws);
+  await cdp.send('Page.enable');
+  await cdp.send('Runtime.enable');
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1100, deviceScaleFactor: 1, mobile: false });
+
+  async function goto(route) {
+    await cdp.send('Page.navigate', { url: APP + '/login' });
+    await sleep(1200);
+    await cdp.eval(`localStorage.setItem('smartfit_token', ${JSON.stringify(token)}); localStorage.setItem('smartfit_user', ${JSON.stringify(user)}); 'ok'`);
+    await cdp.send('Page.navigate', { url: APP + route });
+    await sleep(2500);
+  }
+  async function save(name) {
+    const f = path.join(OUT_DIR, name + '.png');
+    await cdp.shot(f);
+    console.log(`  ✓ ${name}.png (${(fs.statSync(f).size / 1024).toFixed(0)} KB)`);
+  }
+
+  // ============ 1. 登录页
+  if (need('login')) {
+    console.log('[login]');
+    await cdp.send('Page.navigate', { url: APP + '/login' });
+    await sleep(2500);
+    await save('00-login');
+  }
+
+  // ============ 2. 数据总览
+  if (need('dashboard')) {
+    console.log('[dashboard]');
+    await goto('/dashboard');
+    await waitFor(cdp, `document.body.innerText.includes('今日运动消耗')`, 30000, 'dashboard');
+    await sleep(1500);
+    await save('01-dashboard');
+  }
+
+  // ============ 3. 运动打卡
+  if (need('checkin')) {
+    console.log('[checkin]');
+    await goto('/checkin');
+    await waitFor(cdp, `document.body.innerText.includes('快速打卡')`, 30000, 'checkin');
+    await sleep(1800);
+    await save('02-checkin');
+  }
+
+  // ============ 4. AI 计划（点生成，等真模型）
+  if (need('plan')) {
+    console.log('[plan] 点击生成，等待真实大模型…');
+    await goto('/plan');
+    await waitFor(cdp, `document.body.innerText.includes('AI 训练计划生成器')`, 30000, 'plan');
+    await sleep(1000);
+    await cdp.eval(`(() => { const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('生成我的专属计划')); if(b){b.click();return 'clicked';} return 'not-found'; })()`);
+    await waitFor(cdp, `document.body.innerText.includes('大模型生成') && !document.body.innerText.includes('AI 正在生成') && document.body.innerText.includes('总耗时')`, 180000, 'plan-generated');
+    await sleep(2500);
+    const info = await cdp.eval(`(document.body.innerText.match(/计划生成完成[^\\n]*/) || [''])[0]`);
+    console.log('  ' + info);
+    await save('03-plan');
+  }
+
+  // ============ 5. 身体数据
+  if (need('body')) {
+    console.log('[body]');
+    await goto('/body');
+    await waitFor(cdp, `document.body.innerText.includes('六维健康评分')`, 30000, 'body');
+    await sleep(1800);
+    await save('04-body');
+  }
+
+  // ============ 6. 数据可视化
+  if (need('analytics')) {
+    console.log('[analytics]');
+    await goto('/analytics');
+    await waitFor(cdp, `document.body.innerText.includes('本周训练完成度')`, 30000, 'analytics');
+    await sleep(2000);
+    await save('05-analytics');
+  }
+
+  // ============ 7. AI 教练（发问题，等流式结束）
+  if (need('coach')) {
+    console.log('[coach] 提问并等待流式回答…');
+    await goto('/coach');
+    await waitFor(cdp, `document.body.innerText.includes('小智')`, 30000, 'coach');
+    await sleep(800);
+    await cdp.eval(`(() => {
+      const ta = document.querySelector('.chat-input textarea');
+      if (!ta) return 'no-textarea';
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+      setter.call(ta, '我一周只能练三次，膝盖有旧伤，怎么安排减脂训练？');
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      const b = [...document.querySelectorAll('.chat-input button')].find(x => x.textContent.includes('发送'));
+      if (b) { b.click(); return 'sent'; }
+      return 'no-button';
+    })()`);
+    await waitFor(cdp, `document.querySelectorAll('.msg.assistant').length >= 2`, 150000, 'coach-answer');
+    await sleep(3500);
+    await save('06-coach');
+  }
+
+  // ============ 8. 健康饮食（点生成配餐）
+  if (need('diet')) {
+    console.log('[diet] 点击生成配餐…');
+    await goto('/diet');
+    await waitFor(cdp, `document.body.innerText.includes('今日热量')`, 30000, 'diet');
+    await sleep(800);
+    await cdp.eval(`(() => { const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('生成配餐')); if(b){b.click();return 'clicked';} return 'not-found'; })()`);
+    await waitFor(cdp, `document.body.innerText.includes('一键采纳到今日饮食') && document.body.innerText.includes('与目标偏差')`, 180000, 'diet-result');
+    await sleep(2000);
+    const info = await cdp.eval(`(document.body.innerText.match(/(与目标偏差[^\\n]*)/) || [''])[0]`);
+    console.log('  ' + info);
+    await save('07-diet');
+  }
+
+  // ============ 9. 社区
+  if (need('community')) {
+    console.log('[community]');
+    await goto('/community');
+    await waitFor(cdp, `document.body.innerText.includes('本周打卡榜')`, 30000, 'community');
+    await sleep(1800);
+    await save('08-community');
+  }
+
+  // ============ 10. 个人中心
+  if (need('profile')) {
+    console.log('[profile]');
+    await goto('/profile');
+    await waitFor(cdp, `document.body.innerText.includes('AI 运行统计')`, 30000, 'profile');
+    await sleep(1800);
+    await save('09-profile');
+  }
+
+  console.log('\n完成。');
+  ws.close();
+  try { proc.kill(); } catch {}
+  process.exit(0);
+})().catch((err) => {
+  console.error('\n✗ 失败:', err.message);
+  process.exit(1);
+});

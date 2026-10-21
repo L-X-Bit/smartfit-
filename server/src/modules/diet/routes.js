@@ -172,7 +172,8 @@ router.post(
   asyncHandler(async (req, res) => {
     const goal = ['lose', 'gain', 'keep', 'shape'].includes(req.body?.goal) ? req.body.goal : undefined;
     const result = await generateDiet({ userId: req.user.id, goal });
-    return ok(res, result, result.meta.fallback ? '已由本地配餐引擎生成（未启用大模型）' : 'AI 饮食方案已生成');
+    // meta 用可选链兜底：即使未来某个分支忘了返回 meta，也不至于让整个接口 500
+    return ok(res, result, result.meta?.fallback ? '已由本地配餐引擎生成（未启用大模型）' : 'AI 饮食方案已生成');
   }),
 );
 

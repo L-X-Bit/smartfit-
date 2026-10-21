@@ -120,7 +120,19 @@ export async function generateDiet({ userId, goal }) {
     const cached = cacheGet(cacheKey);
     if (cached.hit) {
       logAiCall({ userId, scene: 'diet', provider: 'cache', latencyMs: Date.now() - start, cacheHit: true, ragHits: refs.length });
-      return { diet: { ...cached.value, _meta: { cacheHit: true, provider: 'cache' } }, refs };
+      // 注意：缓存命中分支也必须返回完整的 meta，否则上层读取 result.meta.fallback 会抛错
+      return {
+        diet: { ...cached.value, autoScaled: cached.value.autoScaled ?? false, cacheHit: true },
+        refs,
+        meta: {
+          provider: 'cache',
+          model: 'cached',
+          fallback: false,
+          cacheHit: true,
+          deviation: cached.value.kcalDeviation,
+          autoScaled: cached.value.autoScaled ?? false,
+        },
+      };
     }
   }
 
@@ -176,6 +188,15 @@ export async function generateDiet({ userId, goal }) {
   diet.inRange = Math.abs(diet.kcalDeviation) <= 8; // 误差 ±8% 视为达标
   diet.autoScaled = scaleResult.scaled;             // 是否做了份量校正（前端会提示）
   diet.scaleFactor = scaleResult.factor;
+
+  // ---------- 蛋白质偏离提示（模型倾向于给"高蛋白"，如实告知用户，而不是藏起来）----------
+  const proteinTarget = metrics.macros.protein;
+  if (proteinTarget && diet.totalProtein > proteinTarget * 1.25) {
+    diet.tips = [
+      ...(diet.tips || []),
+      `本方案蛋白质 ${diet.totalProtein}g，高于目标 ${proteinTarget}g，可把部分肉类换成蔬菜，或少吃一个蛋。`,
+    ];
+  }
 
   if (config.aiCacheEnabled) cacheSet(cacheKey, diet);
 
