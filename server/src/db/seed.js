@@ -32,6 +32,7 @@ if (isReset) {
   const tables = [
     'ai_call_logs',
     'ai_messages',
+    'food_scans',
     'comments',
     'post_likes',
     'posts',
@@ -45,7 +46,7 @@ if (isReset) {
     'users',
   ];
   for (const t of tables) db.exec(`DELETE FROM ${t};`);
-  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('users','body_records','workout_logs','plans','plan_items','diet_logs','posts','comments','ai_messages','ai_call_logs');");
+  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('users','body_records','workout_logs','plans','plan_items','diet_logs','posts','comments','ai_messages','ai_call_logs','food_scans');");
   console.log('[reset] 已清空全部数据表');
 }
 

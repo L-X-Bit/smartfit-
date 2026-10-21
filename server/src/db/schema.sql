@@ -230,3 +230,26 @@ CREATE TABLE IF NOT EXISTS ai_call_logs (
   created_at   TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
 );
 CREATE INDEX IF NOT EXISTS idx_aicall_scene ON ai_call_logs(scene, created_at DESC);
+
+-- ---------------------------- 9. AI 拍照识热量（多模态） ----------------------------
+
+-- 识别记录表：上传一张食物照片 = 一条记录。
+-- 保留原图地址与识别结果，既能做历史回溯，也支持「稍后再记入饮食」。
+CREATE TABLE IF NOT EXISTS food_scans (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  image_url     TEXT,                              -- 原图地址（/uploads/xxx.png）
+  items         TEXT    NOT NULL DEFAULT '[]',      -- JSON：识别出的食物数组（含库匹配状态与最终营养值）
+  total_kcal    REAL    NOT NULL DEFAULT 0,         -- 合计热量
+  total_protein REAL    NOT NULL DEFAULT 0,
+  total_fat     REAL    NOT NULL DEFAULT 0,
+  total_carb    REAL    NOT NULL DEFAULT 0,
+  advice        TEXT,                               -- 模型给出的一句饮食建议
+  provider      TEXT    NOT NULL DEFAULT 'vision',  -- vision（视觉模型）| manual（手动录入）
+  model         TEXT,
+  matched_count INTEGER NOT NULL DEFAULT 0,         -- 成功匹配到本地食物库的条目数
+  latency_ms    INTEGER NOT NULL DEFAULT 0,         -- 识别耗时（含模型调用）
+  logged_meal   TEXT,                               -- 已记入的餐次，为空表示尚未写入饮食记录
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_foodscan_user ON food_scans(user_id, id DESC);

@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 💪 智练 SmartFit
 
@@ -42,7 +42,7 @@
 - **AI 的每一步决策都可解释**（前端展示画像 → 检索 → 生成 → 校验 → 安全审核的完整时间线）
 - **AI 不可用时产品依然完整**（三层降级：大模型 → 修复重试 → 本地规则引擎 / 检索式问答）
 
-### 七大功能模块
+### 八大功能模块
 
 | 模块 | 能力 | AI 参与 |
 | --- | --- | --- |
@@ -52,6 +52,7 @@
 | 📊 **数据可视化** | 热量收支、训练量、部位均衡度、身体成分、打卡热力图、目标仪表盘 | 无（数据聚合） |
 | 💬 **AI 健身教练** | 多轮对话、逐字流式输出、引用知识库来源、展示注入的用户数据快照 | ⭐ 核心（SSE + RAG） |
 | 🥗 **健康饮食** | 食物库检索、四餐记录、三大营养素供能比、AI 一日配餐一键采纳 | ⭐ 较强（大模型 + 食物库约束） |
+| 📷 **AI 拍照识热量** | 上传/拍照 → 多模态识别食物种类与份量 → 匹配食物库换算热量 → 一键记入饮食；含识别历史与数据来源标注 | ⭐ 核心（多模态视觉 + 双源交叉校验） |
 | 👥 **运动社区** | 图文发帖、话题、关联打卡、点赞评论、时间衰减热度排序、周榜 | 无（热度算法） |
 
 ### 响应式：同一套代码适配手机
@@ -70,6 +71,10 @@
 | AI 健身教练 | 数据可视化 |
 | --- | --- |
 | ![教练](docs/screenshots/06-coach.png) | ![可视化](docs/screenshots/05-analytics.png) |
+
+| AI 拍照识热量（多模态） | 健康饮食 |
+| --- | --- |
+| ![识别热量](docs/screenshots/10-foodscan.png) | ![饮食](docs/screenshots/07-diet.png) |
 
 > 更多界面截图见 [`docs/screenshots/`](docs/screenshots/)，完整技术方案见 [`docs/智练SmartFit-技术文档.pdf`](docs/智练SmartFit-技术文档.pdf)。
 
@@ -423,6 +428,11 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 | GET / POST | `/api/community/posts` | 信息流（热门/最新/话题）/ 发帖 |
 | POST | `/api/community/posts/:id/like` · `/comments` | 点赞切换 / 评论 |
 | GET | `/api/community/leaderboard` | 本周打卡排行榜 |
+| GET | `/api/food-scan/capability` | 视觉模型能力探测 + 今日剩余热量额度 |
+| POST | `/api/food-scan/analyze` | **多模态拍照识热量**：图片 → 食物清单 + 份量 + 热量（含库匹配与双源校验） |
+| GET | `/api/food-scan/history` · `/:id` | 识别历史 / 单条详情 |
+| POST | `/api/food-scan/:id/log` | 把识别结果按当前份量记入指定餐次 |
+| DELETE | `/api/food-scan/:id` | 删除识别记录 |
 | GET | `/api/dashboard/overview` | 首页聚合数据 |
 | POST | `/api/ai/coach` | **AI 教练对话（SSE）**：`meta → delta×N → done` |
 | GET | `/api/ai/status` · `/api/ai/stats` · `/api/ai/suggestions` · `/api/ai/history` | AI 状态 / 统计 / 建议 / 历史 |

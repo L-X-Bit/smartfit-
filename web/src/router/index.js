@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 路由配置
  * ---------------------------------------------------------------------------
  * · 使用 history 模式（需后端托管时回落到 index.html，已在 server 中处理）
@@ -22,6 +22,7 @@ const routes = [
       { path: 'analytics', name: 'analytics', component: () => import('@/views/Analytics.vue'), meta: { title: '数据可视化', icon: 'TrendCharts' } },
       { path: 'coach', name: 'coach', component: () => import('@/views/Coach.vue'), meta: { title: 'AI 健身教练', icon: 'ChatDotRound', ai: true } },
       { path: 'diet', name: 'diet', component: () => import('@/views/Diet.vue'), meta: { title: '健康饮食', icon: 'Bowl' } },
+      { path: 'food-scan', name: 'foodscan', component: () => import('@/views/FoodScan.vue'), meta: { title: 'AI 拍照识热量', icon: 'Camera', ai: true } },
       { path: 'community', name: 'community', component: () => import('@/views/Community.vue'), meta: { title: '运动社区', icon: 'ChatLineSquare' } },
       { path: 'profile', name: 'profile', component: () => import('@/views/Profile.vue'), meta: { title: '个人中心', icon: 'User' } },
     ],

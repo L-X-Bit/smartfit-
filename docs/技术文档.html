@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -27,7 +27,8 @@
   th, td { border: 0.6pt solid #cbd5e1; padding: 3pt 5pt; font-size: 8.4pt; vertical-align: top; }
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 6pt 0; page-break-inside: avoid; }
-  figure img { width: 100%; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
+  /* 限制图片高度并居中：11 张界面截图若都按宽度铺满，会额外吃掉 2~3 页 */
+  figure img { max-height: 88mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
   .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
   .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
@@ -148,6 +149,7 @@
     <tr><td><b>AI 健身教练</b></td><td>多轮对话问答，结合用户实时数据与知识库作答，逐字流式输出，展示引用来源</td><td>SSE 流式 + RAG + 查询扩展 + 用户数据快照注入 + 注入攻击防护 + 检索式问答降级</td><td><b>核心</b>（大模型 + SSE）</td></tr>
     <tr><td><b>运动社区</b></td><td>发帖（图文/话题/关联打卡）、点赞、评论、话题聚合、本周排行榜</td><td>时间衰减热度分；联合主键防重复点赞；前端 canvas 图片压缩</td><td>无（算法排序）</td></tr>
     <tr><td><b>健康饮食</b></td><td>食物库检索、四餐记录、三大营养素供能比、AI 一日配餐并一键采纳</td><td>每 100g 营养基准服务端换算；热量对齐偏差校验；贪心配餐降级</td><td><b>较强</b>（大模型 + 食物库约束）</td></tr>
+    <tr><td><b>AI 拍照识热量</b></td><td>上传/拍照 → 识别食物种类与份量 → 换算热量 → 改份量后一键记入饮食；含识别历史</td><td>多模态视觉模型；食物库三重匹配 + 双源交叉校验；非食物图片识别；结果落库可回溯</td><td><b>核心</b>（多模态 + 校验）</td></tr>
   </tbody>
 </table>
 
@@ -419,7 +421,7 @@
   <tbody>
     <tr><td>一次性生成</td><td>AI 训练计划、AI 一日配餐</td><td>同步请求 → JSON 模式 → 结构化校验 → 落库 → 返回完整对象</td></tr>
     <tr><td>流式生成</td><td>AI 教练对话</td><td>SSE 逐 token 推送；前端 <code>fetch</code> + <code>ReadableStream</code> 手动解析 SSE 帧（因需带 JWT，无法用 EventSource）</td></tr>
-    <tr><td>多模态识别</td><td>拍照识别食物热量（可选能力）</td><td><code>image_url</code> + base64 dataURL → 识别结果与本地食物库做模糊匹配 → 一键写入饮食记录</td></tr>
+    <tr><td>多模态识别</td><td><b>AI 拍照识热量（独立板块）</b></td><td><code>image_url</code> + base64 dataURL → 视觉模型识别食物与份量 → 与食物库三重匹配 + 双源交叉校验 → 一键写入饮食记录（详见 5.8）</td></tr>
   </tbody>
 </table>
 
@@ -797,6 +799,48 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
   <figcaption>图 5-7 运动社区页：发帖（图文/话题/关联打卡）+ 热门与最新排序 + 话题筛选 + 互动 + 本周排行榜</figcaption>
 </figure>
 
+<h2>5.8 AI 拍照识热量（多模态独立板块）</h2>
+<p>
+这是继「文本大模型」之后的第二种模态能力：一张饭菜照片 → 结构化营养数据。入口为左侧导航的
+<b>「AI 拍照识热量」</b>独立页面（饮食页内也保留了同源的快捷入口）。
+</p>
+
+<h3>5.8.1 识别流水线</h3>
+<div class="flow">
+  <div class="step"><div class="n">①</div><div class="t">压缩上传</div><div class="d">前端 canvas 压到最长边 1280px<br/>再转 base64 提交</div></div>
+  <div class="step"><div class="n">②</div><div class="t">视觉识别</div><div class="d">image_url 多模态调用<br/>输出食物/克数/营养 JSON</div></div>
+  <div class="step"><div class="n">③</div><div class="t">三重匹配</div><div class="d">名称包含 + BM25 + 二元组重叠<br/>避免中文单字误配</div></div>
+  <div class="step"><div class="n">④</div><div class="t">双源校验</div><div class="d">库值与估算相差 &gt;3 倍<br/>判为误匹配并弃用库值</div></div>
+</div>
+
+<h3>5.8.2 关键设计：三条数据可信规则</h3>
+<table>
+  <thead><tr><th style="width: 22%;">规则</th><th style="width: 78%;">说明与实测依据</th></tr></thead>
+  <tbody>
+    <tr><td><b>以库为准</b></td><td>模型负责「这是什么食物、大约多少克」，热量与三大营养素一律用本地食物库每 100g 数值重算。<br/>这与训练计划里的「算术外移」是同一原则——模型不擅长精确算术。</td></tr>
+    <tr><td><b>来源标注</b></td><td>每一项都标明数据来源：<b>库内精确</b>（命中食物库）或<b>模型估算</b>（库未收录）。两种数据绝不混在一起偷偷使用，用户可自行判断可信度。</td></tr>
+    <tr><td><b>冲突拦截</b></td><td>库值与模型估算相差超过 3 倍时判为<b>误匹配</b>，弃用库值并标红提示。<br/>实测依据：早期版本把「面汤 300g」错配到「意面（熟）」，算出 474 kcal（真实约 30 kcal），整餐从 489 虚高到 917 kcal；加入拦截后回归 459 kcal。</td></tr>
+  </tbody>
+</table>
+
+<h3>5.8.3 为什么匹配要加「二元组重叠」校验</h3>
+<p>
+中文词法检索里单字碰撞极常见：「青豆」会命中「青椒」、「面汤」会命中「意面」。最初的实现只用 BM25 分数阈值（&gt;1.5）判断，
+导致了上述误配。改进后要求候选必须与识别名<b>共享至少一个中文二元组</b>（如「牛肉块」与「瘦牛肉」共享「牛肉」→ 采纳；
+「面汤」与「意面」无共享词 → 拒绝），并在匹配失败时保留模型估算值——<b>宁可标"模型估算"，也不错配到不相干的食物</b>。
+</p>
+
+<h3>5.8.4 非食物图片的处理</h3>
+<p>
+提示词要求模型在图片不含食物时返回 <code>{"isFood": false, "reason": "..."}</code>，前端展示友好提示而非硬凑数据。
+实测中模型能正确拒绝插画/图标类图片（返回"这是一张披萨切片形状的扁平化图标，并非真实食物照片"），说明约束生效。
+</p>
+
+<figure>
+  <img src="screenshots/10-foodscan.png" alt="AI 拍照识热量" />
+  <figcaption>图 5-8 AI 拍照识热量板块：上传区 + 识别结果（标注数据来源与置信度）+ 今日剩余额度对比 + 识别历史（可回看并记入饮食）</figcaption>
+</figure>
+
 <h2>5.7 鉴权与安全实现</h2>
 <table>
   <thead><tr><th style="width: 24%;">风险</th><th style="width: 76%;">实现</th></tr></thead>
@@ -895,6 +939,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
     <tr><td>T5</td><td><b>同构降级：三套引擎一份契约</b></td><td>大模型 / 修复重试 / 本地规则引擎产出结构完全一致的计划对象，前端零改动；配合"离线知识库模式"的检索式问答，实现无密钥、无网络下的功能完整性与信息诚实性统一。</td></tr>
     <tr><td>T6</td><td><b>面向中文小知识库的混合检索</b></td><td>自实现单字+bigram 的中文 BM25；叠加结构化过滤（器械/难度/伤病）、标签加权、MMR 去冗余与 18 组口语查询扩展，在零依赖前提下取得稳定召回，且可解释、可替换为向量检索。</td></tr>
     <tr><td>T7</td><td><b>AI 全链路可观测</b></td><td><code>ai_call_logs</code> + 前端统计面板，记录场景/供应商/耗时/缓存/降级/重试/RAG 命中，使优化决策基于数据而非主观感受。</td></tr>
+    <tr><td>T8</td><td><b>多模态识别的双源交叉校验</b></td><td>视觉模型与本地食物库两条独立数据源互相校验：库值优先但需通过「三元组匹配 + 二元组重叠」验证；两者热量相差 &gt;3 倍时判为误匹配并弃用库值。把"模型幻觉"与"检索误配"两类错误同时挡住，且每一项结果都向用户标注数据来源。</td></tr>
   </tbody>
 </table>
 
@@ -907,6 +952,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
     <tr><td>A3</td><td><b>面向带伤/慢病人群的可用性设计</b></td><td>报名表即可勾选膝关节、腰部、肩部、高血压、孕期、大体重等标识，系统自动改为低冲击方案并说明原因——让"最需要运动指导的人群"成为可服务对象。</td></tr>
     <tr><td>A4</td><td><b>数据可信优先的计量体系</b></td><td>热量由服务端 MET 公式计算并回显依据（MET 值、使用的体重）；营养以每 100g 库值为准重算并给出与目标热量的偏差百分比，杜绝"用户自填数字"导致的健康数据失真。</td></tr>
     <tr><td>A5</td><td><b>零门槛可复现的工程交付</b></td><td>内置 SQLite + 自动建表 + 一键种子数据（四个演示账号、60 天身体数据、14 天饮食、社区内容），评审克隆后三条命令即可看到完整效果，无需数据库或密钥。</td></tr>
+    <tr><td>A6</td><td><b>把「记录饮食」的门槛降到拍一张照</b></td><td>饮食记录的最大阻力是"手动搜食物、称重量"。拍照识别把这一步变成 1 次点击 + 1 秒等待，并保留历史可回看、可改份量后再记入——记录成本下降，数据连续性才有保障，而这正是所有健康类应用的核心难题。</td></tr>
   </tbody>
 </table>
 

@@ -23,6 +23,7 @@ import dietRoutes from './modules/diet/routes.js';
 import communityRoutes from './modules/community/routes.js';
 import dashboardRoutes from './modules/dashboard/routes.js';
 import aiRoutes from './modules/ai/routes.js';
+import foodScanRoutes from './modules/foodscan/routes.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -58,6 +59,7 @@ export function createApp() {
   app.use('/api/community', communityRoutes);
   app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/food-scan', foodScanRoutes);
 
   // 7) 生产模式下托管前端构建产物（npm run build 后 dist 目录）
   //    前端路由使用 history 模式，因此非 /api 开头的 GET 请求都回落到 index.html

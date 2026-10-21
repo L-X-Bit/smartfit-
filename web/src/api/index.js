@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API 请求层
  * ---------------------------------------------------------------------------
  * 统一封装 axios：
@@ -106,6 +106,13 @@ export const api = {
   deletePost: (id) => http.delete(`/api/community/posts/${id}`),
   leaderboard: () => http.get('/api/community/leaderboard'),
 
+  // ---------------- AI 拍照识热量（多模态独立板块） ----------------
+  foodScanCapability: () => http.get('/api/food-scan/capability'),
+  foodScanAnalyze: (imageDataUrl) => http.post('/api/food-scan/analyze', { imageDataUrl }),
+  foodScanHistory: (limit = 20) => http.get('/api/food-scan/history', { params: { limit } }),
+  foodScanDetail: (id) => http.get(`/api/food-scan/${id}`),
+  foodScanLog: (id, data) => http.post(`/api/food-scan/${id}/log`, data),
+  foodScanDelete: (id) => http.delete(`/api/food-scan/${id}`),
   // ---------------- 仪表盘
   overview: () => http.get('/api/dashboard/overview'),
 

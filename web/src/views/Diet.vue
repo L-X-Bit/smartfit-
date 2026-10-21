@@ -100,9 +100,15 @@
     <div class="card mt-16">
       <div class="card-title">
         <span>📷 拍照识别食物热量</span>
-        <span class="ai-chip" :class="{ off: !visionEnabled }">
-          {{ visionEnabled ? '多模态 AI · 视觉识别' : '未配置视觉模型' }}
-        </span>
+        <div class="row">
+          <!-- 站内还有「AI 拍照识热量」独立页（带识别历史/置信度/非食物检测），这里给出跳转入口 -->
+          <el-button link type="primary" size="small" @click="$router.push('/food-scan')">
+            完整版（含识别历史）→
+          </el-button>
+          <span class="ai-chip" :class="{ off: !visionEnabled }">
+            {{ visionEnabled ? '多模态 AI · 视觉识别' : '未配置视觉模型' }}
+          </span>
+        </div>
       </div>
 
       <!-- 未选择图片：上传区 -->

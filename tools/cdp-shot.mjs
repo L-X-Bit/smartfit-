@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CDP 驱动的页面截图工具（本地验收用，不参与项目运行）
  * ---------------------------------------------------------------------------
  * 用途：录制演示前自动走一遍「登录 → 进页 → 点按钮 → 等真实 AI 返回 → 截图」，
@@ -284,6 +284,45 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
     await save('07-diet');
   }
 
+  // ============ AI 拍照识热量（自动上传一张测试图，走完整前端流程）
+  if (need('foodscan')) {
+    console.log('[foodscan] 上传测试图并等待识别…');
+    const testImg = process.env.FOOD_TEST_IMG || path.join(process.env.TEMP || '.', 'food-noodles.jpg');
+    await goto('/food-scan');
+    await waitFor(cdp, `document.body.innerText.includes('AI 拍照识热量')`, 30000, 'foodscan');
+    await sleep(1000);
+    if (fs.existsSync(testImg)) {
+      const b64 = fs.readFileSync(testImg).toString('base64');
+      // 通过 DataTransfer 把图片塞进隐藏的 input，并派发 change 事件 —— 完全走真实前端流程
+      // （等价于用户点「从相册选择」，而不是绕过 UI 直接调接口）
+      const dispatch = await cdp.eval(`(async () => {
+        const dataUrl = 'data:image/jpeg;base64,${b64}';
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], 'food.jpg', { type: 'image/jpeg' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        const input = document.querySelector('input[type="file"]');
+        if (!input) return 'no-input';
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return 'dispatched';
+      })()`);
+      console.log('   注入文件:', dispatch);
+      await waitFor(
+        cdp,
+        `document.body.innerText.includes('库内精确') || document.body.innerText.includes('模型估算') || document.body.innerText.includes('没有识别到食物')`,
+        150000,
+        'foodscan-result',
+      );
+      await sleep(2200);
+      const info = await cdp.eval(`(document.body.innerText.match(/这一餐约\\s*\\d+\\s*kcal|识别完成[^\\n]*/) || [''])[0]`);
+      console.log('   结果:', info);
+    } else {
+      console.log('   ⚠ 未找到测试图片，仅截图空状态：', testImg);
+      await sleep(600);
+    }
+    await save('10-foodscan');
+  }
   // ============ 9. 社区
   if (need('community')) {
     console.log('[community]');
