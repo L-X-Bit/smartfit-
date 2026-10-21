@@ -72,6 +72,49 @@ router.get(
   asyncHandler((req, res) => ok(res, listScans(req.user.id, Math.min(50, Number(req.query.limit) || 20)))),
 );
 
+/**
+ * 份量试算 + 个性化饮食建议
+ * ---------------------------------------------------------------------------
+ * 前端把用户填好克数的食物列表发来，后端：
+ *   ① 用规则引擎算出确定性结论（热量占目标比例、蛋白达成度、脂肪供能比、剩余额度、是否缺蔬菜）
+ *   ② 把这些结论 + 用户身体条件交给大模型，生成有针对性的中文点评
+ *   ③ 模型不可用则用规则结论拼模板（降级）
+ * 注意：热量换算在前端已完成（前端持有每 100g 库值），此处只做评估，不再重算克数。
+ */
+const adviceSchema = z.object({
+  mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snack']).optional(),
+  imageDesc: z.string().max(120).optional(),
+  items: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(30),
+        amountG: z.number().min(1).max(2000),
+        kcal: z.number().min(0).max(5000),
+        protein: z.number().min(0).max(500).optional(),
+        fat: z.number().min(0).max(500).optional(),
+        carb: z.number().min(0).max(1000).optional(),
+      }),
+    )
+    .min(1, '请至少添加一种食物')
+    .max(20, '一次最多评估 20 种食物'),
+});
+
+router.post(
+  '/advice',
+  rateLimit({ limit: 15, windowMs: 60_000 }),
+  asyncHandler(async (req, res) => {
+    const d = adviceSchema.parse(req.body);
+    const result = await adviseMeal({
+      userId: req.user.id,
+      items: d.items,
+      mealType: d.mealType || 'lunch',
+      imageDesc: d.imageDesc || '',
+    });
+    const verdictText = { good: '搭配合适', high: '热量偏高', low: '热量偏低' }[result.analysis.verdict];
+    return ok(res, result, `评估完成：${verdictText}（占今日目标 ${result.analysis.shareOfTarget}%）`);
+  }),
+);
+
 /** 单条详情 */
 router.get(
   '/:id',

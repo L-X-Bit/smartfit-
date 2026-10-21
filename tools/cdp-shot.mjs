@@ -317,6 +317,22 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
       await sleep(2200);
       const info = await cdp.eval(`(document.body.innerText.match(/这一餐约\\s*\\d+\\s*kcal|识别完成[^\\n]*/) || [''])[0]`);
       console.log('   结果:', info);
+      // 继续验证「份量试算 + AI 建议」：带入识别结果 → 点 AI 分析 → 等建议返回
+      const filled = await cdp.eval(`(() => {
+        const b = [...document.querySelectorAll('button')].find(x => x.textContent.includes('带入上方识别结果'));
+        if (!b) return 'no-button';
+        b.click(); return 'clicked';
+      })()`);
+      console.log('   带入试算:', filled);
+      await sleep(1000);
+      const asked = await cdp.eval(`(() => {
+        const b = [...document.querySelectorAll('button')].find(x => x.textContent.includes('AI 分析这一餐'));
+        if (!b) return 'no-button';
+        b.click(); return 'clicked';
+      })()`);
+      console.log('   AI 分析:', asked);
+      await waitFor(cdp, `document.body.innerText.includes('依据你的身体条件')`, 120000, 'meal-advice');
+      await sleep(1500);
     } else {
       console.log('   ⚠ 未找到测试图片，仅截图空状态：', testImg);
       await sleep(600);

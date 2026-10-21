@@ -224,10 +224,128 @@
       </div>
     </div>
 
-    <!-- ==================== ③ 识别历史 ==================== -->
+    <!-- ==================== ③ 份量试算 + 饮食建议 ==================== -->
     <div class="card mt-16">
       <div class="card-title">
-        <span>③ 识别历史</span>
+        <span>③ 份量试算 &amp; 饮食建议</span>
+        <span class="sub">填克数看热量，AI 结合你的身体条件给建议</span>
+      </div>
+
+      <div class="calc-toolbar">
+        <el-button size="small" :icon="Download" :disabled="!result?.items?.length" @click="fillFromResult">
+          带入上方识别结果
+        </el-button>
+        <el-select
+          v-model="pickerFoodId"
+          filterable
+          remote
+          clearable
+          :remote-method="searchFoods"
+          placeholder="搜索食物库添加（如：米饭 / 鸡胸肉）"
+          size="small"
+          style="width: 260px"
+          @change="addFromLibrary"
+        >
+          <el-option v-for="f in foodOptions" :key="f.id" :label="`${f.name}（${f.kcal}kcal/100g）`" :value="f.id" />
+        </el-select>
+        <span class="toolbar-gap" />
+        <span class="toolbar-label">评估餐次</span>
+        <el-select v-model="calcMealType" size="small" style="width: 100px">
+          <el-option label="早餐" value="breakfast" />
+          <el-option label="午餐" value="lunch" />
+          <el-option label="晚餐" value="dinner" />
+          <el-option label="加餐" value="snack" />
+        </el-select>
+      </div>
+
+      <!-- 食物行 -->
+      <div v-if="calcRows.length" class="calc-rows">
+        <div v-for="(row, idx) in calcRows" :key="idx" class="calc-row">
+          <span class="cr-name">{{ row.name }}</span>
+          <div class="cr-input">
+            <el-input-number
+              v-model="row.amountG"
+              :min="1"
+              :max="2000"
+              :step="10"
+              size="small"
+              controls-position="right"
+              style="width: 108px"
+            />
+            <span class="unit">g</span>
+          </div>
+          <span class="cr-kcal"><b>{{ calcRowKcal(row) }}</b> kcal</span>
+          <span class="cr-macro">蛋{{ calcRowMacro(row, 'protein') }} 脂{{ calcRowMacro(row, 'fat') }} 碳{{ calcRowMacro(row, 'carb') }}</span>
+          <el-button link type="danger" :icon="Close" size="small" @click="calcRows.splice(idx, 1)" />
+        </div>
+      </div>
+      <el-empty v-else description="还没有食物：可以「带入识别结果」，或搜索食物库添加" :image-size="60" />
+
+      <!-- 合计 + 占目标比例 -->
+      <div v-if="calcRows.length" class="calc-summary">
+        <div class="cs-main">
+          <span class="cs-label">合计</span>
+          <span class="cs-value">{{ calcTotals.kcal }}</span>
+          <span class="cs-unit">kcal</span>
+          <span class="cs-macro">蛋白 {{ calcTotals.protein }}g · 脂肪 {{ calcTotals.fat }}g · 碳水 {{ calcTotals.carb }}g</span>
+        </div>
+        <div class="cs-share">
+          <span>占今日目标 <b>{{ calcShare }}%</b></span>
+          <el-progress
+            :percentage="Math.min(100, calcShare)"
+            :stroke-width="8"
+            :show-text="false"
+            :color="calcShare > 45 ? '#f59e0b' : '#10b981'"
+            style="width: 120px"
+          />
+          <span class="text-muted">午餐建议 30~42%</span>
+        </div>
+      </div>
+
+      <!-- AI 评估按钮 -->
+      <div v-if="calcRows.length" class="calc-actions">
+        <el-button type="primary" class="btn-gradient" :icon="MagicStick" :loading="advising" @click="runAdvice">
+          AI 分析这一餐
+        </el-button>
+        <span class="text-muted">会结合你的体重、BMI、减脂目标与今日已摄入热量给建议</span>
+      </div>
+
+      <!-- 评估结果 -->
+      <div v-if="advice" class="advice-box" :class="`v-${advice.advice.verdict}`">
+        <div class="ab-head">
+          <el-tag :type="advice.advice.verdict === 'good' ? 'success' : advice.advice.verdict === 'high' ? 'danger' : 'warning'" effect="dark" size="small">
+            {{ advice.advice.verdict === 'good' ? '搭配合理' : advice.advice.verdict === 'high' ? '热量偏高' : '热量偏低' }}
+          </el-tag>
+          <span class="ab-headline">{{ advice.advice.headline }}</span>
+          <span class="ab-provider">{{ advice.meta.provider === 'llm' ? 'AI 生成' : '规则引擎' }} · {{ (advice.meta.latencyMs / 1000).toFixed(1) }}s</span>
+        </div>
+
+        <div v-if="advice.advice.issues?.length" class="ab-block">
+          <div class="ab-title">⚠️ 需要注意</div>
+          <ul>
+            <li v-for="(t, i) in advice.advice.issues" :key="i">{{ t }}</li>
+          </ul>
+        </div>
+
+        <div v-if="advice.advice.suggestions?.length" class="ab-block">
+          <div class="ab-title">💡 调整建议</div>
+          <ul>
+            <li v-for="(t, i) in advice.advice.suggestions" :key="i">{{ t }}</li>
+          </ul>
+        </div>
+
+        <div class="ab-body">
+          依据你的身体条件：体重 {{ advice.body.weight }}kg · BMI {{ advice.body.bmi }}（{{ advice.body.bmiLevel }}）·
+          目标「{{ advice.body.goalText }}」· 每日目标 {{ advice.body.targetCalories }} kcal ·
+          今日已摄入 {{ advice.body.todayIntake }} kcal（剩余 {{ advice.body.todayRemaining }} kcal）
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ④ 识别历史 ==================== -->
+    <div class="card mt-16">
+      <div class="card-title">
+        <span>④ 识别历史</span>
         <span class="sub">共 {{ history.length }} 条 · 点击可回看并记入饮食</span>
       </div>
 
@@ -249,9 +367,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Camera, Picture, Refresh, Close, Check, Delete, Loading } from '@element-plus/icons-vue';
+import { Camera, Picture, Refresh, Close, Check, Delete, Loading, Download, MagicStick } from '@element-plus/icons-vue';
 import { api } from '@/api';
 import { compressImage, dataUrlSize } from '@/utils/image';
 
@@ -273,6 +391,102 @@ const mealType = ref('lunch');
 
 const fileInput = ref(null);
 let cameraMode = false;           // 是否以「调起相机」模式打开文件选择
+
+// ---------------- 份量试算区状态 ----------------
+const calcMealType = ref('lunch');
+const calcRows = reactive([]);    // 每行：{ name, amountG, per100:{kcal,protein,fat,carb} }
+const advising = ref(false);
+const advice = ref(null);         // AI 评估结果
+const foodOptions = ref([]);      // 食物库搜索结果
+const pickerFoodId = ref('');
+
+/** 单行热量 = 每 100g 热量 × 克数 / 100 */
+const calcRowKcal = (row) => Math.round(((row.per100?.kcal || 0) * (Number(row.amountG) || 0)) / 100);
+const calcRowMacro = (row, key) =>
+  Number((((row.per100?.[key] || 0) * (Number(row.amountG) || 0)) / 100).toFixed(1));
+
+/** 合计（跟随克数实时变化，不需要请求后端） */
+const calcTotals = computed(() => ({
+  kcal: calcRows.reduce((s, r) => s + calcRowKcal(r), 0),
+  protein: Number(calcRows.reduce((s, r) => s + calcRowMacro(r, 'protein'), 0).toFixed(1)),
+  fat: Number(calcRows.reduce((s, r) => s + calcRowMacro(r, 'fat'), 0).toFixed(1)),
+  carb: Number(calcRows.reduce((s, r) => s + calcRowMacro(r, 'carb'), 0).toFixed(1)),
+}));
+
+/** 占今日目标百分比 */
+const calcShare = computed(() => {
+  const target = cap.value.todayTarget || 0;
+  if (!target) return 0;
+  return Number(((calcTotals.value.kcal / target) * 100).toFixed(0));
+});
+
+/** 把上方识别结果带入试算区（每 100g 值由「当前热量/克数」反推） */
+function fillFromResult() {
+  const items = result.value?.items || [];
+  if (!items.length) {
+    ElMessage.warning('上方还没有识别结果');
+    return;
+  }
+  calcRows.splice(0, calcRows.length);
+  for (const it of items) {
+    const g = Number(it.amountG) || 100;
+    calcRows.push({
+      name: it.name,
+      amountG: g,
+      per100: {
+        kcal: (Number(it.kcal) / g) * 100,
+        protein: (Number(it.protein) / g) * 100,
+        fat: (Number(it.fat) / g) * 100,
+        carb: (Number(it.carb) / g) * 100,
+      },
+    });
+  }
+  advice.value = null;
+  ElMessage.success(`已带入 ${items.length} 种食物，可直接改克数看热量`);
+}
+
+/** 搜索食物库（远程下拉） */
+async function searchFoods(kw) {
+  foodOptions.value = await api.foods({ kw: kw || undefined });
+}
+
+/** 从食物库添加一行（用库里每 100g 数据，最精确） */
+function addFromLibrary(foodId) {
+  if (!foodId) return;
+  const f = foodOptions.value.find((x) => x.id === foodId);
+  if (!f) return;
+  calcRows.push({
+    name: f.name,
+    amountG: 100,
+    per100: { kcal: f.kcal, protein: f.protein, fat: f.fat, carb: f.carb },
+  });
+  pickerFoodId.value = '';
+  advice.value = null;
+}
+
+/** 调 AI 评估这一餐 */
+async function runAdvice() {
+  if (!calcRows.length) return;
+  advising.value = true;
+  try {
+    const res = await api.foodScanAdvice({
+      mealType: calcMealType.value,
+      imageDesc: result.value?.scene || '',
+      items: calcRows.map((r) => ({
+        name: r.name,
+        amountG: Number(r.amountG) || 0,
+        kcal: calcRowKcal(r),
+        protein: calcRowMacro(r, 'protein'),
+        fat: calcRowMacro(r, 'fat'),
+        carb: calcRowMacro(r, 'carb'),
+      })),
+    });
+    advice.value = res;
+    ElMessage.success(res.message || '评估完成');
+  } finally {
+    advising.value = false;
+  }
+}
 
 // ---------------- 计算结果：按当前份量实时合计 ----------------
 const totalKcal = computed(() => Math.round((result.value?.items || []).reduce((s, i) => s + (Number(i.kcal) || 0), 0)));
@@ -634,6 +848,189 @@ onMounted(async () => {
   font-size: 12.5px;
 }
 
+/* ---------------- 份量试算区 ---------------- */
+.calc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.toolbar-gap {
+  flex: 1;
+  min-width: 0;
+}
+.toolbar-label {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.calc-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.calc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fbfdfe;
+  border: 1px solid #f1f5f9;
+}
+.cr-name {
+  flex: 1;
+  min-width: 70px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.cr-input {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.cr-input .unit {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.cr-kcal {
+  font-size: 12px;
+  color: var(--text-2);
+  min-width: 82px;
+  text-align: right;
+}
+.cr-kcal b {
+  font-size: 15px;
+  color: var(--brand-dark);
+}
+.cr-macro {
+  font-size: 10.5px;
+  color: var(--text-3);
+  min-width: 108px;
+  text-align: right;
+}
+.calc-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f0fdf4, #f0fdfa);
+  border: 1px solid #d1fae5;
+  flex-wrap: wrap;
+}
+.cs-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cs-label {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.cs-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--brand-dark);
+  letter-spacing: -0.5px;
+}
+.cs-unit {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.cs-macro {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-left: 10px;
+}
+.cs-share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  flex-wrap: wrap;
+}
+.cs-share b {
+  color: var(--brand-dark);
+  font-size: 15px;
+}
+.calc-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------------- AI 评估结果 ---------------- */
+.advice-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.advice-box.v-good {
+  border-color: #a7f3d0;
+  background: #f0fdf4;
+}
+.advice-box.v-high {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.advice-box.v-low {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+.ab-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.ab-headline {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-1);
+  flex: 1;
+  min-width: 200px;
+}
+.ab-provider {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.ab-block {
+  margin-bottom: 8px;
+}
+.ab-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-2);
+  margin-bottom: 4px;
+}
+.ab-block ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.ab-block li {
+  font-size: 12.5px;
+  color: var(--text-1);
+  line-height: 1.7;
+}
+.ab-body {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 11.5px;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+
 /* ---------------- 识别流程说明 ---------------- */
 .scan-explain {
   margin-top: 14px;
@@ -912,6 +1309,24 @@ onMounted(async () => {
   }
   .hist-img {
     height: 78px;
+  }
+  /* 份量试算区在手机上纵向堆叠 */
+  .calc-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cr-name {
+    flex-basis: 100%;
+  }
+  .cr-macro {
+    min-width: 0;
+    text-align: left;
+  }
+  .cs-share {
+    gap: 8px;
+  }
+  .calc-toolbar .el-select {
+    width: 100% !important;
   }
 }
 </style>

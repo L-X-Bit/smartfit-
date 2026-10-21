@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API 请求层
  * ---------------------------------------------------------------------------
  * 统一封装 axios：
@@ -113,7 +113,11 @@ export const api = {
   foodScanDetail: (id) => http.get(`/api/food-scan/${id}`),
   foodScanLog: (id, data) => http.post(`/api/food-scan/${id}/log`, data),
   foodScanDelete: (id) => http.delete(`/api/food-scan/${id}`),
-  // ---------------- 仪表盘
+  // 餐食评估 Agent：把「份量试算」结果交给后端，结合身体数据判断这一餐是否合适
+  // （FoodScan.vue 的「③ 份量试算 & 饮食建议」卡片依赖此方法，缺失会导致点击即报错）
+  foodScanAdvice: (data) => http.post('/api/food-scan/advice', data),
+
+  // ---------------- 仪表盘 ----------------
   overview: () => http.get('/api/dashboard/overview'),
 
   // ---------------- AI
