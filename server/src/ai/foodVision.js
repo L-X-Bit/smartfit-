@@ -33,18 +33,47 @@ export const FOOD_VISION_PROMPT = `你是一位专业营养师，擅长从照片
 
 【语言要求】必须使用中国大陆通用的简体中文，不要输出繁体字。
 
-【估算规则】
-1. 先用常见餐具/手部/桌面等参照物推断份量，再按克数估算；
-2. 分别列出每一种可辨认的食物（例如"米饭""红烧肉""西兰花"），不要合并成一整餐；
-3. 中餐菜品若含大量油脂，可按同类家常做法估算（如"红烧肉"按每 100g 约 450 kcal）；
-4. 份量必须给出具体克数，且符合常识（一碗米饭 150~250g、一份炒菜 150~300g、一块肉 80~150g）。
+【份量估算方法（最重要，直接决定热量准不准）】
+照片是二维的，没有尺度参照就无法判断真实大小。你必须按下面的顺序推理：
+
+第 1 步 —— 找尺度参照物（找到就以它为基准，准确性会高很多）：
+  · 筷子（标准 25cm）、汤勺（约 20cm）、一元硬币（直径 2.5cm）、一次性纸杯（高 9cm）
+  · 人手（成人手掌宽约 8~9cm、张开拇指到小指约 18~20cm）
+  · 标准餐盘（直径 20~26cm）、饭碗（口径 11~13cm，满碗约 250ml，装米饭约 200g）
+  · 易拉罐（高 12cm）、手机（宽约 7.5cm）
+
+第 2 步 —— 用参照物推算容器尺寸与食物体积，再结合食物密度换算重量：
+  · 体积 × 密度 才是重量（米饭约 0.8g/cm³、炒菜约 0.6~0.8、汤约 1.0、肉类约 0.9）
+  · 堆高、铺平、压实都会影响实际克数，按"松散盛装"估
+
+第 3 步 —— 必须给出「估计值 + 区间 + 依据」：
+  · amountG：最优估计（克）
+  · amountMin / amountMax：合理区间，必须满足 amountMin ≤ amountG ≤ amountMax；
+    有参照物时区间宽度控制在估计值的 ±30% 内，无参照物时放宽到 ±50%
+  · reference：一句话写清凭什么这么估（如"以筷子长度推算碗口约 18cm，米饭铺平至七分满"）
+  · confidence：high（有明确参照物 + 常规餐具）/ medium（有餐具但尺寸不典型）/ low（无参照物）
+
+第 4 步 —— 图中若找不到任何参照物：
+  · reference 写"无参照物，按常见餐盘尺寸保守估算"，confidence 必须为 low
+  · 不要为了显得自信而虚报 confidence
+
+【其它规则】
+1. 分别列出每一种可辨认的食物（例如米饭、红烧肉、西兰花），不要合并成一整餐；
+2. 中餐菜品若含明显油脂，按同类家常做法估算（如红烧肉按每 100g 约 450 kcal）；
+3. 份量必须符合常识（一碗米饭 150~250g、一份炒菜 150~300g、一块肉 80~150g）。
 
 【输出格式】只输出一个 JSON 对象，不要任何解释文字、不要用 markdown 代码块包裹：
 {
   "isFood": true,
   "scene": "一句话描述你看到的这餐（如：一份中式快餐，米饭+红烧肉+青菜）",
+  "referenceObject": "筷子（标准 25cm）",
+  "scaleConfidence": "high",
   "items": [
-    { "name": "米饭", "amountG": 200, "kcal": 232, "protein": 5.2, "fat": 0.6, "carb": 51.8, "confidence": "high" }
+    {
+      "name": "米饭", "amountG": 200, "amountMin": 150, "amountMax": 250,
+      "kcal": 232, "protein": 5.2, "fat": 0.6, "carb": 51.8,
+      "reference": "以筷子长度推算碗口约 12cm、米饭七分满", "confidence": "high"
+    }
   ],
   "totalKcal": 232,
   "advice": "一句话饮食建议（40 字以内，结合这一餐的营养特点）"
@@ -188,6 +217,18 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
     const modelKcal = Math.round(num(it.kcal, 0));
     const hit = matchLibraryFood(name, foods);
 
+    // ---- 份量不确定性：区间 + 判断依据 ----
+    // 照片无法直接量出重量，模型只能基于参照物估算，所以必须把「不确定度」一起交给用户，
+    // 而不是给一个看起来很确定的数字。这里先做自洽性校验：
+    // 模型给的区间若不满足 min ≤ 估计 ≤ max，就用 ±30% 兜底，避免出现 150g(200~300g) 这种矛盾。
+    let amountMin = Math.round(num(it.amountMin, 0));
+    let amountMax = Math.round(num(it.amountMax, 0));
+    if (!amountMin || !amountMax || amountMin > amountG || amountMax < amountG) {
+      amountMin = Math.max(5, Math.round((amountG * 0.7) / 5) * 5);
+      amountMax = Math.round((amountG * 1.3) / 5) * 5;
+    }
+    const reference = String(it.reference || '').slice(0, 60);
+
     // ---- 双源交叉校验 ----
     // 库值与模型估算相差过大（>3 倍）时，说明大概率匹配错了食物（例如「面汤」→「意面」），
     // 此时以模型估算为准，并把候选库项记录下来，供用户/后续人工纠正。
@@ -204,6 +245,9 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
         items.push({
           name,
           amountG,
+          amountMin,
+          amountMax,
+          reference,
           kcal: libKcal,
           protein: num(hit.food.protein * k),
           fat: num(hit.food.fat * k),
@@ -224,6 +268,9 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
         items.push({
           name,
           amountG,
+          amountMin,
+          amountMax,
+          reference,
           kcal: modelKcal,
           protein: num(it.protein, 0),
           fat: num(it.fat, 0),
@@ -252,6 +299,9 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
       protein: num(it.protein, 0),
       fat: num(it.fat, 0),
       carb: num(it.carb, 0),
+      amountMin,
+      amountMax,
+      reference,
       source: 'model',                       // 数据来源：模型估算
       foodId: null,
       libraryName: null,
@@ -271,9 +321,12 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
   const totalCarb = Number(items.reduce((s, i) => s + (i.carb || 0), 0).toFixed(1));
 
   // ---------- ⑥ 落库 ----------
+  const referenceObject = parsed.referenceObject ? String(parsed.referenceObject).slice(0, 40) : null;
+  const scaleConfidence = ['high', 'medium', 'low'].includes(parsed.scaleConfidence) ? parsed.scaleConfidence : null;
+
   const scanId = run(
-    `INSERT INTO food_scans (user_id, image_url, items, total_kcal, total_protein, total_fat, total_carb, advice, provider, model, matched_count, latency_ms)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+    `INSERT INTO food_scans (user_id, image_url, items, total_kcal, total_protein, total_fat, total_carb, advice, provider, model, matched_count, latency_ms, ref_object, scale_confidence)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       userId,
       imageUrl,
@@ -287,6 +340,8 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
       config.ai.visionModel,
       matchedCount,
       llmLatency,
+      referenceObject,
+      scaleConfidence,
     ],
   ).lastInsertRowid;
 
@@ -308,6 +363,14 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
     items,
     totals: { kcal: totalKcal, protein: totalProtein, fat: totalFat, carb: totalCarb },
     advice: String(parsed.advice || '').slice(0, 200),
+    // ---- 尺度参照信息（重量估算可信度的来源）----
+    // 照片无法直接称重，模型只能靠参照物推算；把「找到了什么参照物、整体可信度如何」如实告诉用户，
+    // 并在缺少参照物时主动提示，引导用户手动校准或下次拍摄时放入参照物。
+    referenceObject,
+    scaleConfidence,
+    scaleWarning: !scaleConfidence || scaleConfidence === 'low'
+      ? '照片里没有明确的尺度参照物，份量是按常见餐具尺寸估算的，误差可能较大。建议手动确认克数；下次拍摄时把筷子、勺子或硬币放在餐盘旁边，判断会准很多。'
+      : null,
     // ---- 兼容「饮食页内嵌识别面板」的旧字段 ----
     totalKcal,
     matched: matchedCount > 0,
@@ -339,6 +402,8 @@ export function listScans(userId, limit = 20) {
     matchedCount: row.matched_count,
     latencyMs: row.latency_ms,
     loggedMeal: row.logged_meal,
+    referenceObject: row.ref_object || null,
+    scaleConfidence: row.scale_confidence || null,
     createdAt: row.created_at,
   }));
 }
@@ -354,6 +419,8 @@ export function getScan(userId, id) {
     totals: { kcal: row.total_kcal, protein: row.total_protein, fat: row.total_fat, carb: row.total_carb },
     advice: row.advice,
     loggedMeal: row.logged_meal,
+    referenceObject: row.ref_object || null,
+    scaleConfidence: row.scale_confidence || null,
     createdAt: row.created_at,
   };
 }

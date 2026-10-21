@@ -77,7 +77,8 @@
             <el-button :icon="Picture" @click.stop="pickFile('gallery')">从相册选择</el-button>
           </div>
           <div class="drop-tips">
-            💡 拍摄建议：光线充足、俯拍整盘、让餐具或手入镜作为参照物，识别份量会更准
+            <b>📏 想算准热量，关键是「参照物」</b>：照片没有深度，AI 只能靠已知尺寸的物体推算份量。<br />
+            拍摄时请把 <b>筷子、勺子、一元硬币或手</b> 放进食盘旁，并尽量俯拍整盘——有参照物时份量误差可控制在 ±30%，没有则只能凭经验估算。
           </div>
         </div>
 
@@ -146,6 +147,28 @@
           <!-- 场景描述 -->
           <el-alert v-if="result.scene" :title="result.scene" type="success" :closable="false" show-icon class="mb-8" />
 
+          <!-- 尺度参照信息：照片判断重量靠的就是这个 -->
+          <div class="scale-bar">
+            <span class="scale-item">
+              <span class="scale-label">尺度参照物</span>
+              <b :class="result.referenceObject ? 'ok' : 'none'">{{ result.referenceObject || '未检测到' }}</b>
+            </span>
+            <span class="scale-item">
+              <span class="scale-label">份量可信度</span>
+              <el-tag size="small" :type="result.scaleConfidence === 'high' ? 'success' : result.scaleConfidence === 'medium' ? 'warning' : 'danger'" effect="plain">
+                {{ { high: '高（有参照物）', medium: '中', low: '低（无参照物）' }[result.scaleConfidence] || '未知' }}
+              </el-tag>
+            </span>
+          </div>
+          <el-alert
+            v-if="result.scaleWarning"
+            :title="result.scaleWarning"
+            type="warning"
+            :closable="false"
+            show-icon
+            class="mb-8"
+          />
+
           <!-- 食物清单 -->
           <div class="fs-items">
             <div v-for="(it, idx) in result.items" :key="idx" class="fs-item" :class="{ conflict: it.conflict }">
@@ -163,6 +186,27 @@
                   <template v-else>食物库未收录，采用 AI 估算值</template>
                   <span class="dot">·</span>
                   <span :class="`conf-${it.confidence}`">置信度 {{ confText(it.confidence) }}</span>
+                </div>
+
+                <!-- 模型给出的判断依据：让「重量是怎么来的」不再是黑盒 -->
+                <div v-if="it.reference" class="fs-ref">📏 {{ it.reference }}</div>
+
+                <!-- 份量校准：用模型给的区间做三档快捷选择，比让用户凭空填克数可靠得多 -->
+                <div class="fs-presets">
+                  <span class="preset-label">份量校准</span>
+                  <button
+                    v-for="p in presetOptions(it)"
+                    :key="p.gram"
+                    type="button"
+                    class="preset"
+                    :class="{ on: Math.abs(Number(it.amountG) - p.gram) < 5 }"
+                    @click="setAmountPreset(it, p.gram)"
+                  >
+                    {{ p.label }}
+                  </button>
+                  <span class="preset-hint" :class="{ warn: !inEstimateRange(it) }">
+                    {{ inEstimateRange(it) ? `✓ 在估计区间 ${it.amountMin}~${it.amountMax}g 内` : `⚠ 已超出估计区间 ${it.amountMin}~${it.amountMax}g` }}
+                  </span>
                 </div>
               </div>
 
@@ -510,6 +554,45 @@ function confText(c) {
   return { high: '高', medium: '中', low: '低' }[c] || '中';
 }
 
+/** 从各项置信度里取最低值，作为整图的份量可信度（老历史记录没有存该字段时使用） */
+function minConfidence(items) {
+  const rank = { high: 3, medium: 2, low: 1 };
+  let worst = null;
+  for (const it of items || []) {
+    const c = it.confidence;
+    if (!rank[c]) continue;
+    if (!worst || rank[c] < rank[worst]) worst = c;
+  }
+  return worst;
+}
+
+/** 三档份量预设：直接取模型估算区间的下限 / 估计值 / 上限 */
+function presetOptions(it) {
+  const min = Number(it.amountMin) || 0;
+  const est = Number(it._estG || it.amountG) || 0;
+  const max = Number(it.amountMax) || 0;
+  if (!min || !max) return [];
+  return [
+    { label: `小份 ${Math.round(min)}g`, gram: Math.round(min) },
+    { label: `估计 ${Math.round(est)}g`, gram: Math.round(est) },
+    { label: `大份 ${Math.round(max)}g`, gram: Math.round(max) },
+  ];
+}
+
+/** 当前克数是否仍落在模型估计区间内（超出时界面标黄，提示用户重新判断） */
+function inEstimateRange(it) {
+  const g = Number(it.amountG) || 0;
+  const min = Number(it.amountMin) || 0;
+  const max = Number(it.amountMax) || 0;
+  if (!min || !max) return true;
+  return g >= min && g <= max;
+}
+
+/** 点快捷份量：按比例重算热量与三大营养素 */
+function setAmountPreset(it, gram) {
+  onAmountChange(it, gram);
+}
+
 // ---------------- 上传与识别 ----------------
 /** 打开文件选择：camera=true 时手机端直接调起相机 */
 function pickFile(mode) {
@@ -581,6 +664,7 @@ async function analyze() {
   }, 600);
   try {
     const res = await api.foodScanAnalyze(preview.value);
+    initResultItems(res);
     result.value = res;
     if (res.notFood) {
       ElMessage.warning(res.reason || '没有识别到食物');
@@ -593,6 +677,18 @@ async function analyze() {
   } finally {
     clearTimeout(t);
     analyzing.value = false;
+  }
+}
+
+/**
+ * 给识别结果的每一项补上内部状态：
+ *   _estG       模型原始估计克数（用于「估计」快捷按钮，避免被用户改动后基准漂移）
+ *   _lastAmount 上一次的克数（份量改动时按比例重算热量）
+ */
+function initResultItems(res) {
+  for (const it of res?.items || []) {
+    it._estG = Number(it.amountG) || 100;
+    it._lastAmount = Number(it.amountG) || 100;
   }
 }
 
@@ -664,15 +760,21 @@ async function loadHistory() {
 async function loadScan(h) {
   try {
     const detail = await api.foodScanDetail(h.id);
-    result.value = {
+    const wrapper = {
       notFood: false,
       scene: '',
-      items: (detail.items || []).map((i) => ({ ...i, _lastAmount: i.amountG })),
+      items: detail.items || [],
       totals: detail.totals,
       advice: detail.advice,
       scanId: detail.id,
+      // 历史记录现在也会持久化参照物与整体可信度；老记录没有该字段时回退为「取各项最低置信度」
+      referenceObject: detail.referenceObject || null,
+      scaleConfidence: detail.scaleConfidence || minConfidence(detail.items),
+      scaleWarning: null,
       meta: null,
     };
+    initResultItems(wrapper);
+    result.value = wrapper;
     preview.value = h.imageUrl;   // 预览用原图地址
     imageSize.value = 0;
     imageWH.value = '历史记录';
@@ -1029,6 +1131,89 @@ onMounted(async () => {
   font-size: 11.5px;
   color: var(--text-3);
   line-height: 1.6;
+}
+
+/* ---------------- 尺度参照信息 ---------------- */
+.scale-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 9px 14px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  flex-wrap: wrap;
+}
+.scale-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+}
+.scale-label {
+  color: var(--text-3);
+}
+.scale-item b {
+  color: var(--text-1);
+}
+.scale-item b.ok {
+  color: var(--brand-dark);
+}
+.scale-item b.none {
+  color: #b45309;
+}
+
+/* ---------------- 判断依据 + 份量校准 ---------------- */
+.fs-ref {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: #0f766e;
+  line-height: 1.5;
+  background: #f0fdfa;
+  border-radius: 6px;
+  padding: 3px 8px;
+  display: inline-block;
+}
+.fs-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  flex-wrap: wrap;
+}
+.preset-label {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.preset {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text-2);
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.preset:hover {
+  border-color: #a7f3d0;
+  background: #f0fdf4;
+  color: var(--brand-dark);
+}
+.preset.on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  font-weight: 700;
+}
+.preset-hint {
+  font-size: 11px;
+  color: #047857;
+}
+.preset-hint.warn {
+  color: #b45309;
+  font-weight: 600;
 }
 
 /* ---------------- 识别流程说明 ---------------- */

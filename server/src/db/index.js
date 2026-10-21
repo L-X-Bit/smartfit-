@@ -27,10 +27,26 @@ db.exec('PRAGMA journal_mode = WAL;');
 
 /**
  * 执行建表脚本（幂等：全部使用 CREATE TABLE IF NOT EXISTS）
+ * 另外处理「给已存在的表补充后续版本新增的列」——
+ * SQLite 的 ALTER TABLE 不支持 IF NOT EXISTS，重复执行会报 duplicate column，
+ * 因此用 try/catch 逐个尝试；老库升级到新结构时不需要手动迁移。
  */
 export function initSchema() {
   const sql = fs.readFileSync(path.join(HERE, 'schema.sql'), 'utf8');
   db.exec(sql);
+
+  const addedColumns = [
+    // 拍照识热量：记录整图的尺度参照物与份量可信度（历史回看时也要能显示）
+    'ALTER TABLE food_scans ADD COLUMN ref_object TEXT',
+    'ALTER TABLE food_scans ADD COLUMN scale_confidence TEXT',
+  ];
+  for (const alter of addedColumns) {
+    try {
+      db.exec(alter);
+    } catch {
+      /* 列已存在，忽略 */
+    }
+  }
 }
 
 /**
