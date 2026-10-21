@@ -1,0 +1,25 @@
+{
+  "name": "smartfit-ai-health-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "智练 SmartFit —— AI 驱动的个人健康 / 运动管理平台（传智杯 AI WEB 网页开发挑战赛参赛作品）",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "init:db": "npm run seed --workspace server",
+    "dev:server": "npm run dev --workspace server",
+    "dev:web": "npm run dev --workspace web",
+    "dev": "concurrently -n SERVER,WEB -c cyan,magenta \"npm:dev:server\" \"npm:dev:web\"",
+    "build": "npm run build --workspace web",
+    "start": "npm run start --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

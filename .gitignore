@@ -1,0 +1,35 @@
+# ---------- 依赖与构建产物 ----------
+node_modules/
+dist/
+web/dist/
+.vite/
+
+# ---------- 运行时数据 ----------
+# SQLite 数据库文件（首次运行由 npm run init:db 自动生成）
+server/data/*.db
+server/data/*.db-journal
+server/data/*.db-wal
+server/data/*.db-shm
+# 用户上传的图片
+server/uploads/
+# 用户本地环境变量（模板见 .env.example，禁止提交真实密钥）
+.env
+.env.local
+server/.env
+web/.env.local
+
+# ---------- 日志与临时文件 ----------
+*.log
+logs/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# ---------- 本地工具（非项目代码） ----------
+.tools/
+.npm-cache/
+
+# ---------- 编辑器 ----------
+.idea/
+.vscode/*
+!.vscode/extensions.json
