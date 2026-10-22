@@ -125,6 +125,12 @@ export const api = {
   importDeviceData: (data) => http.post('/api/devices/import', data),
   generateDeviceDemo: (days = 7) => http.post('/api/devices/demo', { days }),
 
+  // ---------------- 自动同步（同步令牌 + 快捷指令 / 脚本推送，免导出免上传） ----------------
+  syncSetup: () => http.get('/api/sync/setup'),
+  syncTokens: () => http.get('/api/sync/tokens'),
+  createSyncToken: (name) => http.post('/api/sync/tokens', { name }),
+  revokeSyncToken: (id) => http.delete(`/api/sync/tokens/${id}`),
+
   // ---------------- 仪表盘 ----------------
   overview: () => http.get('/api/dashboard/overview'),
 

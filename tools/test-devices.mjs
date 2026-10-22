@@ -3,6 +3,7 @@
  * ===========================================================================
  * 用法：node tools/test-devices.mjs
  * 覆盖：status / demo（生成 7 天）/ daily / history / import（预览 + 真实导入）/ heart-rate
+ *       / sync 自动同步（令牌签发 → 令牌鉴权推送 → 同日期合并 → 撤销后失效）
  * 为什么要有它：Web Bluetooth 必须真机，但「写入是否正确」可以完全离线验证——
  *   确认步数真的变成打卡、心率真的写进身体数据，而不是只往 device_syncs 里塞一条日志。
  */
@@ -89,6 +90,57 @@ for (const bad of [
   } catch (e) {
     console.log(`  ✓ ${bad.label} 被拒绝：${e.message.replace(/^POST \S+ → \d+ /, '')}`);
   }
+}
+
+// ---------------------------------------------------------------- 自动同步（④）
+/** 带同步令牌的请求（模拟 iPhone 快捷指令 / health-sync.mjs 的调用方式） */
+async function syncCall(method, url, body, syncToken) {
+  const res = await fetch(API + url, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(syncToken ? { 'X-Sync-Token': syncToken } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (json.code !== 0) throw new Error(`${method} ${url} → ${res.status} ${json.message || ''}`);
+  return json.data;
+}
+
+line('9. 自动同步：签发令牌 POST /api/sync/tokens');
+const tk = await call('POST', '/api/sync/tokens', { name: '自测·自动同步' }, token);
+console.log(`  令牌 ${tk.hint}…（明文只在创建时返回一次）`);
+console.log(`  推送地址：${tk.pushUrl}`);
+
+line('10. 令牌鉴权 + 推送 POST /api/sync/push');
+const ping = await syncCall('GET', '/api/sync/ping', null, tk.token);
+console.log(`  ping：${ping.user} · 令牌备注 ${ping.tokenName}`);
+const today = new Date();
+const pad2 = (n) => String(n).padStart(2, '0');
+const testDate = `${today.getFullYear()}-${pad2(today.getMonth() + 1)}-${pad2(today.getDate())}`;
+// 关键用例：同一天既有 metrics 又有 heartRate，验证「null 不覆盖已有指标」
+const pushed = await syncCall(
+  'POST',
+  '/api/sync/push',
+  {
+    device: '自测·自动同步',
+    date: testDate,
+    metrics: { steps: 6789, restingHr: 57, sleepHours: 8.2, weightKg: 74.9 },
+    heartRate: { avg: 88, max: 141, min: 62, durationSec: 1200, saveAsRestingHr: false },
+  },
+  tk.token,
+);
+console.log(`  ${pushed.summary}`);
+const after2 = await call('GET', '/api/devices/daily?days=7', null, token);
+const day = after2.list.find((d) => d.date === testDate);
+console.log(`  ${testDate} 落库：${day?.steps} 步 / ${day?.restingHr} bpm / ${day?.sleepHours}h（步数与睡眠不应被心率会话清空）`);
+if (day?.steps !== 6789) console.log('  ✗ 步数被覆盖了，检查 toCleanRows 的合并逻辑');
+
+line('11. 撤销令牌后应立即失效 DELETE /api/sync/tokens/:id');
+await call('DELETE', `/api/sync/tokens/${tk.id}`, null, token);
+try {
+  await syncCall('GET', '/api/sync/ping', null, tk.token);
+  console.log('  ✗ 撤销后仍能推送（应为 401）');
+} catch (e) {
+  console.log(`  ✓ 已失效：${e.message.replace(/^GET \S+ → \d+ /, '')}`);
 }
 
 console.log('\n全部完成');

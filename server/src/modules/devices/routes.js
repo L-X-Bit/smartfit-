@@ -14,8 +14,12 @@
  *  ③ 演示模式（POST /demo）
  *     没有设备时一键生成 7 天模拟数据，保证演示/答辩时功能完整可见。
  *
+ *  ④ 自动同步（见 modules/sync/routes.js）
+ *     iPhone「快捷指令」每天定时、或电脑上的 tools/health-sync.mjs 监听目录，
+ *     用同步令牌把数据直接推进来——不需要导出、不需要转 CSV、不需要手动上传。
+ *
  * 说明（技术文档可讲）：华为/小米/Apple 的官方云 API 都需要企业资质与 OAuth 审核，
- * 校园项目无法在比赛周期内接入；因此采用「标准蓝牙协议 + 文件导入 + 演示兜底」的组合，
+ * 校园项目无法在比赛周期内接入；因此采用「标准蓝牙协议 + 文件导入 + 定时自动同步 + 演示兜底」的组合，
  * 既真实可用，又不依赖任何第三方授权。
  */
 import { Router } from 'express';
@@ -24,7 +28,16 @@ import { asyncHandler, ok, BizError } from '../../utils/response.js';
 import { all, get, run, today, shiftDate } from '../../db/index.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { rateLimit } from '../../middleware/common.js';
-import { calcCalories } from '../../utils/health.js';
+// 解析 / 写库逻辑统一放在 service 层：自动同步（/api/sync/push）与文件导入共用同一套口径
+import {
+  applyDailyRows,
+  buildCsvTemplate,
+  normalizeRows,
+  parseCsv,
+  parseJson,
+  recordDeviceSync,
+  upsertStepLog,
+} from './service.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -64,9 +77,11 @@ router.get(
     const days = Math.min(60, Math.max(7, Number(req.query.days) || 7));
     const from = shiftDate(today(), -(days - 1));
     const syncs = all(
-      "SELECT payload FROM device_syncs WHERE user_id = ? AND source IN ('import','demo') ORDER BY id DESC LIMIT 20",
+      "SELECT payload FROM device_syncs WHERE user_id = ? AND source IN ('import','demo','auto') ORDER BY id DESC LIMIT 20",
       [req.user.id],
-    );
+      // 注意：下面按「旧 → 新」遍历，后写入的日期数值覆盖先前的，
+      // 这样同一日期既有演示数据又有自动同步数据时，图表显示的是最新那份（真实数据优先）
+    ).reverse();
     /** @type {Record<string, {date:string, steps:number|null, restingHr:number|null, sleepHours:number|null}>} */
     const byDate = {};
     for (const s of syncs) {
@@ -201,79 +216,29 @@ router.post(
     const rows = d.format === 'csv' ? parseCsv(d.content) : parseJson(d.content);
     if (!rows.length) throw new BizError('没有解析到有效数据行，请检查文件格式');
 
-    // 归一化 + 校验
-    const clean = [];
-    for (const r of rows.slice(0, 400)) {
-      const date = normalizeDate(r.date);
-      if (!date) continue;
-      const item = {
-        date,
-        steps: toNum(r.steps),
-        restingHr: toNum(r.restingHr ?? r.resting_hr ?? r.hr),
-        sleepHours: toNum(r.sleepHours ?? r.sleep_hours ?? r.sleep),
-        weightKg: toNum(r.weightKg ?? r.weight_kg ?? r.weight),
-        activeMinutes: toNum(r.activeMinutes ?? r.active_minutes ?? r.minutes),
-        // 当天心率统计（Apple 健康 / 手环 App 导出时会有）
-        hrAvg: toNum(r.hrAvg ?? r.hr_avg ?? r.avgHr ?? r.平均心率),
-        hrMax: toNum(r.hrMax ?? r.hr_max ?? r.maxHr ?? r.最高心率),
-        hrMin: toNum(r.hrMin ?? r.hr_min ?? r.minHr ?? r.最低心率),
-      };
-      if (
-        item.steps === null &&
-        item.restingHr === null &&
-        item.sleepHours === null &&
-        item.weightKg === null &&
-        item.hrAvg === null
-      ) {
-        continue;
-      }
-      clean.push(item);
-    }
+    // 归一化 + 校验（别名、缺列、非法日期都在这里统一处理）
+    const clean = normalizeRows(rows, 400);
     if (!clean.length) throw new BizError('数据行里没有可用的数值（steps / restingHr / sleepHours / weightKg）');
 
     if (d.dryRun) {
       return ok(res, { preview: clean.slice(0, 20), total: clean.length, written: 0 }, `解析到 ${clean.length} 行，确认后即可导入`);
     }
 
-    // 写库：体重→身体数据；步数→按 MET 折算成一次"步行"打卡；睡眠/心率→附到身体数据
-    let written = 0;
-    let updated = 0;
-    for (const it of clean) {
-      const exist = get('SELECT id FROM body_records WHERE user_id = ? AND record_date = ? ORDER BY id DESC LIMIT 1', [req.user.id, it.date]);
-
-      if (it.weightKg || it.restingHr || it.sleepHours) {
-        const base = exist
-          ? get('SELECT * FROM body_records WHERE id = ?', [exist.id])
-          : get('SELECT weight_kg FROM body_records WHERE user_id = ? ORDER BY record_date DESC LIMIT 1', [req.user.id]);
-        const weight = it.weightKg ?? base?.weight_kg ?? 65;
-        if (exist) {
-          run(
-            `UPDATE body_records SET weight_kg = ?, resting_hr = COALESCE(?, resting_hr), sleep_hours = COALESCE(?, sleep_hours), note = COALESCE(NULLIF(note,''), '由设备导入') WHERE id = ?`,
-            [weight, it.restingHr, it.sleepHours, exist.id],
-          );
-        } else {
-          run(
-            'INSERT INTO body_records (user_id, record_date, weight_kg, resting_hr, sleep_hours, note) VALUES (?,?,?,?,?,?)',
-            [req.user.id, it.date, weight, it.restingHr, it.sleepHours, '由设备导入'],
-          );
-        }
-        written += 1;
-      }
-
-      // 步数折算为一次步行打卡（时长按 100 步/分钟估算，热量走统一 MET 公式）
-      if (it.steps && it.steps > 0) {
-        const body = get('SELECT weight_kg FROM body_records WHERE user_id = ? ORDER BY record_date DESC LIMIT 1', [req.user.id]);
-        if (upsertStepLog(req.user.id, it.date, it.steps, body?.weight_kg, '设备导入的步数')) written += 1;
-        else updated += 1;
-      }
-    }
+    // 写库：体重/静息心率/睡眠→身体数据；步数→按 MET 折算成一次"步行"打卡
+    const { written, updated } = applyDailyRows(req.user.id, clean, {
+      note: '由设备导入',
+      stepNote: '设备导入的步数',
+    });
 
     const summary = `导入 ${clean.length} 行 · 写入 ${written} 条记录${updated ? `、更新 ${updated} 条打卡` : ''}（${clean[0].date} ~ ${clean[clean.length - 1].date}）`;
-    const id = run(
-      `INSERT INTO device_syncs (user_id, source, device_name, sync_type, payload, summary, record_count)
-       VALUES (?,?,?,?,?,?,?)`,
-      [req.user.id, 'import', d.deviceName || '导入文件', 'daily', JSON.stringify({ rows: clean.slice(0, 200) }), summary, written],
-    ).lastInsertRowid;
+    const id = recordDeviceSync(req.user.id, {
+      source: 'import',
+      deviceName: d.deviceName || '导入文件',
+      syncType: 'daily',
+      payload: { rows: clean.slice(0, 200) },
+      summary,
+      recordCount: written,
+    });
 
     return ok(res, { id, summary, written, updated, total: clean.length }, summary);
   }),
@@ -288,7 +253,6 @@ router.post(
   writeLimit,
   asyncHandler((req, res) => {
     const days = Math.min(30, Math.max(1, Number(req.body?.days) || 7));
-    const user = get('SELECT * FROM users WHERE id = ?', [req.user.id]);
     let written = 0;
     let updated = 0;
     const rows = [];
@@ -322,145 +286,18 @@ router.post(
     }
 
     const summary = `演示设备同步 ${days} 天数据 · 写入 ${written} 条${updated ? `、更新 ${updated} 条打卡` : ''}`;
-    const id = run(
-      `INSERT INTO device_syncs (user_id, source, device_name, sync_type, payload, summary, record_count)
-       VALUES (?,?,?,?,?,?,?)`,
-      [req.user.id, 'demo', '演示手环（模拟）', 'daily', JSON.stringify({ rows }), summary, written],
-    ).lastInsertRowid;
+    const id = recordDeviceSync(req.user.id, {
+      source: 'demo',
+      deviceName: '演示手环（模拟）',
+      syncType: 'daily',
+      payload: { rows },
+      summary,
+      recordCount: written,
+    });
 
     return ok(res, { id, summary, written, updated, rows }, summary);
   }),
 );
 
-// ---------------------------------------------------------------- 工具函数
-
-/**
- * 把「某天的步数」写进运动打卡（设备数据与打卡体系的衔接点）
- * ---------------------------------------------------------------------------
- * 规则：
- *   · 时长 = 步数 ÷ 100 步/分钟；热量 = MET 3.5 的步行 × 体重 × 时长（与手动打卡同一公式）；
- *   · 同一天只保留**一条**设备来源的步行打卡：已存在就更新，避免"导入一次 + 演示一次"
- *     同一天出现两条步行、热量被重复计算（实测踩过）；
- *   · 只认「日常步行 + 设备/演示 note」这一条，用户自己手动记的步行不受影响。
- * @returns {boolean} true = 新建，false = 覆盖更新
- */
-function upsertStepLog(userId, date, steps, weightKg, note) {
-  const minutes = Math.max(1, Math.round(steps / 100));
-  const kcal = calcCalories(3.5, weightKg || 65, minutes, 'low');
-  const exist = get(
-    `SELECT id FROM workout_logs
-      WHERE user_id = ? AND log_date = ? AND exercise_name = '日常步行'
-        AND note IN ('设备导入的步数', '演示设备步数')
-      ORDER BY id DESC LIMIT 1`,
-    [userId, date],
-  );
-  if (exist) {
-    run('UPDATE workout_logs SET duration_min = ?, calories = ?, note = ? WHERE id = ?', [minutes, kcal, note, exist.id]);
-    return false;
-  }
-  run(
-    `INSERT INTO workout_logs (user_id, log_date, exercise_name, category, duration_min, intensity, calories, note)
-     VALUES (?,?,?,?,?,?,?,?)`,
-    [userId, date, '日常步行', '有氧', minutes, 'low', kcal, note],
-  );
-  return true;
-}
-
-/** 构建 CSV 模板（前端可下载） */
-function buildCsvTemplate() {
-  return [
-    'date,steps,restingHr,sleepHours,weightKg,activeMinutes,hrAvg,hrMax,hrMin',
-    `${today()},8600,64,7.2,75.2,45,78,132,58`,
-    `${shiftDate(today(), -1)},7400,65,6.8,,38,75,128,60`,
-  ].join('\n');
-}
-
-/** 极简 CSV 解析：支持逗号/制表符分隔、双引号包裹、首行表头自动映射 */
-function parseCsv(text) {
-  const lines = String(text)
-    .replace(/^\uFEFF/, '')
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-  if (lines.length < 2) return [];
-
-  const split = (line) => {
-    const delimiter = line.includes('\t') ? '\t' : ',';
-    const out = [];
-    let cur = '';
-    let inQuote = false;
-    for (const ch of line) {
-      if (ch === '"') inQuote = !inQuote;
-      else if (ch === delimiter && !inQuote) {
-        out.push(cur.trim());
-        cur = '';
-      } else cur += ch;
-    }
-    out.push(cur.trim());
-    return out;
-  };
-
-  const header = split(lines[0]).map((h) => h.replace(/\s|_/g, '').toLowerCase());
-  const alias = {
-    date: 'date', 日期: 'date',
-    steps: 'steps', 步数: 'steps',
-    restinghr: 'restingHr', 静息心率: 'restingHr', 心率: 'restingHr', hr: 'restingHr', heartrate: 'restingHr',
-    sleephours: 'sleepHours', 睡眠: 'sleepHours', 睡眠时长: 'sleepHours', sleep: 'sleepHours',
-    weightkg: 'weightKg', 体重: 'weightKg', weight: 'weightKg',
-    activeminutes: 'activeMinutes', 活动时长: 'activeMinutes', minutes: 'activeMinutes',
-    // 当天心率统计（Apple 健康 / 手环 App 导出）：表头去空格并转小写后是 hravg / hrmax / hrmin，
-    // 必须显式映射回驼峰字段；否则 row 里留下的是小写 key，取值永远拿到 null（踩过这个坑）
-    hravg: 'hrAvg', avghr: 'hrAvg', 平均心率: 'hrAvg',
-    hrmax: 'hrMax', maxhr: 'hrMax', 最高心率: 'hrMax',
-    hrmin: 'hrMin', minhr: 'hrMin', 最低心率: 'hrMin',
-  };
-  const keys = header.map((h) => alias[h] || h);
-
-  return lines.slice(1).map((line) => {
-    const cells = split(line);
-    const row = {};
-    keys.forEach((k, i) => {
-      if (cells[i] !== undefined) row[k] = cells[i];
-    });
-    return row;
-  });
-}
-
-/** JSON 解析：接受数组，或 {records:[...]} / {data:[...]} */
-function parseJson(text) {
-  let j;
-  try {
-    j = JSON.parse(text);
-  } catch {
-    throw new BizError('JSON 格式不正确');
-  }
-  if (Array.isArray(j)) return j;
-  if (Array.isArray(j.records)) return j.records;
-  if (Array.isArray(j.data)) return j.data;
-  throw new BizError('JSON 里没有找到数组数据（支持数组或 {records:[]}）');
-}
-
-/** 日期归一化：支持 2026-10-21 / 2026/10/21 / 20261021 / 时间戳 */
-function normalizeDate(v) {
-  if (v === undefined || v === null || v === '') return null;
-  const s = String(v).trim();
-  let m = s.match(/^(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})/);
-  if (m) return `${m[1]}-${String(m[2]).padStart(2, '0')}-${String(m[3]).padStart(2, '0')}`;
-  m = s.match(/^(\d{4})(\d{2})(\d{2})$/);
-  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
-  const n = Number(s);
-  if (Number.isFinite(n) && n > 1e12) {
-    const d = new Date(n);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-  return null;
-}
-
-/** 数值归一化：无法解析返回 null */
-function toNum(v) {
-  if (v === undefined || v === null || v === '') return null;
-  const n = Number(String(v).replace(/[^\d.\-]/g, ''));
-  return Number.isFinite(n) ? n : null;
-}
-
 export default router;
+

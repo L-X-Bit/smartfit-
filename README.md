@@ -56,7 +56,7 @@
 | 🏃 **运动打卡** | 动作库搜索打卡、组数/次数/时长/强度、体温感受、日历热力图、连续打卡天数 | 无（MET 公式确定性计量） |
 | 🤖 **AI 健身计划** | 输入身体情况 → 生成周计划；勾选完成可自动生成打卡 | ⭐ 核心（Agent 编排 + RAG + 校验） |
 | 📏 **身体数据** | 体重/体脂/肌肉/围度/静息心率/睡眠录入、BMI 与体脂评估、代谢指标 | 间接（作为 AI 上下文） |
-| ⌚ **设备同步** | 四条通路把可穿戴数据接进来：**蓝牙心率带实时心率**（Web Bluetooth 标准 GATT 0x180D，含实时曲线与统计）/ **手动录入一次心率**（任何浏览器都能用：夸克、小米浏览器、iPhone 皆可）/ **手环 App 导出的 CSV·JSON**（先预览再写库，支持中英文表头）/ **Apple Watch 走「健康」App 导出**（`node tools/apple-health-to-csv.mjs 导出.zip` 本地转 CSV 再导入）/ **无设备演示模式**；步数按 MET 折算成步行打卡、静息心率与睡眠写入身体数据 | 无（标准蓝牙协议 + 确定性换算） |
+| ⌚ **设备同步** | 五条通路把可穿戴数据接进来：**蓝牙心率带实时心率**（Web Bluetooth 标准 GATT 0x180D，含实时曲线与统计）/ **手动录入一次心率**（任何浏览器都能用：夸克、小米浏览器、iPhone 皆可）/ **手环 App 导出的 CSV·JSON**（先预览再写库，支持中英文表头）/ **Apple Watch 走「健康」App 导出**（`node tools/apple-health-to-csv.mjs 导出.zip` 本地转 CSV 再导入）/ **无设备演示模式**；此外还有 **🔁 自动同步**：生成同步令牌后，iPhone 系统「快捷指令」每天定时把步数/心率/睡眠推到平台，电脑端 `tools/health-sync.mjs` 可直接监听目录或吃「健康」导出 zip（不用再转 CSV、不用手动上传），见 [`docs/健康数据自动同步.md`](docs/健康数据自动同步.md)；步数按 MET 折算成步行打卡、静息心率与睡眠写入身体数据 | 无（标准蓝牙协议 + 确定性换算） |
 | 📊 **数据可视化** | 热量收支、训练量、部位均衡度、身体成分、打卡热力图、目标仪表盘 | 无（数据聚合） |
 | 💬 **AI 健身教练** | 多轮对话、逐字流式输出、引用知识库来源、展示注入的用户数据快照 | ⭐ 核心（SSE + RAG） |
 | 🥗 **健康饮食** | 食物库检索、四餐记录、三大营养素供能比、AI 一日配餐一键采纳 | ⭐ 较强（大模型 + 食物库约束） |
@@ -364,11 +364,11 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │       ├── app.js                  # Express 装配（中间件顺序、路由挂载、静态托管）
 │       ├── config/index.js         # 配置中心（.env 解析 + 默认值 + 启动摘要）
 │       ├── db/
-│       │   ├── schema.sql          # 14 张表的 DDL（含中文注释）
+│       │   ├── schema.sql          # 15 张表的 DDL（含中文注释）
 │       │   ├── index.js            # 连接与 get/all/run/tx 封装
 │       │   └── seed.js             # 知识库导入 + 演示数据生成
-│       ├── middleware/             # auth（鉴权）/ error（统一错误）/ common（日志·限流）
-│       ├── utils/                  # health（健康公式）/ security（密码·JWT）/ response
+│       ├── middleware/             # auth（JWT 鉴权）/ syncAuth（同步令牌鉴权）/ error（统一错误）/ common（日志·限流）
+│       ├── utils/                  # health（健康公式）/ security（密码·JWT）/ syncToken（令牌生成与摘要）/ response
 │       ├── modules/                # 业务模块
 │       │   ├── auth/               # 注册/登录/档案
 │       │   ├── body/               # 身体数据 + 六维分析
@@ -379,7 +379,8 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │       │   ├── community/          # 帖子/点赞/评论/排行榜
 │       │   ├── dashboard/          # 首页聚合
 │       │   ├── foodscan/           # 拍照识热量（多模态识别的业务落库与历史）
-│       │   ├── devices/            # 设备同步（蓝牙心率 / CSV·JSON 导入 / 演示模式）
+│       │   ├── devices/            # 设备同步（蓝牙心率 / CSV·JSON 导入 / 演示模式）+ service（解析与写库，供导入和自动同步共用）
+│       │   ├── sync/               # 自动同步（令牌签发 + 令牌鉴权推送，免导出免上传）
 │       │   └── ai/                 # AI 能力路由（status/stats/coach SSE/upload/vision）
 │       └── ai/                     # ★ AI 能力层
 │           ├── provider.js         # OpenAI 兼容客户端（超时/重试/流式/多模态）
@@ -416,12 +417,20 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │           ├── Checkin.vue         # 运动打卡
 │           ├── Plan.vue            # AI 健身计划
 │           ├── Body.vue            # 身体数据
-│           ├── Devices.vue         # 设备同步（蓝牙心率 / 导入 / 演示）
+│           ├── Devices.vue         # 设备同步（蓝牙心率 / 导入 / 演示 / 自动同步令牌）
 │           ├── Analytics.vue       # 数据可视化
 │           ├── Coach.vue           # AI 健身教练
 │           ├── Diet.vue            # 健康饮食
 │           ├── Community.vue       # 运动社区
 │           └── Profile.vue         # 个人中心 + AI 运行统计
+│
+├── tools/                          # ═══ 本地工具（不参与线上运行） ═══
+│   ├── health-sync.mjs             # 健康数据自动同步客户端（--once 推文件 / --watch 监听目录）
+│   ├── lib/apple-health.mjs        # Apple「健康」导出解析（zip 流式解压 + 按天聚合）
+│   ├── apple-health-to-csv.mjs     # 导出 → CSV（手动导入用，与上面共用解析逻辑）
+│   ├── test-devices.mjs            # 设备同步自测（含自动同步令牌全流程）
+│   ├── audit-pages.mjs             # 11 页功能与移动端布局体检
+│   └── verify-online.mjs           # 线上地址完整验收
 │
 └── docs/
     ├── 智练SmartFit-技术文档.pdf    # 技术文档（30 页以内）
@@ -430,7 +439,7 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 ```
 
 **分层原则**：路由层（`modules/*/routes.js`）只做参数校验与响应封装；领域逻辑放在 `service` 或 `utils`；AI 能力集中在 `src/ai/`，与业务解耦，可单独替换。
-所有源码均带中文注释（60 个源码文件、15797 行、注释率 12.1%，可用 `node tools/count-code.mjs` 复算），关键算法处注明"为什么这么做"，便于阅读与二次开发。
+所有源码均带中文注释（64 个源码文件、17247 行、注释率 12.8%，可用 `node tools/count-code.mjs` 复算），关键算法处注明"为什么这么做"，便于阅读与二次开发。
 
 ---
 
@@ -473,6 +482,10 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 | POST | `/api/devices/heart-rate` | **蓝牙心率会话落库**（可同时写入今日静息心率） |
 | POST | `/api/devices/import` | **导入手环 CSV / JSON**（`dryRun` 先预览，再写库；步数自动折算成步行打卡） |
 | POST | `/api/devices/demo` | 演示模式：生成 N 天模拟设备数据（无硬件也能完整演示） |
+| POST | `/api/sync/tokens` · `GET /api/sync/tokens` · `DELETE /api/sync/tokens/:id` | **自动同步令牌**：签发（明文只返回一次，库里只存 SHA-256）/ 列表（含使用次数与最近使用时间）/ 撤销 |
+| GET | `/api/sync/setup` | 自助配置：推送地址、JSON 模板、快捷指令与脚本命令（页面复制按钮的数据源） |
+| POST / GET | `/api/sync/push` | **免登录推送**（请求头 `X-Sync-Token` 或 `?token=`）：单日 `metrics`、多日 `rows`、可选 `heartRate`，幂等写入；`dryRun` 可先预览 |
+| GET | `/api/sync/ping` | 校验同步令牌是否有效（设备配好后的第一步自检） |
 | GET | `/api/dashboard/overview` | 首页聚合数据 |
 | POST | `/api/ai/coach` | **AI 教练对话（SSE）**：`meta → delta×N → done` |
 | GET | `/api/ai/status` · `/api/ai/stats` · `/api/ai/suggestions` · `/api/ai/history` | AI 状态 / 统计 / 建议 / 历史 |
@@ -495,7 +508,8 @@ node server/scripts/smoke-test.mjs
 | 类型 | 方式 | 覆盖 |
 | --- | --- | --- |
 | 接口冒烟 | `node server/scripts/smoke-test.mjs` | 登录、总览、打卡、身体数据、AI 计划、勾选自动打卡、AI 配餐批量采纳、社区互动、图片上传、SSE 对话、AI 统计 |
-| 设备同步 | `node tools/test-devices.mjs` | 蓝牙会话落库、CSV 导入（预览 + 写库）、演示数据生成、重复计数防护、非法输入拦截 |
+| 设备同步 | `node tools/test-devices.mjs` | 蓝牙会话落库、CSV 导入（预览 + 写库）、演示数据生成、重复计数防护、非法输入拦截、**自动同步令牌全流程**（签发 → 令牌鉴权推送 → 同日合并不丢指标 → 撤销即失效） |
+| 自动同步脚本 | `node tools/health-sync.mjs --once 导出.zip --token sft_xxx` | Apple「健康」导出 zip 流式解析 → 直接推送（不再产生中间 CSV）、目录监听去重与变更重推 |
 | 食物匹配 | `node tools/test-food-match.mjs` | 13 个名称匹配用例（该拒的拒、该中的中） |
 | 真实模型回放 | `node tools/test-vision-replay.mjs` | 拿真实照片重跑「识别 → 库匹配 → 双源校验」并打印每项数据来源 |
 | 界面体检 | `node tools/audit-pages.mjs [--mobile]` | 11 个页面：菜单完整性、标志性文案、移动端横向溢出 |

@@ -41,3 +41,12 @@ tools/bin/
 tools/tunnel-url.txt
 # Apple 健康导出转换产生的 CSV（本地生成，不入库）
 apple-health-*.csv
+
+# ---------- 自动同步（本地凭证与状态，绝不入库） ----------
+# 同步令牌是推送凭证，等同密码；只留在本机 tools/.sync-config.json
+tools/.sync-config.json
+# 已推送文件指纹（本地状态）
+tools/.health-sync-state.json
+# 监听目录里的健康导出原始文件（体积大且含隐私）
+健康导出/
+*.zip.icloud

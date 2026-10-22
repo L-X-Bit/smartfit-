@@ -286,6 +286,173 @@ date,steps,restingHr,sleepHours,weightKg
       </div>
     </div>
 
+    <!-- ==================== ④ 自动同步（免导出 / 免上传） ==================== -->
+    <div class="card mt-16 sync-card">
+      <div class="card-title">
+        <span>④ 自动同步（不用导出、不用转 CSV、不用上传）</span>
+        <span class="sub">同步令牌 · iPhone 快捷指令 · 电脑监听脚本</span>
+      </div>
+
+      <!--
+        为什么要有这一条通路（讲解要点）
+        ------------------------------------------------------------------
+        前面 ①②③ 都是「人动手」：连一下蓝牙、选个文件、点个生成。
+        但健康管理的真实使用场景是「每天自动进来」，否则用户第三天就懒得记录了。
+        浏览器拿不到系统健康数据（iOS 不给网页开 HealthKit，各家云 API 要企业资质），
+        所以正确做法是反过来：**让能拿到数据的那一端主动推**——
+        iPhone 用系统自带「快捷指令」定时读健康 App，电脑用脚本监听目录，都只需要一枚令牌。
+      -->
+      <div class="sync-intro">
+        以前要「手环/健康 App 导出 → 转成 CSV → 网页选文件上传」，每天都要人动手。现在换成
+        <b>设备主动推</b>：生成一枚同步令牌后，iPhone 系统自带的「快捷指令」可以每天定时把
+        步数 / 心率 / 睡眠直接推到平台；电脑上的 <code>tools/health-sync.mjs</code> 也能直接喂
+        「健康」导出的 zip，连转换都省了。推上来的数据照样写进<b>身体数据</b>、照样按 MET 折算
+        <b>步行热量</b>，同步历史里标记为「自动同步」，和手动导入的数据一眼能区分。
+      </div>
+
+      <!-- 第一步：令牌 -->
+      <div class="sync-token-box">
+        <div class="st-left">
+          <div class="st-title">第一步：生成同步令牌</div>
+          <div class="st-desc">令牌只用于推送健康数据（不能改资料、不能看社交内容），可随时撤销；服务端只存 SHA-256 摘要，明文<b>只在生成时显示一次</b>。</div>
+        </div>
+        <div class="st-right">
+          <el-input v-model="newTokenName" size="small" placeholder="给令牌起个名：iPhone 快捷指令" style="width: 210px" />
+          <el-button type="primary" size="small" class="btn-gradient" :loading="syncBusy" @click="createToken">生成令牌</el-button>
+        </div>
+      </div>
+
+      <!-- 明文只显示一次 -->
+      <div v-if="newTokenPlain" class="st-plain">
+        <div class="st-plain-title">✅ 令牌已生成，请立刻复制保存（关掉页面就不再显示）</div>
+        <div class="st-plain-row">
+          <code>{{ newTokenPlain }}</code>
+          <el-button size="small" type="primary" plain @click="copyText(newTokenPlain, 'plain')">
+            {{ copiedKey === 'plain' ? '已复制 ✓' : '复制令牌' }}
+          </el-button>
+        </div>
+        <div class="st-plain-tip">
+          推送地址：<code>{{ syncSetup.pushUrl }}</code>
+          <el-button size="small" link type="primary" @click="copyText(syncSetup.pushUrl, 'url')">
+            {{ copiedKey === 'url' ? '已复制 ✓' : '复制地址' }}
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 已有令牌列表 -->
+      <div v-if="syncTokens.length" class="st-list">
+        <div v-for="t in syncTokens" :key="t.id" class="st-row" :class="{ off: t.revoked }">
+          <el-tag size="small" :type="t.revoked ? 'info' : 'success'" effect="plain">{{ t.revoked ? '已撤销' : '生效中' }}</el-tag>
+          <span class="st-name">{{ t.name }}</span>
+          <code class="st-hint">{{ t.hint }}…</code>
+          <span class="st-meta">用过 {{ t.pushCount }} 次{{ t.lastUsedAt ? ` · 最近 ${t.lastUsedAt}` : ' · 还没用过' }}</span>
+          <el-button v-if="!t.revoked" size="small" link type="danger" @click="revokeToken(t)">撤销</el-button>
+        </div>
+      </div>
+
+      <!-- 三种接法 -->
+      <el-collapse v-model="syncOpen" class="sync-collapse">
+        <!-- ============ iPhone ============ -->
+        <el-collapse-item name="iphone">
+          <template #title>
+            <span class="sc-title">🍎 iPhone：系统「快捷指令」每天自动推</span>
+            <span class="sc-sub">不装任何第三方 App，也不用手动导出</span>
+          </template>
+          <ol class="sc-steps">
+            <li>
+              先复制下面这条<b>一次性验证地址</b>（已带上你的令牌），在 iPhone 的 Safari 里粘贴打开——返回
+              <code>code: 0</code> 就说明令牌与网络都通了（示例数字会真的写进今天的数据，之后可覆盖）。
+              <div class="sc-copy">
+                <code class="sc-url">{{ syncUrlWithToken }}</code>
+                <el-button size="small" type="primary" plain @click="copyText(syncUrlWithToken, 'iphone-url')">
+                  {{ copiedKey === 'iphone-url' ? '已复制 ✓' : '复制验证地址' }}
+                </el-button>
+              </div>
+            </li>
+            <li>
+              打开 iPhone 自带「<b>快捷指令</b>」App → 底部「<b>自动化</b>」→ 右上「+」→「创建个人自动化」→
+              选「<b>时间</b>」→ 每天 <b>22:00</b>（也可选「App 关闭时 → 健康」）→ 下一步。
+            </li>
+            <li>
+              点「添加操作」，搜「<b>获取健康样本</b>」：类型选「步数」，时间范围选「今天」；
+              再各加一条同样的操作，类型分别选「静息心率」「睡眠」（睡眠选「睡眠分析」）。
+            </li>
+            <li>
+              再加一个操作「<b>获取 URL 内容</b>」，URL 填上面那条地址；把 URL 里的
+              <code>8600</code> / <code>64</code> / <code>7.2</code> 换成前三个操作的变量
+              （在 URL 输入框里点「插入变量」即可）。方法保持 GET。
+            </li>
+            <li>
+              下一步后<b>关闭「运行前询问」</b>——这一步不做的话每天还得手点一下，就不算自动了。
+              保存完成，之后每天到点自动推送。
+            </li>
+          </ol>
+          <div class="sc-note">
+            没配成功也别急：①②③ 三条路一直都在。快捷指令只是「省掉每天手动那一下」的增强项，
+            答辩演示时可以直接用 ④ 的历史记录说明自动化链路已经打通。
+          </div>
+        </el-collapse-item>
+
+        <!-- ============ 电脑 ============ -->
+        <el-collapse-item name="pc">
+          <template #title>
+            <span class="sc-title">💻 电脑：监听目录 / 直接吃健康导出 zip</span>
+            <span class="sc-sub">完全告别「转 CSV → 手动上传」</span>
+          </template>
+          <div class="sc-block">
+            <div class="sc-block-title">A. 一次性推送（替代"转 CSV 再上传"）</div>
+            <div class="sc-copy">
+              <code class="sc-url">{{ exportCommandWithToken }}</code>
+              <el-button size="small" type="primary" plain @click="copyText(exportCommandWithToken, 'cmd-once')">
+                {{ copiedKey === 'cmd-once' ? '已复制 ✓' : '复制命令' }}
+              </el-button>
+            </div>
+            <div class="sc-tip">
+              把命令里的 <code>导出.zip</code> 换成「健康」App 导出的文件路径即可。脚本在本机流式解析
+              （几百 MB 也不吃内存），只把聚合后的每日指标 POST 上去，原始文件不上传。
+            </div>
+          </div>
+          <div class="sc-block">
+            <div class="sc-block-title">B. 后台自动同步（真正无人值守）</div>
+            <div class="sc-copy">
+              <code class="sc-url">{{ watchCommandWithToken }}</code>
+              <el-button size="small" type="primary" plain @click="copyText(watchCommandWithToken, 'cmd-watch')">
+                {{ copiedKey === 'cmd-watch' ? '已复制 ✓' : '复制命令' }}
+              </el-button>
+            </div>
+            <div class="sc-tip">
+              指定一个目录（建议用 iCloud 云盘的文件夹）：iPhone 快捷指令往里「存储文件」、或把健康导出 zip
+              丢进去，脚本发现新文件就自动解析推送；已推过的文件记在
+              <code>tools/.health-sync-state.json</code>，不会重复推，内容变了会自动再推一次。
+            </div>
+          </div>
+        </el-collapse-item>
+
+        <!-- ============ 安卓 ============ -->
+        <el-collapse-item name="android">
+          <template #title>
+            <span class="sc-title">🤖 安卓：Chrome 蓝牙直连 / 免费 App 定时推</span>
+            <span class="sc-sub">国产浏览器没蓝牙接口时也有路走</span>
+          </template>
+          <ul class="sc-steps">
+            <li>
+              <b>实时心率</b>：用 Chrome / Edge 打开本页（https 域名）走上面的 ①，安卓系统首次会询问
+              「附近的设备」权限，点允许。
+            </li>
+            <li>
+              <b>定时推送</b>：装一个免费的「HTTP Shortcuts」（或 MacroDroid / Tasker），新建一个脚本，
+              向 <code>{{ syncSetup.pushUrl }}</code> 发 GET/POST，带上请求头
+              <code>X-Sync-Token</code> 和同样这几个参数（<code>steps / restingHr / sleepHours</code>），
+              再设成每天定时执行即可。
+            </li>
+            <li>
+              小米 / 华为手环记得先在自家 App 里打开「心率广播」，否则蓝牙搜不到设备。
+            </li>
+          </ul>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
+
     <!-- ==================== 一周数据 + 同步历史 ==================== -->
     <div class="grid grid-2 mt-16">
       <div class="card">
@@ -603,6 +770,114 @@ async function runDemo() {
   }
 }
 
+// ---------------------------------------------------------------- 自动同步（④）
+/**
+ * 自动同步的交互状态
+ * ---------------------------------------------------------------------------
+ * 关键设计：令牌明文只在「刚创建」的那一刻显示（后端也只返回这一次），
+ * 所以 newTokenPlain 是"一次性展示位"——刷新页面就没了，这是有意的安全设计，
+ * 用户如果没复制，就会走「撤销 + 重新生成」，而不是让我们把明文存到 localStorage 里。
+ */
+const syncSetup = ref({
+  origin: '',
+  pushUrl: '',
+  pingUrl: '',
+  getUrlSample: '',
+  jsonSampleText: '',
+  watchCommand: '',
+  exportCommand: '',
+  hasToken: false,
+});
+const syncTokens = ref([]);
+const newTokenName = ref('iPhone 快捷指令');
+const newTokenPlain = ref('');
+const syncBusy = ref(false);
+/** 当前处于「已复制」反馈状态的按钮标识 */
+const copiedKey = ref('');
+/** 默认把 iPhone 那一段展开：它是普通用户最需要看的一条 */
+const syncOpen = ref(['iphone']);
+
+/** 命令/网址里用的平台地址（线上是 https 域名，本地是 localhost） */
+const syncBaseUrl = computed(() => syncSetup.value.origin || (typeof location !== 'undefined' ? location.origin : ''));
+/** 令牌明文（没复制走就退化成占位符，避免复制出半截错误的命令） */
+const tokenForText = computed(() => newTokenPlain.value || '<你的令牌>');
+
+/** iPhone 一次性验证地址：把示例数字换成真实数据即可确认链路通了 */
+const syncUrlWithToken = computed(
+  () => `${syncSetup.value.pushUrl || `${syncBaseUrl.value}/api/sync/push`}?token=${tokenForText.value}&steps=8600&restingHr=64&sleepHours=7.2`,
+);
+/** 电脑端一次性推送命令（替代"转 CSV + 上传"） */
+const exportCommandWithToken = computed(
+  () => `node tools/health-sync.mjs --once "导出.zip" --url ${syncBaseUrl.value} --token ${tokenForText.value}`,
+);
+/** 电脑端监听目录命令（真正无人值守） */
+const watchCommandWithToken = computed(
+  () => `node tools/health-sync.mjs --watch "%USERPROFILE%\\iCloudDrive\\智练同步" --url ${syncBaseUrl.value} --token ${tokenForText.value}`,
+);
+
+async function loadSync() {
+  try {
+    const [setup, tokens] = await Promise.all([api.syncSetup(), api.syncTokens()]);
+    syncSetup.value = setup || syncSetup.value;
+    syncTokens.value = tokens || [];
+  } catch {
+    /* 自动同步是增强功能，接口异常不该让整页白屏 */
+  }
+}
+
+async function createToken() {
+  syncBusy.value = true;
+  try {
+    const res = await api.createSyncToken(newTokenName.value?.trim() || '未命名设备');
+    newTokenPlain.value = res.token;
+    if (res.pushUrl) syncSetup.value = { ...syncSetup.value, pushUrl: res.pushUrl };
+    ElMessage.success('令牌已生成，请立刻复制保存（关闭后不再显示）');
+    await loadSync();
+  } finally {
+    syncBusy.value = false;
+  }
+}
+
+async function revokeToken(t) {
+  syncBusy.value = true;
+  try {
+    await api.revokeSyncToken(t.id);
+    ElMessage.success(`已撤销「${t.name}」，对应设备将无法再推送`);
+    await loadSync();
+  } finally {
+    syncBusy.value = false;
+  }
+}
+
+/**
+ * 复制文本
+ * 优先用 Clipboard API；非 https 的老环境没有它，退化成临时 textarea + execCommand，
+ * 否则用户点「复制」只会什么都没发生（很挫败）。
+ */
+async function copyText(text, key) {
+  const value = String(text ?? '');
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = value;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    copiedKey.value = key;
+    setTimeout(() => {
+      if (copiedKey.value === key) copiedKey.value = '';
+    }, 2500);
+  } catch {
+    ElMessage.info('复制失败，请手动选中复制：' + value);
+  }
+}
+
 // ---------------------------------------------------------------- 一周数据图
 const weekOption = computed(() => {
   const list = weekly.value.list || [];
@@ -644,10 +919,10 @@ const weekOption = computed(() => {
 
 // ---------------------------------------------------------------- 工具
 function sourceText(s) {
-  return { bluetooth: '蓝牙心率', import: '文件导入', demo: '演示数据' }[s] || s;
+  return { bluetooth: '蓝牙心率', import: '文件导入', auto: '自动同步', demo: '演示数据' }[s] || s;
 }
 function sourceTag(s) {
-  return { bluetooth: 'danger', import: 'primary', demo: 'warning' }[s] || 'info';
+  return { bluetooth: 'danger', import: 'primary', auto: 'success', demo: 'warning' }[s] || 'info';
 }
 
 /** 拉取页面所需的全部数据（概览 / 一周 / 历史） */
@@ -808,6 +1083,7 @@ onMounted(async () => {
   btReady.value = typeof navigator !== 'undefined' && !!navigator.bluetooth && window.isSecureContext;
 
   await refreshAll();
+  await loadSync();
 });
 
 onBeforeUnmount(() => {
@@ -1226,6 +1502,213 @@ onBeforeUnmount(() => {
   word-break: break-all;
 }
 
+/* ---------------- ④ 自动同步 ---------------- */
+.sync-card {
+  border: 1px solid #dbeafe;
+  background: linear-gradient(180deg, #f8fbff, #ffffff 40%);
+}
+.sync-intro {
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--text-2);
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.sync-intro code,
+.sc-url,
+.st-plain code,
+.st-hint {
+  font-family: Consolas, monospace;
+}
+.sync-token-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  flex-wrap: wrap;
+}
+.st-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #065f46;
+}
+.st-desc {
+  font-size: 11.5px;
+  color: #047857;
+  line-height: 1.6;
+  margin-top: 3px;
+  max-width: 620px;
+}
+.st-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.st-plain {
+  margin-top: 10px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+.st-plain-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 7px;
+}
+.st-plain-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.st-plain-row code {
+  background: #fff;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 12px;
+  color: #7c2d12;
+  word-break: break-all;
+  flex: 1;
+  min-width: 220px;
+}
+.st-plain-tip {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.st-plain-tip code {
+  background: #fff;
+  border: 1px solid #fde68a;
+  border-radius: 5px;
+  padding: 1px 6px;
+  word-break: break-all;
+}
+.st-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.st-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 11.5px;
+  flex-wrap: wrap;
+}
+.st-row.off {
+  opacity: 0.6;
+}
+.st-name {
+  font-weight: 700;
+  color: var(--text-1);
+}
+.st-hint {
+  color: var(--text-3);
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.st-meta {
+  color: var(--text-3);
+  margin-left: auto;
+}
+.sync-collapse {
+  margin-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+  border-bottom: none;
+}
+.sc-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.sc-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-left: 8px;
+  font-weight: 500;
+}
+.sc-steps {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--text-2);
+}
+.sc-steps li {
+  margin-bottom: 6px;
+}
+.sc-steps code,
+.sc-tip code,
+.sc-note code {
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: Consolas, monospace;
+  font-size: 11.5px;
+  word-break: break-all;
+}
+.sc-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  flex-wrap: wrap;
+}
+.sc-url {
+  flex: 1;
+  min-width: 240px;
+  background: #0f172a;
+  color: #cbd5e1;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 11.5px;
+  word-break: break-all;
+}
+.sc-note {
+  margin-top: 8px;
+  padding: 8px 11px;
+  border-radius: 9px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #1e40af;
+}
+.sc-block {
+  margin-bottom: 12px;
+}
+.sc-block-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 2px;
+}
+.sc-tip {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-3);
+}
+
 /* ---------------- 移动端 ---------------- */
 @media (max-width: 900px) {
   .dev-hero {
@@ -1275,6 +1758,17 @@ onBeforeUnmount(() => {
   }
   .hist-list {
     max-height: none;
+  }
+  /* 自动同步：令牌区在窄屏改为上下排列，命令块不挤成两行 */
+  .sync-token-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .st-right {
+    flex-wrap: wrap;
+  }
+  .st-meta {
+    margin-left: 0;
   }
 }
 @media (max-width: 600px) {

@@ -1,13 +1,17 @@
 /**
  * 请求日志中间件：打印方法、路径、状态码、耗时
  * 开发时能直观看到每个请求的走向，演示时也能展示「前后端联调」过程
+ *
+ * 注意脱敏：自动同步支持用 ?token=sft_xxx 传令牌（iPhone 快捷指令拼请求头很麻烦），
+ * 但日志会被 Render / 终端长期保存，所以这里把 token 值打码，只保留是否传了令牌。
  */
 export function requestLogger(req, res, next) {
   const start = Date.now();
   res.on('finish', () => {
     const ms = Date.now() - start;
     const color = res.statusCode >= 500 ? '\x1b[31m' : res.statusCode >= 400 ? '\x1b[33m' : '\x1b[32m';
-    console.log(`${color}${res.statusCode}\x1b[0m ${req.method.padEnd(6)} ${req.originalUrl} \x1b[90m${ms}ms\x1b[0m`);
+    const url = String(req.originalUrl || '').replace(/([?&](?:token|syncToken)=)[^&]*/gi, '$1***');
+    console.log(`${color}${res.statusCode}\x1b[0m ${req.method.padEnd(6)} ${url} \x1b[90m${ms}ms\x1b[0m`);
   });
   next();
 }

@@ -257,9 +257,10 @@ CREATE INDEX IF NOT EXISTS idx_foodscan_user ON food_scans(user_id, id DESC);
 -- ---------------------------- 10. 可穿戴设备数据同步 ----------------------------
 
 -- 设备同步记录表：每一次从手环/手表/心率带同步 = 一条记录。
--- 支持三种来源：
+-- 支持四种来源：
 --   bluetooth —— 浏览器 Web Bluetooth 实时连接心率带/手环（标准 GATT 心率服务 0x180D）
 --   import    —— 导入手环 App 导出的 CSV/JSON（步数、睡眠、心率、体重等）
+--   auto      —— 自动同步：同步令牌 + 系统快捷指令 / 电脑端监听脚本定时推送（无需导出上传）
 --   demo      —— 演示模式生成模拟数据（保证无设备时也能完整演示）
 CREATE TABLE IF NOT EXISTS device_syncs (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -273,3 +274,23 @@ CREATE TABLE IF NOT EXISTS device_syncs (
   created_at  TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
 );
 CREATE INDEX IF NOT EXISTS idx_devsync_user ON device_syncs(user_id, id DESC);
+
+-- ---------------------------- 11. 自动同步令牌 ----------------------------
+
+-- 同步令牌表：「让设备/脚本自己把数据推进来」的凭证。
+-- 为什么不用登录 JWT：iPhone 的「快捷指令」、电脑上的监听脚本都不是浏览器，
+-- 没有登录态，也不该保存账号密码。令牌可以随时撤销、可区分来源，泄漏只影响这一条通道。
+-- 安全设计：库里只存 SHA-256 摘要（token_hash），明文只在创建那一刻返回给用户一次，
+--          即使数据库被拖走也拿不到可用的令牌（和个人密码的存法一个道理）。
+CREATE TABLE IF NOT EXISTS sync_tokens (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name         TEXT,                              -- 来源备注：iPhone 快捷指令 / iCloud 监听脚本 / HTTP Shortcuts
+  token_hash   TEXT    NOT NULL UNIQUE,           -- SHA-256(令牌明文)，明文不落库
+  token_hint   TEXT    NOT NULL,                  -- 明文前 8 位，界面用来区分是哪一枚
+  push_count   INTEGER NOT NULL DEFAULT 0,        -- 累计推送次数
+  last_used_at TEXT,                              -- 最近一次使用时间
+  revoked      INTEGER NOT NULL DEFAULT 0,        -- 1 = 已撤销（保留记录便于审计）
+  created_at   TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_synctoken_user ON sync_tokens(user_id, id DESC);
