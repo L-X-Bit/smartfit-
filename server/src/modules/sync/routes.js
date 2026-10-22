@@ -165,16 +165,26 @@ router.get(
 
 // ============================================================ ② 推送（令牌鉴权）
 
+/**
+ * 可选数值字段
+ * ---------------------------------------------------------------------------
+ * 用 nullish()（= optional + nullable）而不是 optional()：
+ * 手写 JSON 的调用方常把"这项没有"写成 null（例如 {"steps": 8600, "sleepHours": null}），
+ * 如果只允许 optional，zod 会直接报"Expected number, received null"，
+ * 用户看到的是一句看不懂的参数校验失败。这里一律接受 null，交给后面统一当"没填"处理。
+ */
+const numOpt = (min, max) => z.number().min(min).max(max).nullish();
+
 const metricsSchema = z.object({
-  date: z.string().regex(DATE_RE).optional(),
-  steps: z.number().min(0).max(200000).optional(),
-  restingHr: z.number().min(20).max(250).optional(),
-  sleepHours: z.number().min(0).max(24).optional(),
-  weightKg: z.number().min(20).max(400).optional(),
-  activeMinutes: z.number().min(0).max(1440).optional(),
-  hrAvg: z.number().min(20).max(250).optional(),
-  hrMax: z.number().min(20).max(250).optional(),
-  hrMin: z.number().min(20).max(250).optional(),
+  date: z.string().regex(DATE_RE).nullish(),
+  steps: numOpt(0, 200000),
+  restingHr: numOpt(20, 250),
+  sleepHours: numOpt(0, 24),
+  weightKg: numOpt(20, 400),
+  activeMinutes: numOpt(0, 1440),
+  hrAvg: numOpt(20, 250),
+  hrMax: numOpt(20, 250),
+  hrMin: numOpt(20, 250),
 });
 
 const pushSchema = z.object({
