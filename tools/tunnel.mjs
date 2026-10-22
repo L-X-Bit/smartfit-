@@ -33,6 +33,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const PORT = Number(process.env.TUNNEL_PORT || 3000);
 const URL_FILE = path.join(ROOT, 'tools', 'tunnel-url.txt');
+/** 放在项目根目录的「纯文本网址」，方便直接打开复制、粘到微信/邮件里发给别人 */
+const PLAIN_FILE = path.join(ROOT, '当前网址.txt');
 const QR_FILE = path.join(ROOT, 'logs', 'tunnel-qr.html');
 const SSH = process.env.SSH_PATH || path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Git', 'usr', 'bin', 'ssh.exe');
 const FORCED = (process.argv.find((a) => a.startsWith('--provider=')) || '').split('=')[1];
@@ -208,6 +210,25 @@ function connectOnce(provider, attempt) {
       printed = true;
       const url = provider.url(m);
       fs.writeFileSync(URL_FILE, url + '\n', 'utf8');
+      // 纯文本版：打开就能整段复制，直接发给别人
+      fs.writeFileSync(
+        PLAIN_FILE,
+        [
+          '智练 SmartFit — 当前公网网址（复制下面这一行发给别人，4G 也能直接打开）',
+          '',
+          url,
+          '',
+          `更新时间：${new Date().toLocaleString('zh-CN')}　线路：${provider.name}`,
+          '演示账号：demo / 123456',
+          '',
+          '注意：免费隧道的域名会随隧道重连而改变。',
+          '  · 网址失效（打开显示 no tunnel）时，回电脑看这份文件或终端里的新地址；',
+          `  · 同一 Wi-Fi 下更稳的固定地址：${lanUrls()[0] || '（未检测到局域网地址）'}`,
+          '  · 想彻底固定：把项目部署到云平台，见 docs/部署到云-永久地址.md',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
       const qrPath = writeQrPage(url, provider.name);
       const line = '='.repeat(66);
       console.log(line);
@@ -220,6 +241,8 @@ function connectOnce(provider, attempt) {
       console.log('');
       console.log('  📷 不想手输网址？双击桌面「手机扫码打开智练」或打开：');
       console.log(`     ${qrPath}   （手机相机扫屏幕即可，页面自动跟随地址更新）`);
+      console.log('');
+      console.log('  📄 要发给别人：打开项目根目录的「当前网址.txt」，整段复制即可。');
       console.log('');
       console.log('  ⏱  首次打开约 15~25 秒（免费隧道带宽有限），第二次靠缓存很快。');
       console.log('  ⚠  免费线路会定期断开，断开后**地址会变**：');

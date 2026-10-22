@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+web/dist
+dist
+.git
+.gitignore
+logs
+tools/bin
+server/data/*.db
+server/data/*.db-*
+server/uploads
+.npm-cache
+.tools
+docs/screenshots
+*.zip
