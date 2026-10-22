@@ -42,13 +42,14 @@
 - **AI 的每一步决策都可解释**（前端展示画像 → 检索 → 生成 → 校验 → 安全审核的完整时间线）
 - **AI 不可用时产品依然完整**（三层降级：大模型 → 修复重试 → 本地规则引擎 / 检索式问答）
 
-### 八大功能模块
+### 九大功能模块
 
 | 模块 | 能力 | AI 参与 |
 | --- | --- | --- |
 | 🏃 **运动打卡** | 动作库搜索打卡、组数/次数/时长/强度、体温感受、日历热力图、连续打卡天数 | 无（MET 公式确定性计量） |
 | 🤖 **AI 健身计划** | 输入身体情况 → 生成周计划；勾选完成可自动生成打卡 | ⭐ 核心（Agent 编排 + RAG + 校验） |
 | 📏 **身体数据** | 体重/体脂/肌肉/围度/静息心率/睡眠录入、BMI 与体脂评估、代谢指标 | 间接（作为 AI 上下文） |
+| ⌚ **设备同步** | 三条通路把可穿戴数据接进来：**蓝牙心率带实时心率**（Web Bluetooth 标准 GATT 0x180D，含实时曲线与统计）/ **手环 App 导出的 CSV·JSON**（先预览再写库，支持中英文表头）/ **无设备演示模式**；步数按 MET 折算成步行打卡、静息心率与睡眠写入身体数据 | 无（标准蓝牙协议 + 确定性换算） |
 | 📊 **数据可视化** | 热量收支、训练量、部位均衡度、身体成分、打卡热力图、目标仪表盘 | 无（数据聚合） |
 | 💬 **AI 健身教练** | 多轮对话、逐字流式输出、引用知识库来源、展示注入的用户数据快照 | ⭐ 核心（SSE + RAG） |
 | 🥗 **健康饮食** | 食物库检索、四餐记录、三大营养素供能比、AI 一日配餐一键采纳 | ⭐ 较强（大模型 + 食物库约束） |
@@ -60,7 +61,7 @@
 - **≤900px**：侧边导航折叠为抽屉（顶栏汉堡按钮唤出），多栏卡片降为单栏，图表高度自适应
 - **≤600px**：字号/内边距/弹窗宽度进一步收紧，发帖栏与表单控件纵向堆叠
 - 手机与电脑在同一 Wi-Fi 下，可用 `http://<电脑IP>:5173` 访问（`npm run dev` 启动日志会直接打印该地址）
-- 移动端已逐页体检：**10 个页面全部通过、零横向溢出**（`node tools/audit-pages.mjs --mobile`）
+- 移动端已逐页体检：**11 个页面全部通过、零横向溢出**（`node tools/audit-pages.mjs --mobile`）
 
 | 手机 · 数据总览 | 手机 · 抽屉导航 | 手机 · AI 拍照识热量 |
 | --- | --- | --- |
@@ -79,6 +80,10 @@
 | AI 拍照识热量（多模态） | 健康饮食 |
 | --- | --- |
 | ![识别热量](docs/screenshots/10-foodscan.png) | ![饮食](docs/screenshots/07-diet.png) |
+
+| 设备同步（可穿戴） | 身体数据 |
+| --- | --- |
+| ![设备同步](docs/screenshots/12-devices.png) | ![身体数据](docs/screenshots/04-body.png) |
 
 > 更多界面截图见 [`docs/screenshots/`](docs/screenshots/)，完整技术方案见 [`docs/智练SmartFit-技术文档.pdf`](docs/智练SmartFit-技术文档.pdf)。
 
@@ -351,6 +356,8 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │       │   ├── diet/               # 食物库/记录/AI 配餐
 │       │   ├── community/          # 帖子/点赞/评论/排行榜
 │       │   ├── dashboard/          # 首页聚合
+│       │   ├── foodscan/           # 拍照识热量（多模态识别的业务落库与历史）
+│       │   ├── devices/            # 设备同步（蓝牙心率 / CSV·JSON 导入 / 演示模式）
 │       │   └── ai/                 # AI 能力路由（status/stats/coach SSE/upload/vision）
 │       └── ai/                     # ★ AI 能力层
 │           ├── provider.js         # OpenAI 兼容客户端（超时/重试/流式/多模态）
@@ -381,12 +388,13 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │       ├── components/
 │       │   ├── ChartBox.vue        # ECharts 通用封装（resize/dispose/空态）
 │       │   └── StatCard.vue        # 指标卡
-│       └── views/                  # 10 个页面
+│       └── views/                  # 11 个页面
 │           ├── Login.vue           # 登录/注册
 │           ├── Dashboard.vue       # 数据总览
 │           ├── Checkin.vue         # 运动打卡
 │           ├── Plan.vue            # AI 健身计划
 │           ├── Body.vue            # 身体数据
+│           ├── Devices.vue         # 设备同步（蓝牙心率 / 导入 / 演示）
 │           ├── Analytics.vue       # 数据可视化
 │           ├── Coach.vue           # AI 健身教练
 │           ├── Diet.vue            # 健康饮食
@@ -394,13 +402,13 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │           └── Profile.vue         # 个人中心 + AI 运行统计
 │
 └── docs/
-    ├── 智练SmartFit-技术文档.pdf    # 技术文档（29 页）
+    ├── 智练SmartFit-技术文档.pdf    # 技术文档（30 页以内）
     ├── 技术文档.html               # 技术文档源文件（可编辑后重新导出 PDF）
-    └── screenshots/                # 10 张界面截图
+    └── screenshots/                # 界面截图（桌面 + mobile/ 手机端）
 ```
 
 **分层原则**：路由层（`modules/*/routes.js`）只做参数校验与响应封装；领域逻辑放在 `service` 或 `utils`；AI 能力集中在 `src/ai/`，与业务解耦，可单独替换。
-所有源码均带中文注释（注释率约 10%），关键算法处注明"为什么这么做"，便于阅读与二次开发。
+所有源码均带中文注释（60 个源码文件、15797 行、注释率 12.1%，可用 `node tools/count-code.mjs` 复算），关键算法处注明"为什么这么做"，便于阅读与二次开发。
 
 ---
 
@@ -438,6 +446,11 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 | POST | `/api/food-scan/:id/log` | 把识别结果按当前份量记入指定餐次 |
 | POST | `/api/food-scan/advice` | **份量试算 + 个性化饮食建议**：规则层判定占比/蛋白/脂肪，大模型生成点评 |
 | DELETE | `/api/food-scan/:id` | 删除识别记录 |
+| GET | `/api/devices/status` · `/api/devices/history` | 设备同步概览（同步次数 / 最近一次 / 今日静息心率）/ 同步历史 |
+| GET | `/api/devices/daily` | 设备每日数据（步数 / 静息心率 / 睡眠，供一周图表） |
+| POST | `/api/devices/heart-rate` | **蓝牙心率会话落库**（可同时写入今日静息心率） |
+| POST | `/api/devices/import` | **导入手环 CSV / JSON**（`dryRun` 先预览，再写库；步数自动折算成步行打卡） |
+| POST | `/api/devices/demo` | 演示模式：生成 N 天模拟设备数据（无硬件也能完整演示） |
 | GET | `/api/dashboard/overview` | 首页聚合数据 |
 | POST | `/api/ai/coach` | **AI 教练对话（SSE）**：`meta → delta×N → done` |
 | GET | `/api/ai/status` · `/api/ai/stats` · `/api/ai/suggestions` · `/api/ai/history` | AI 状态 / 统计 / 建议 / 历史 |
@@ -460,8 +473,11 @@ node server/scripts/smoke-test.mjs
 | 类型 | 方式 | 覆盖 |
 | --- | --- | --- |
 | 接口冒烟 | `node server/scripts/smoke-test.mjs` | 登录、总览、打卡、身体数据、AI 计划、勾选自动打卡、AI 配餐批量采纳、社区互动、图片上传、SSE 对话、AI 统计 |
+| 设备同步 | `node tools/test-devices.mjs` | 蓝牙会话落库、CSV 导入（预览 + 写库）、演示数据生成、重复计数防护、非法输入拦截 |
+| 食物匹配 | `node tools/test-food-match.mjs` | 13 个名称匹配用例（该拒的拒、该中的中） |
+| 真实模型回放 | `node tools/test-vision-replay.mjs` | 拿真实照片重跑「识别 → 库匹配 → 双源校验」并打印每项数据来源 |
+| 界面体检 | `node tools/audit-pages.mjs [--mobile]` | 11 个页面：菜单完整性、标志性文案、移动端横向溢出 |
 | 集成 | 真实服务 + 真实 SQLite + 真实 Agent 流水线 | 全链路数据流转 |
-| 界面 | 生产构建 + 浏览器实访核对 | 10 个页面渲染与交互 |
 | 降级 | 分别在有/无 `AI_API_KEY` 下验证 | 三层降级的正确性与提示诚实性 |
 
 ---
@@ -502,6 +518,19 @@ npm run reset:db
 
 默认超时 45 秒。可在 `server/.env` 调大 `AI_TIMEOUT_MS`；
 同一画像重复生成会命中语义缓存（毫秒级），若想强制重新生成可设置 `AI_CACHE_ENABLED=false` 或修改生成参数。
+</details>
+
+<details>
+<summary><b>6. 「设备同步」为什么不用华为 / 小米 / Apple 的官方云 API？蓝牙连不上怎么办？</b></summary>
+
+三家的健康数据云 API 都需要**企业资质 + OAuth 授权审核**，校园项目在比赛周期内拿不到授权，硬写只会变成"调不通的假接口"。
+所以采用三条真实可用的通路：
+
+1. **Web Bluetooth 直连标准 GATT 心率服务（0x180D）**——手环 / 心率带 / 手表普遍支持这个标准服务，不需要任何厂商授权。
+   限制：必须是 **https 或 localhost**（浏览器安全上下文），且 **iOS Safari 目前不支持 Web Bluetooth**。
+   用手机测时请走内网穿透的 https 地址（`node tools/tunnel.mjs`），浏览器用 Chrome / Edge / 安卓。
+2. **导出手环 App 的数据文件**（CSV / JSON）——任何品牌、任何型号都能用，页面里可先「预览解析」再写库。
+3. **演示模式**——没有设备时一键生成 7/14/30 天数据，并在同步历史里明确标注「演示」，不和真实数据混淆。
 </details>
 
 ---

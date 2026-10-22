@@ -5,11 +5,11 @@
 <title>智练 SmartFit 技术文档</title>
 <style>
   /* ===================== 打印样式（A4 / 页边距 / 分页） ===================== */
-  @page { size: A4; margin: 15mm 14mm 14mm 14mm; }
+  @page { size: A4; margin: 13mm 12mm 12mm 12mm; }
   * { box-sizing: border-box; }
   body {
     font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-    font-size: 9.6pt; line-height: 1.5; color: #1f2937; margin: 0;
+    font-size: 9.4pt; line-height: 1.47; color: #1f2937; margin: 0;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1, h2, h3, h4 { color: #065f46; font-weight: 700; margin: 0; }
@@ -24,11 +24,11 @@
   pre { font-family: Consolas, monospace; font-size: 8pt; line-height: 1.45; background: #0f172a; color: #d1fae5; padding: 8pt 10pt; border-radius: 6pt; overflow: hidden; white-space: pre-wrap; margin: 6pt 0; }
   table { width: 100%; border-collapse: collapse; font-size: 8.9pt; margin: 7pt 0; page-break-inside: avoid; }
   th { background: #ecfdf5; color: #065f46; font-weight: 700; text-align: left; }
-  th, td { border: 0.6pt solid #cbd5e1; padding: 3pt 5pt; font-size: 8.4pt; vertical-align: top; }
+  th, td { border: 0.6pt solid #cbd5e1; padding: 2.6pt 5pt; font-size: 8.2pt; vertical-align: top; }
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 6pt 0; page-break-inside: avoid; }
   /* 限制图片高度并居中：11 张界面截图若都按宽度铺满，会额外吃掉 2~3 页 */
-  figure img { max-height: 70mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
+  figure img { max-height: 64mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
   .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
   .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
@@ -103,7 +103,7 @@
     <li>二、需求分析 <span class="small">用户画像 / 功能需求 / 非功能需求</span></li>
     <li>三、系统架构设计 <span class="small">总体架构 / 技术选型 / 分层设计 / 数据模型 / 接口规范</span></li>
     <li>四、AI 技术方案 <span class="small">选型理由 / Agent 编排 / RAG / 提示词工程 / 校验与安全 / 优化策略</span></li>
-    <li>五、核心功能实现 <span class="small">打卡计量 / 计划闭环 / 饮食配比 / 数据可视化 / 社区算法</span></li>
+    <li>五、核心功能实现 <span class="small">打卡计量 / 计划闭环 / 饮食配比 / 拍照识热量 / 设备同步 / 社区算法</span></li>
     <li>六、测试与部署 <span class="small">测试策略 / 用例与结果 / 部署方案 / 环境配置</span></li>
     <li>七、总结与展望 <span class="small">技术创新点 / 应用创新点 / 不足与迭代方向</span></li>
     <li>附录 <span class="small">目录结构 / 依赖清单 / 接口清单</span></li>
@@ -131,7 +131,7 @@
 
 <div class="box">
   <div class="kv"><b>一句话定位：</b>一个把「AI 健身教练」做成可解释、可校验、可降级工程流水线的个人健康管理平台。</div>
-  <div class="kv"><b>作品规模：</b>51 个源码文件、约 9900 行代码（后端 4856 行 / 前端 5056 行），注释行 1021 行，注释率 ≈ 10.3%。</div>
+  <div class="kv"><b>作品规模：</b>60 个源码文件、15797 行（后端 6890 / 前端 8907），其中注释 1914 行、注释率 12.1%；统计脚本 <code>tools/count-code.mjs</code> 可复算。</div>
   <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 76 条、训练/营养指南 25 篇，全部为本地结构化语料。</div>
   <div class="kv"><b>可运行性：</b>零外部数据库依赖（Node 内置 SQLite），<code>npm install &amp;&amp; npm run init:db &amp;&amp; npm run dev</code> 三步即可完整运行。</div>
 </div>
@@ -150,6 +150,7 @@
     <tr><td><b>运动社区</b></td><td>发帖（图文/话题/关联打卡）、点赞、评论、话题聚合、本周排行榜</td><td>时间衰减热度分；联合主键防重复点赞；前端 canvas 图片压缩</td><td>无（算法排序）</td></tr>
     <tr><td><b>健康饮食</b></td><td>食物库检索、四餐记录、三大营养素供能比、AI 一日配餐并一键采纳</td><td>每 100g 营养基准服务端换算；热量对齐偏差校验；贪心配餐降级</td><td><b>较强</b>（大模型 + 食物库约束）</td></tr>
     <tr><td><b>AI 拍照识热量</b></td><td>上传/拍照 → 识别食物种类与份量 → 换算热量 → 改份量后一键记入饮食；含识别历史</td><td>多模态视觉模型；食物库三重匹配 + 双源交叉校验；非食物图片识别；结果落库可回溯</td><td><b>核心</b>（多模态 + 校验）</td></tr>
+    <tr><td><b>设备同步</b></td><td>蓝牙心率带实时心率（曲线 + 统计 + 落库）、手环 CSV/JSON 导入（先预览再写库）、无设备演示模式</td><td>Web Bluetooth 标准 GATT 0x180D / 0x2A37 按规范解析；步数按 MET 折算成打卡；同日去重防重复计数</td><td>无（标准协议 + 确定性换算）</td></tr>
   </tbody>
 </table>
 
@@ -939,6 +940,80 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
   「估计 150g，区间 120~180g，依据是筷子长度，可信度中」，并把校准权交给他。
   <b>把不确定性讲清楚，比假装准确更专业</b>——这也是健康类产品必须的诚实性。
 </div>
+
+<h2>5.9 可穿戴设备数据同步（蓝牙 + 导入 + 演示）</h2>
+<p>
+前面所有数据都是「人手工录进去的」——打卡靠点、饮食靠记、体重靠填。但真实用户的大部分运动数据其实躺在手表/手环里。
+让设备数据自动进来，才谈得上「健康管理平台」；否则只是一个记录本。本模块用<b>三条通路</b>覆盖所有实际情况：
+</p>
+<table>
+  <thead><tr><th style="width: 20%;">通路</th><th style="width: 44%;">实现</th><th style="width: 36%;">适用场景与限制</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>① 蓝牙实时心率</b></td>
+      <td>浏览器 <b>Web Bluetooth</b> 直连设备的<b>标准 GATT 心率服务 0x180D</b>，订阅心率测量特征值 0x2A37，逐秒采集后提交后端落库</td>
+      <td>心率带 / 手环 / 手表普遍支持；需 <b>https 或 localhost</b>（安全上下文）；<b>iOS Safari 不支持</b>该 API</td>
+    </tr>
+    <tr>
+      <td><b>② 文件导入</b></td>
+      <td>解析手环 App 导出的 <b>CSV / JSON</b>：表头大小写与中英文均可、列顺序无关、缺列跳过；<b>先 <code>dryRun</code> 预览再写库</b></td>
+      <td>兼容性最好的一条路，任何品牌都能用；单文件 ≤500KB、≤400 行</td>
+    </tr>
+    <tr>
+      <td><b>③ 演示模式</b></td>
+      <td>一键生成 7 / 14 / 30 天的步数、静息心率、睡眠（工作日多、周末少，带自然波动）</td>
+      <td>机房/答辩现场没有硬件时保证功能完整可演示，同步历史里明确标注「演示」</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.9.1 心率数据的解析不是"猜"，是照标准读</h3>
+<p>
+心率测量特征值（0x2A37）的第一个字节是 <b>Flags</b>，其中 <b>bit0 = 1</b> 时心率是 16 位无符号整数（小端序，占 2 字节），
+为 0 时是 8 位。实现严格按规范解析并做合理性夹取（20~250 bpm），而不是把读到的字节当作"大概的数字"：
+</p>
+<pre>const flags = value.getUint8(0);
+const bpm = (flags &amp; 0x01) ? value.getUint16(1, true) : value.getUint8(1);  // true = little-endian
+if (!bpm || bpm &lt; 20 || bpm &gt; 250) return;                                   // 丢弃异常值</pre>
+<p>
+之所以选<b>标准蓝牙协议</b>而不是厂商云 API：华为运动健康、小米运动、Apple Health 的开放接口都需要
+<b>企业资质 + OAuth 授权审核</b>，校园项目在比赛周期内拿不到授权，硬写只会变成"调不通的假接口"。
+而 0x180D 是蓝牙 SIG 定义的标准服务，手环、心率带、手表普遍实现，不依赖任何第三方授权，
+既真实可用、又能被评委现场验证。
+</p>
+
+<h3>5.9.2 数据进入平台后必须"参与计算"，而不是只展示</h3>
+<table>
+  <thead><tr><th style="width: 22%;">设备数据</th><th style="width: 40%;">写入目标</th><th style="width: 38%;">带来的连锁效果</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>每日步数</td>
+      <td>折算成一条「日常步行」打卡（时长 = 步数 ÷ 100 步/分钟，热量按统一 MET 公式 <code>3.5 × 体重 × 时长</code>）</td>
+      <td>打卡日历、连续天数、当日消耗、训练完成度、社区排行榜同步变化</td>
+    </tr>
+    <tr>
+      <td>静息心率 / 睡眠</td>
+      <td>写入该日 <code>body_records</code>（缺记录则按最近体重补建）</td>
+      <td>六维健康评分、代谢指标、AI 教练与训练计划的上下文全部更新</td>
+    </tr>
+    <tr>
+      <td>心率会话</td>
+      <td><code>device_syncs</code> 记录平均/最高/最低/时长（可选同时写静息心率）</td>
+      <td>同步历史可追溯；来源标记为「蓝牙心率」，与导入、演示数据区分</td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn">
+  <b>踩过的坑（重复计数）：</b>第一版对导入与演示分别用不同的 <code>note</code> 去重，
+  同一天先导入再演示就会产生<b>两条</b>「日常步行」打卡，热量被算两遍。
+  现已收敛为统一的 <code>upsertStepLog()</code>：同一天只保留一条设备来源的步行打卡，存在即更新，
+  且只认「日常步行 + 设备/演示 note」这一条，用户手动记的步行不受影响。
+</div>
+
+<figure>
+  <img src="screenshots/12-devices.png" alt="设备同步页" />
+  <figcaption>图 5-10 设备同步页：蓝牙实时心率曲线与统计 + 文件导入（预览后写库）+ 演示模式 + 一周设备数据与同步历史</figcaption>
+</figure>
 
 <h2>5.7 鉴权与安全实现</h2>
 <table>
