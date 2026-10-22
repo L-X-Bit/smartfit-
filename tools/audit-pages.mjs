@@ -126,7 +126,22 @@ class CDP {
 
   // ---------- 导航检查 ----------
   await cdp.send('Page.navigate', { url: APP + '/dashboard' });
-  await sleep(3000);
+
+  /**
+   * 等应用外壳挂载完成再查菜单。
+   * 踩过的坑：原来固定 sleep 3 秒，本地 dev 够用，但对**远程部署**（Render 免费实例
+   * 冷启动 30~60 秒）不够——那时 .sidebar 还没渲染，菜单项数是 0，会被误判成
+   * 「菜单全部缺失」的严重回归。这里改成轮询，最多等 30 秒。
+   */
+  {
+    const deadline = Date.now() + 30000;
+    while (Date.now() < deadline) {
+      const n = await cdp.eval(`document.querySelectorAll('.menu-item').length`).catch(() => 0);
+      if (n > 0) break;
+      await sleep(700);
+    }
+  }
+  await sleep(600);
 
   if (MOBILE) {
     // 手机端：侧边栏应折叠、汉堡按钮应出现、抽屉里应有全部页面
