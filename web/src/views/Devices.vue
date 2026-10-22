@@ -66,10 +66,30 @@
           <span class="sub">Web Bluetooth · 标准心率服务 0x180D</span>
         </div>
 
-        <!-- 不支持时的说明：给出可执行的替代方案，而不是干瞪眼 -->
+        <!--
+          不支持蓝牙时的诊断卡
+          ------------------------------------------------------------------
+          不写"暂不支持"这种废话，而是：① 说清楚**具体原因**（浏览器没这个接口 /
+          不是 https / 苹果设备），② 直接给**可点的补救按钮**（在安卓上可以用 intent:
+          链接强制跳到 Chrome / Edge / 三星浏览器打开本页），③ 提示 安卓首次连接要授权
+          「附近的设备 / 位置」权限——这一步没做，Chrome 里点连接也会立刻失败。
+        -->
         <div v-if="!btReady" class="bt-tip warn">
-          <b>当前环境用不了蓝牙</b>：{{ btReason }}
-          可以直接用下面的<b>「导入数据」</b>或<b>「演示模式」</b>，功能一样完整。
+          <div class="bt-tip-title">⚠️ {{ btDiag.title }}</div>
+          <div class="bt-tip-detail">{{ btDiag.detail }}</div>
+          <div v-if="btDiag.hint" class="bt-tip-detail">{{ btDiag.hint }}</div>
+          <div class="bt-tip-actions">
+            <el-button v-if="btDiag.android" size="small" type="primary" plain @click="openInBrowser('com.android.chrome')">
+              用 Chrome 打开
+            </el-button>
+            <el-button v-if="btDiag.android" size="small" plain @click="openInBrowser('com.microsoft.emmx')">用 Edge 打开</el-button>
+            <el-button v-if="btDiag.android" size="small" plain @click="openInBrowser('com.sec.android.app.sbrowser')">三星浏览器</el-button>
+            <el-button size="small" plain @click="copyLink">{{ linkCopied ? '已复制 ✓' : '复制本页链接' }}</el-button>
+          </div>
+          <div class="bt-tip-detail">
+            不想折腾浏览器也行：第 ② 条「<b>导入数据</b>」和第 ③ 条「<b>演示模式</b>」功能同样完整，
+            步数、静息心率、睡眠都能进平台。
+          </div>
         </div>
 
         <div class="bt-bar">
@@ -93,7 +113,16 @@
           </span>
         </div>
 
-        <!-- 实时心率大数字：演示时最抓眼球的一块 -->
+        <!--
+          设备侧的坑：光有浏览器还不够，**设备必须正在广播心率服务 0x180D**。
+          心率带（Polar H10、迈欧等）开机即广播；但小米/华为手环默认只和自家 App 通信，
+          必须在 App 里手动打开「心率广播」，否则浏览器的设备选择器里根本搜不到。
+          实测很多同学卡在这一步，所以写在界面上而不是只写进文档。
+        -->
+        <div v-if="btReady" class="bt-note">
+          💡 设备也要配合：心率带开机即广播；<b>小米手环请在 Zepp Life 里开启「心率广播」</b>，华为手环开启
+          「心率广播 / 运动心率共享」，并确保它当前没连着手机蓝牙设置或别的 App（同一时间只能被一个中心设备连接）。
+        </div>
         <div class="hr-stage">
           <div class="hr-now">
             <div class="hr-num" :class="{ live: connected }">{{ currentBpm ?? '--' }}</div>
@@ -247,8 +276,6 @@ const history = ref([]);
 const weekly = ref({ list: [], summary: {} });
 
 // ---------------------------------------------------------------- 蓝牙部分
-const btReady = ref(false);
-const btReason = ref('');
 const connecting = ref(false);
 const connected = ref(false);
 const deviceName = ref('');
@@ -575,6 +602,100 @@ async function refreshAll() {
   }
 }
 
+/**
+ * 浏览器环境识别（用于给出"到底该怎么办"的精确提示）
+ * ---------------------------------------------------------------------------
+ * 实测结论（踩过的坑）：
+ *   · Chrome / Edge / 三星浏览器（安卓）支持 Web Bluetooth；
+ *   · **小米浏览器、夸克、UC、QQ 浏览器等国产内核虽然也是 Chromium，但普遍不开放
+ *     navigator.bluetooth**——页面里就完全看不到这个接口，表现为"点了没反应"；
+ *   · iOS 上**所有**浏览器（Safari、Chrome for iOS）都不支持，因为 Apple 没实现该标准；
+ *   · 桌面 Chrome / Edge 在 Windows 10+ 可用（走系统蓝牙栈）。
+ * 所以这里不只判断"有没有接口"，还要告诉用户换哪个浏览器、以及怎么换。
+ */
+const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+const env = {
+  isIOS: /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document),
+  isAndroid: /Android/i.test(ua),
+  browser: /Quark/i.test(ua)
+    ? '夸克浏览器'
+    : /UCBrowser|UBrowser/i.test(ua)
+      ? 'UC 浏览器'
+      : /MQQBrowser|QQBrowser/i.test(ua)
+        ? 'QQ 浏览器'
+        : /MiuiBrowser|XiaoMi/i.test(ua)
+          ? '小米浏览器'
+          : /HuaweiBrowser/i.test(ua)
+            ? '华为浏览器'
+            : /EdgA?\//i.test(ua)
+              ? 'Edge'
+              : /Chrome\//.test(ua)
+                ? 'Chrome'
+                : /Safari\//.test(ua)
+                  ? 'Safari'
+                  : '当前浏览器',
+};
+
+const btReady = ref(false);
+/** 「复制本页链接」按钮的反馈状态 */
+const linkCopied = ref(false);
+
+/** 根据检测结果组织出"标题 + 原因 + 下一步该做什么" */
+const btDiag = computed(() => {
+  const android = env.isAndroid;
+  if (!window.isSecureContext) {
+    return {
+      android,
+      title: '这个页面不是 https，浏览器不允许用蓝牙',
+      detail: 'Web Bluetooth 只在这两种地址下可用：https:// 开头的网址，或本机的 localhost。',
+      hint: '换成 https 的地址打开（例如云端的 https://smartfit-qsyh.onrender.com）即可。',
+    };
+  }
+  if (env.isIOS) {
+    return {
+      android: false,
+      title: 'iPhone / iPad 用不了蓝牙心率',
+      detail: 'Apple 至今没有实现 Web Bluetooth 标准，Safari 和 iOS 上的 Chrome / 微信内置浏览器都不支持——这是系统限制，不是本功能没做。',
+      hint: '换一台安卓手机用 Chrome 打开本页即可连心率带；或者直接用下面的「导入数据 / 演示模式」。',
+    };
+  }
+  if (android) {
+    return {
+      android: true,
+      title: `你用的「${env.browser}」没有开放蓝牙接口`,
+      detail:
+        '小米 / 夸克 / UC / QQ 这类国产浏览器虽然内核是 Chromium，但普遍关掉了 navigator.bluetooth，所以页面拿不到蓝牙对象。',
+      hint: '点下面的按钮用 Chrome（或 Edge / 三星浏览器）打开本页，第一次连接时系统会询问「附近的设备/位置」权限，必须点允许。',
+    };
+  }
+  return {
+    android,
+    title: `「${env.browser}」没有提供 Web Bluetooth 接口`,
+    detail: '桌面端请用 Chrome 或 Edge（Windows 10 及以上，且电脑要有蓝牙适配器）；Firefox、Safari 桌面版都不支持该接口。',
+    hint: '把本页链接复制到 Chrome / Edge 打开即可。',
+  };
+});
+
+/** 安卓上强制用指定浏览器打开本页（intent: 链接，浏览器不支持时自动回退到普通跳转） */
+function openInBrowser(pkg) {
+  const url = location.href;
+  const scheme = location.protocol.replace(':', '') || 'https';
+  // intent 语法：intent://host/path#Intent;scheme=https;package=包名;S.browser_fallback_url=...;end
+  location.href = `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=${scheme};package=${pkg};S.browser_fallback_url=${encodeURIComponent(url)};end`;
+}
+
+/** 复制当前页链接（方便粘贴到别的浏览器里打开） */
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(location.href);
+    linkCopied.value = true;
+    setTimeout(() => (linkCopied.value = false), 2500);
+  } catch {
+    // 老浏览器没有 clipboard API：退化成选中文本提示用户手动复制
+    ElMessage.info('请长按地址栏复制链接：' + location.href);
+  }
+}
+
 onMounted(async () => {
   /**
    * Web Bluetooth 可用性检测
@@ -585,10 +706,7 @@ onMounted(async () => {
    *   3. 不能是 iOS 的 Safari（Apple 至今未实现 Web Bluetooth）。
    * 检测结果只影响"能不能用第 ① 条路"，②③ 永远可用，所以这里只是提示，不做拦截。
    */
-  const hasApi = typeof navigator !== 'undefined' && !!navigator.bluetooth;
-  btReady.value = hasApi && window.isSecureContext;
-  if (!hasApi) btReason.value = '浏览器没有提供 Web Bluetooth 接口（iOS Safari 目前不支持，请用 Chrome / Edge / 安卓浏览器）。';
-  else if (!window.isSecureContext) btReason.value = '当前页面不是 https 或 localhost，浏览器出于安全限制不开放蓝牙（用内网穿透的 https 地址即可）。';
+  btReady.value = typeof navigator !== 'undefined' && !!navigator.bluetooth && window.isSecureContext;
 
   await refreshAll();
 });
@@ -697,6 +815,39 @@ onBeforeUnmount(() => {
   background: #fffbeb;
   border: 1px solid #fde68a;
   color: #92400e;
+}
+/* 诊断卡的三段式排版：标题 / 原因 / 可点的补救按钮 */
+.bt-tip-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+.bt-tip-detail {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: #78350f;
+  margin-top: 3px;
+}
+.bt-tip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 2px;
+}
+.bt-tip-actions .el-button {
+  margin-left: 0;
+}
+/* 设备侧提示（心率广播）：只有在蓝牙可用时才显示，避免和诊断卡重复 */
+.bt-note {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: #0f766e;
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  border-radius: 10px;
+  padding: 8px 11px;
+  margin-top: 10px;
 }
 .bt-bar {
   display: flex;
