@@ -9,7 +9,7 @@
   * { box-sizing: border-box; }
   body {
     font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-    font-size: 9.9pt; line-height: 1.56; color: #1f2937; margin: 0;
+    font-size: 9.6pt; line-height: 1.5; color: #1f2937; margin: 0;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1, h2, h3, h4 { color: #065f46; font-weight: 700; margin: 0; }
@@ -17,9 +17,9 @@
   h2 { font-size: 12.4pt; margin: 11pt 0 5pt; padding-left: 8pt; border-left: 4pt solid #10b981; page-break-after: avoid; }
   h3 { font-size: 11pt; margin: 12pt 0 5pt; color: #0f766e; page-break-after: avoid; }
   h4 { font-size: 10.2pt; margin: 9pt 0 4pt; color: #334155; }
-  p { margin: 4pt 0; text-align: justify; }
-  ul, ol { margin: 5pt 0 5pt 0; padding-left: 18pt; }
-  li { margin: 2.5pt 0; }
+  p { margin: 3.5pt 0; text-align: justify; }
+  ul, ol { margin: 4pt 0 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
   code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; background: #f1f5f9; padding: 0.5pt 3pt; border-radius: 3pt; color: #0f766e; }
   pre { font-family: Consolas, monospace; font-size: 8pt; line-height: 1.45; background: #0f172a; color: #d1fae5; padding: 8pt 10pt; border-radius: 6pt; overflow: hidden; white-space: pre-wrap; margin: 6pt 0; }
   table { width: 100%; border-collapse: collapse; font-size: 8.9pt; margin: 7pt 0; page-break-inside: avoid; }
@@ -28,7 +28,7 @@
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 6pt 0; page-break-inside: avoid; }
   /* 限制图片高度并居中：11 张界面截图若都按宽度铺满，会额外吃掉 2~3 页 */
-  figure img { max-height: 80mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
+  figure img { max-height: 70mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
   .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
   .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
@@ -809,7 +809,7 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
 <div class="flow">
   <div class="step"><div class="n">①</div><div class="t">压缩上传</div><div class="d">前端 canvas 压到最长边 1280px<br/>再转 base64 提交</div></div>
   <div class="step"><div class="n">②</div><div class="t">视觉识别</div><div class="d">image_url 多模态调用<br/>输出食物/克数/营养 JSON</div></div>
-  <div class="step"><div class="n">③</div><div class="t">三重匹配</div><div class="d">名称包含 + BM25 + 二元组重叠<br/>避免中文单字误配</div></div>
+  <div class="step"><div class="n">③</div><div class="t">三重匹配</div><div class="d">名称包含 + BM25 + 二元组重叠<br/>再剔除口味包装等泛化词</div></div>
   <div class="step"><div class="n">④</div><div class="t">双源校验</div><div class="d">库值与估算相差 &gt;3 倍<br/>判为误匹配并弃用库值</div></div>
 </div>
 
@@ -819,7 +819,7 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
   <tbody>
     <tr><td><b>以库为准</b></td><td>模型负责「这是什么食物、大约多少克」，热量与三大营养素一律用本地食物库每 100g 数值重算。<br/>这与训练计划里的「算术外移」是同一原则——模型不擅长精确算术。</td></tr>
     <tr><td><b>来源标注</b></td><td>每一项都标明数据来源：<b>库内精确</b>（命中食物库）或<b>模型估算</b>（库未收录）。两种数据绝不混在一起偷偷使用，用户可自行判断可信度。</td></tr>
-    <tr><td><b>冲突拦截</b></td><td>库值与模型估算相差超过 3 倍时判为<b>误匹配</b>，弃用库值并标红提示。<br/>实测依据：早期版本把「面汤 300g」错配到「意面（熟）」，算出 474 kcal（真实约 30 kcal），整餐从 489 虚高到 917 kcal；加入拦截后回归 459 kcal。</td></tr>
+    <tr><td><b>冲突拦截</b></td><td>库值与模型估算相差超过 3 倍时判为<b>误匹配</b>，弃用库值、按模型估算计，并在该条目标注<b>相差几倍</b>，让"为什么没用库值"摆在明面上。<br/>实测依据：早期版本把「面汤 300g」错配到「意面（熟）」，算出 474 kcal（真实约 30 kcal），整餐从 489 虚高到 917 kcal；加入拦截后回归 459 kcal。</td></tr>
   </tbody>
 </table>
 
@@ -828,6 +828,20 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
 中文词法检索里单字碰撞极常见：「青豆」会命中「青椒」、「面汤」会命中「意面」。最初的实现只用 BM25 分数阈值（&gt;1.5）判断，
 导致了上述误配。改进后要求候选必须与识别名<b>共享至少一个中文二元组</b>（如「牛肉块」与「瘦牛肉」共享「牛肉」→ 采纳；
 「面汤」与「意面」无共享词 → 拒绝），并在匹配失败时保留模型估算值——<b>宁可标"模型估算"，也不错配到不相干的食物</b>。
+</p>
+<p>
+<b>但共享二元组还不够。</b>实测识别「迷你碗仔面（海鲜风味）」时，BM25 把它匹配到「风味酸奶（含糖）」——两者唯一的共同点就是
+「风味」这个<b>口味描述词</b>。双源交叉校验按 3 倍规则拦下了 25 kcal 这个明显不对的库值（最终仍是 150 kcal，正确），
+但界面会显示「候选：风味酸奶」，用户第一反应是"系统在乱认食物"。于是又加了两道约束：
+</p>
+<ul>
+  <li><b>泛化词剔除</b>：维护约 40 个口味/包装/工艺词（风味、原味、迷你、袋装、无糖、香辣、即食…），
+      只有这些词重叠时视为<b>不相似</b>，不给候选；</li>
+  <li><b>字符重叠率 ≥ 0.4</b>：短名字里至少要有一半的字对得上（「牛肉块 / 瘦牛肉」= 0.5 通过，「碗仔面 / 酸奶」= 0 拒绝）。</li>
+</ul>
+<p>
+配套写了回归脚本 <code>tools/test-food-match.mjs</code>，13 个用例覆盖"必须拒绝"（碗仔面、面汤、青豆、葱花、麻辣香锅）与
+"必须命中"（米饭→米饭（熟）、牛肉块→瘦牛肉（熟）…）两类，改匹配规则后一条命令即可验证有没有把别的食物配错。
 </p>
 
 <h3>5.8.4 非食物图片的处理</h3>
@@ -1024,7 +1038,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
     <tr><td>T5</td><td><b>同构降级：三套引擎一份契约</b></td><td>大模型 / 修复重试 / 本地规则引擎产出结构完全一致的计划对象，前端零改动；配合"离线知识库模式"的检索式问答，实现无密钥、无网络下的功能完整性与信息诚实性统一。</td></tr>
     <tr><td>T6</td><td><b>面向中文小知识库的混合检索</b></td><td>自实现单字+bigram 的中文 BM25；叠加结构化过滤（器械/难度/伤病）、标签加权、MMR 去冗余与 18 组口语查询扩展，在零依赖前提下取得稳定召回，且可解释、可替换为向量检索。</td></tr>
     <tr><td>T7</td><td><b>AI 全链路可观测</b></td><td><code>ai_call_logs</code> + 前端统计面板，记录场景/供应商/耗时/缓存/降级/重试/RAG 命中，使优化决策基于数据而非主观感受。</td></tr>
-    <tr><td>T8</td><td><b>多模态识别的双源交叉校验</b></td><td>视觉模型与本地食物库两条独立数据源互相校验：库值优先但需通过「三元组匹配 + 二元组重叠」验证；两者热量相差 &gt;3 倍时判为误匹配并弃用库值。把"模型幻觉"与"检索误配"两类错误同时挡住，且每一项结果都向用户标注数据来源。</td></tr>
+    <tr><td>T8</td><td><b>多模态识别的双源交叉校验</b></td><td>视觉模型与本地食物库两条独立数据源互相校验：库值优先但需通过「三元组匹配 + 二元组重叠 + 泛化词剔除 + 字符重叠率」验证；两者热量相差 &gt;3 倍时判为误匹配并弃用库值、界面标注相差倍数。把"模型幻觉"与"检索误配"两类错误同时挡住，且每一项结果都向用户标注数据来源。</td></tr>
   </tbody>
 </table>
 

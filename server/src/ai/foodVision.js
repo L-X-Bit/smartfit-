@@ -91,12 +91,42 @@ function bigramSet(text) {
   return set;
 }
 
-/** 两个名字是否共享至少一个二元组；返回共享的那个词或 null */
+/**
+ * 泛化修饰词：这些词出现在商品名里只是口味/包装/营销描述，**不能作为匹配依据**。
+ * ---------------------------------------------------------------------------
+ * 踩过的坑：识别到「迷你碗仔面（海鲜风味）」时，BM25 把它匹配到「风味酸奶（含糖）」——
+ * 两者唯一的共同点就是「风味」两个字。虽然双源交叉校验最后拦下了这个错误候选，
+ * 但界面上仍然显示了「候选：风味酸奶」，用户看了会以为系统在乱认食物。
+ * 所以这里把口味/包装/工艺类词语排除在「相似」判断之外，宁可匹配不上也不给错候选。
+ */
+const GENERIC_TOKENS = new Set([
+  '风味', '口味', '口味', '原味', '经典', '特浓', '新装', '家庭', '分享', '迷你', '大杯', '中杯', '小杯',
+  '杯装', '袋装', '罐装', '盒装', '瓶装', '真空', '即食', '速食', '方便', '无糖', '含糖', '低糖', '加糖',
+  '低脂', '脱脂', '全脂', '低盐', '香辣', '麻辣', '微辣', '五香', '咸香', '香甜', '酥脆', '脆皮',
+  '净含量', '配料', '口味', '味', '装', '式', '型', '号',
+]);
+
+/** 两个名字是否共享「有意义」的二元组；返回共享词或 null（仅共享泛化词不算匹配） */
 function sharedBigram(a, b) {
   const A = bigramSet(a);
   const B = bigramSet(b);
-  for (const x of A) if (B.has(x)) return x;
-  return null;
+  const common = [];
+  for (const x of A) if (B.has(x)) common.push(x);
+  if (!common.length) return null;
+  // 若共同词全是泛化修饰词，则视为"不相似"
+  const meaningful = common.filter((x) => !GENERIC_TOKENS.has(x));
+  return meaningful.length ? meaningful[0] : null;
+}
+
+/** 两个名字的字符集合重叠率（0~1），用于过滤"只沾一点边"的候选 */
+function charOverlap(a, b) {
+  const clean = (s) => String(s || '').replace(/[^\u4e00-\u9fa5a-z0-9]/gi, '');
+  const A = new Set(clean(a));
+  const B = new Set(clean(b));
+  if (!A.size || !B.size) return 0;
+  let inter = 0;
+  for (const c of A) if (B.has(c)) inter += 1;
+  return inter / Math.min(A.size, B.size);
 }
 
 /**
@@ -112,31 +142,42 @@ function sharedBigram(a, b) {
  * @param {string} name 模型识别出的食物名
  * @param {Array} foods 全量食物库（调用方传入，避免每项都查库）
  */
-function matchLibraryFood(name, foods) {
+export function matchLibraryFood(name, foods) {
   const raw = String(name || '').trim();
   if (!raw || raw.length < 2) return null;
 
-  // ① 名称包含匹配（最可靠）
+  // ① 名称包含匹配（按「精确度优先级」打分，而不是简单取最长）
+  //    完全一致 > 识别名更具体（raw 包含库名）> 库名更具体（库名包含 raw，要惩罚）
+  //    踩过的坑：以前取"库名最长"，导致「米饭」被匹配成「糙米饭（熟）」——
+  //    库名比识别名更具体时理应排后，否则所有带前缀的变体（糙米饭/紫薯饭…）都会抢走通用条目。
   let best = null;
-  let bestLen = 0;
+  let bestScore = -Infinity;
   for (const f of foods) {
     const base = f.name.replace(/[（(].*?[）)]/g, '').trim(); // 去掉「（熟）」「（干）」等说明
     if (base.length < 2) continue;
-    if (raw.includes(base) || base.includes(raw)) {
-      if (base.length > bestLen) {
-        best = f;
-        bestLen = base.length;
-      }
+
+    let score;
+    if (base === raw) score = 1000 + base.length; // 完全相同
+    else if (raw.includes(base)) score = 500 + base.length; // 识别名更具体
+    else if (base.includes(raw)) score = 100 - (base.length - raw.length); // 库名更具体，越长越靠后
+    else continue;
+
+    if (score > bestScore) {
+      best = f;
+      bestScore = score;
     }
   }
-  if (best) return { food: best, how: 'name', score: bestLen, shared: best.name };
+  if (best) return { food: best, how: 'name', score: bestScore, shared: best.name };
 
-  // ② BM25 兜底（严格模式：高分 + 二元组重叠）
+  // ② BM25 兜底（严格模式：高分 + 有意义的二元组重叠 + 字符重叠率达标）
+  // 三道门槛缺一不可，避免「迷你碗仔面」被「风味酸奶」这种只沾口味词的名字骗过去。
   const hits = retrieveFoods({ query: raw, topK: 3 });
   for (const h of hits) {
-    if ((h.score || 0) < 3.0) continue;
+    if ((h.score || 0) < 3.5) continue;
     const shared = sharedBigram(raw, h.name);
     if (!shared) continue;
+    // 字符重叠率：短名字里至少要有一半的字对得上（"牛肉块/瘦牛肉"=0.5 通过，"碗仔面/酸奶"=0 拒绝）
+    if (charOverlap(raw, h.name) < 0.4) continue;
     return { food: h, how: 'bm25', score: Number(h.score.toFixed(2)), shared };
   }
   return null;
@@ -282,6 +323,8 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
           matchHow: `${hit.how}-rejected`,
           modelKcal,
           conflict: true,                    // 标记「库值与估算冲突」
+          conflictRatio: Number(ratio.toFixed(1)), // 库值 / 估算 的倍数，界面据此解释「差了几倍」
+          conflictLibKcal: libKcal,          // 被弃用的库值热量（仅展示，不参与合计）
           confidence: ['high', 'medium', 'low'].includes(it.confidence) ? it.confidence : 'medium',
           matchedFoodId: null,
           matchedFoodName: null,

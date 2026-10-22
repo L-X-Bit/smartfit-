@@ -161,9 +161,23 @@ class CDP {
   let pass = 0;
   for (const page of PAGES) {
     await cdp.send('Page.navigate', { url: APP + page.path });
-    await sleep(2600);
+    await sleep(700);
 
-    const text = (await cdp.eval(`document.body.innerText`)) || '';
+    /**
+     * 轮询等待页面真正渲染出来，而不是固定 sleep 2.6 秒。
+     * 踩过的坑：并行跑截图脚本 + 重新构建时机器负载高，Vite dev 首次编译慢，
+     * 固定等待会让 6 个页面误报「功能缺失」——体检工具必须比被测页面更有耐心，
+     * 否则每次结论都要人工复核一遍。
+     */
+    const deadline = Date.now() + 20000;
+    let text = '';
+    while (Date.now() < deadline) {
+      text = (await cdp.eval(`document.body.innerText`)) || '';
+      if (page.must.some((k) => text.includes(k))) break;
+      await sleep(600);
+    }
+    await sleep(900); // 再等异步数据（列表/图表）落位，横向溢出判断才准
+    text = (await cdp.eval(`document.body.innerText`)) || '';
     const missing = page.must.filter((k) => !text.includes(k));
 
     // 横向溢出检测：整页可左右拖动 = 移动端布局被撑破

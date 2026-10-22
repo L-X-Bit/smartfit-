@@ -108,9 +108,9 @@
           <div class="se-title">🔬 识别是怎么做的</div>
           <ol class="se-list">
             <li><b>视觉识别</b>：多模态模型（{{ cap.model || '视觉模型' }}）识别食物种类、按参照物估算克数</li>
-            <li><b>库内匹配</b>：与该食物名称做「名称包含 + 词法相关性 + 二元组重叠」三重校验</li>
+            <li><b>库内匹配</b>：名称包含 + 词法相关性（BM25）+ 二元组重叠过半字符；「风味 / 原味 / 迷你 / 袋装」这类口味包装词不算相似依据</li>
             <li><b>以库为准</b>：命中则用食物库每 100g 的数值重算热量；未命中才采用模型估算并明确标注</li>
-            <li><b>冲突拦截</b>：库值与估算相差 3 倍以上判为误匹配，弃用库值（例如「面汤」不能按「意面」算）</li>
+            <li><b>冲突拦截</b>：命中但库值与估算相差 3 倍以上 → 判为误匹配，弃用库值、按 AI 估算计，并在该条目标注「差了几倍」（例如「面汤」不能按「意面」算）</li>
           </ol>
         </div>
       </div>
@@ -200,11 +200,15 @@
                   <el-tag size="small" :type="it.source === 'library' ? 'success' : 'warning'" effect="plain">
                     {{ it.source === 'library' ? '库内精确' : '模型估算' }}
                   </el-tag>
-                  <el-tag v-if="it.conflict" size="small" type="danger" effect="plain">数值冲突已忽略库值</el-tag>
+                  <el-tag v-if="it.conflict" size="small" type="info" effect="plain">
+                    {{ it.conflictRatio ? `库值 ×${it.conflictRatio} 不符·已弃用` : '库值不符·已弃用' }}
+                  </el-tag>
                 </div>
                 <div class="fs-sub">
                   <template v-if="it.libraryName">已匹配食物库：{{ it.libraryName }}</template>
-                  <template v-else-if="it.libraryCandidate">候选「{{ it.libraryCandidate }}」与估算相差过大，未采用</template>
+                  <template v-else-if="it.libraryCandidate">
+                    食物库候选「{{ it.libraryCandidate }}{{ it.conflictLibKcal != null ? `，${it.conflictLibKcal} kcal` : '' }}」与 AI 估算{{ it.conflictRatio ? `相差 ${it.conflictRatio} 倍` : '差距过大' }}，判为误匹配，本项按 AI 估算计
+                  </template>
                   <template v-else>食物库未收录，采用 AI 估算值</template>
                   <span class="dot">·</span>
                   <span :class="`conf-${it.confidence}`">置信度 {{ confText(it.confidence) }}</span>
@@ -1450,6 +1454,13 @@ onMounted(async () => {
   gap: 6px;
   flex-wrap: wrap;
 }
+/* 标签不允许被压缩：名字标签 + 「库内精确/模型估算」+ 冲突提示三个标签在手机窄屏下
+   flex 会把它们压到内容宽度以下，文字溢出到相邻标签上（截图里出现过标签互相压字）。
+   这里固定不收缩 + 允许换行，最多占两行，绝不重叠。 */
+.fs-name .el-tag {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .fs-sub {
   font-size: 11.5px;
   color: var(--text-3);
@@ -1631,6 +1642,15 @@ onMounted(async () => {
   .fs-item {
     flex-wrap: wrap;
     gap: 8px;
+  }
+  /* 手机上「名称 + 来源说明」必须独占一行：
+     .fs-main 是 flex:1（basis 0），不会主动换行，只会被右侧的克数输入框和热量挤成一条窄缝，
+     实测窄到一行只放得下 5~6 个字，说明文字被拉成很高的竖条。改成整行占满，克数/热量落到下一行。 */
+  .fs-main {
+    flex: 1 1 100%;
+  }
+  .fs-amount {
+    margin-left: auto;
   }
   .fs-kcal {
     min-width: 70px;
