@@ -184,12 +184,16 @@ class CDP {
      * 踩过的坑：并行跑截图脚本 + 重新构建时机器负载高，Vite dev 首次编译慢，
      * 固定等待会让 6 个页面误报「功能缺失」——体检工具必须比被测页面更有耐心，
      * 否则每次结论都要人工复核一遍。
+     *
+     * 又踩一次（远程部署）：原来条件是 `some()`——只要有一个文案出现就往下走，
+     * 结果线上 Render 响应慢时，「身体数据」页的代谢指标卡（依赖 /api/body/analysis）
+     * 还没渲染就被判定「缺 基础代谢」。改成 every()：等齐全部文案，最多 25 秒。
      */
-    const deadline = Date.now() + 20000;
+    const deadline = Date.now() + 25000;
     let text = '';
     while (Date.now() < deadline) {
       text = (await cdp.eval(`document.body.innerText`)) || '';
-      if (page.must.some((k) => text.includes(k))) break;
+      if (page.must.every((k) => text.includes(k))) break;
       await sleep(600);
     }
     await sleep(900); // 再等异步数据（列表/图表）落位，横向溢出判断才准
