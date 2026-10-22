@@ -17,6 +17,14 @@ echo.
 echo   The public https address will be printed below.
 echo   Keep this window open - closing it kills the tunnel.
 echo.
+echo   Tip: double-click the desktop shortcut
+echo        "scan to open on phone"
+echo   to show that address as a QR code - scan it with the phone
+echo   camera instead of typing the long URL.
+echo.
+echo   Note: free tunnels drop now and then and the domain changes.
+echo   The same-Wi-Fi address (http://your-pc-ip:3000) never changes.
+echo.
 pause
 node "tools\tunnel.mjs"
 pause
