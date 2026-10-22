@@ -39,3 +39,5 @@ tools/bin/
 !.vscode/extensions.json
 # 隧道脚本生成的公网地址（每次重连都变，不入库）
 tools/tunnel-url.txt
+# Apple 健康导出转换产生的 CSV（本地生成，不入库）
+apple-health-*.csv

@@ -87,8 +87,9 @@
             <el-button size="small" plain @click="copyLink">{{ linkCopied ? '已复制 ✓' : '复制本页链接' }}</el-button>
           </div>
           <div class="bt-tip-detail">
-            不想折腾浏览器也行：第 ② 条「<b>导入数据</b>」和第 ③ 条「<b>演示模式</b>」功能同样完整，
-            步数、静息心率、睡眠都能进平台。
+            不用折腾浏览器：下面就有「<b>✍️ 手动填一次</b>」表单，2 秒填完整，
+            第 ② 条「<b>导入数据</b>」和第 ③ 条「<b>演示模式</b>」也都能用——数据一样进平台。
+            想要「实时心率曲线」才需要换 Chrome。
           </div>
         </div>
 
@@ -123,6 +124,47 @@
           💡 设备也要配合：心率带开机即广播；<b>小米手环请在 Zepp Life 里开启「心率广播」</b>，华为手环开启
           「心率广播 / 运动心率共享」，并确保它当前没连着手机蓝牙设置或别的 App（同一时间只能被一个中心设备连接）。
         </div>
+        <!--
+          手动记录心率 —— 「任何浏览器都能用」的兜底方案
+          ------------------------------------------------------------------
+          手机上的夸克 / 小米 / UC 浏览器、以及 iPhone 上所有浏览器，
+          都没有 Web Bluetooth 接口（软件层面无法绕过）。但它们发 POST 请求完全没问题，
+          所以这里给一个纯表单录入：填平均/最高/最低/时长即可落库，
+          数据照样进同步历史、照样能更新当日静息心率。
+        -->
+        <div class="manual-box">
+          <div class="manual-title">
+            ✍️ 没有蓝牙接口？直接手动填一次
+            <span class="manual-sub">任何浏览器都能用（夸克 / 小米 / iPhone 全支持）</span>
+          </div>
+          <div class="manual-grid">
+            <label class="mf">
+              <span>日期</span>
+              <el-date-picker v-model="manual.date" type="date" value-format="YYYY-MM-DD" :clearable="false" size="small" style="width: 100%" />
+            </label>
+            <label class="mf">
+              <span>平均心率</span>
+              <el-input-number v-model="manual.avg" :min="20" :max="250" size="small" controls-position="right" style="width: 100%" />
+            </label>
+            <label class="mf">
+              <span>最高</span>
+              <el-input-number v-model="manual.max" :min="20" :max="250" size="small" controls-position="right" style="width: 100%" />
+            </label>
+            <label class="mf">
+              <span>最低</span>
+              <el-input-number v-model="manual.min" :min="20" :max="250" size="small" controls-position="right" style="width: 100%" />
+            </label>
+            <label class="mf">
+              <span>时长（分钟）</span>
+              <el-input-number v-model="manual.minutes" :min="1" :max="600" size="small" controls-position="right" style="width: 100%" />
+            </label>
+            <div class="mf mf-btn">
+              <el-checkbox v-model="manual.saveAsRestingHr" size="small">记为该日静息心率</el-checkbox>
+              <el-button type="primary" size="small" :loading="manualSaving" @click="saveManual">保存心率</el-button>
+            </div>
+          </div>
+        </div>
+
         <div class="hr-stage">
           <div class="hr-now">
             <div class="hr-num" :class="{ live: connected }">{{ currentBpm ?? '--' }}</div>
@@ -186,6 +228,25 @@ date,steps,restingHr,sleepHours,weightKg
               确认导入
             </el-button>
             <span class="imp-hint">支持中英文表头、列顺序随意、缺列自动跳过</span>
+          </div>
+
+          <!--
+            Apple Watch / iPhone 用户必看
+            ------------------------------------------------------------------
+            网页**连不上 Apple Watch**：它不广播蓝牙标准心率服务（0x180D），只和 iPhone 私有通信，
+            Apple 也没给浏览器开放 HealthKit。唯一正路是走「Apple 健康」App 的导出数据，
+            所以这里给一条明确可执行的路径，而不是让用户以为功能坏了。
+          -->
+          <div class="apple-tip">
+            <div class="apple-title">🍎 有 Apple Watch / iPhone？</div>
+            <div class="apple-body">
+              网页<b>无法直连 Apple Watch</b>（Apple 不开放浏览器读 HealthKit）。正确做法：
+              ① iPhone「健康」App → 右上头像 → 最下面「<b>导出所有健康数据</b>」；
+              ② 把导出的 zip 传到电脑，运行
+              <code>node tools/apple-health-to-csv.mjs "导出.zip"</code>；
+              ③ 生成的小 CSV 用上面的「选择文件 / 粘贴」导入即可。
+              心率、静息心率、步数、睡眠、体重都会带进来。
+            </div>
           </div>
 
           <!-- 预览表：先看再写库，避免"一股脑灌进去" -->
@@ -696,6 +757,44 @@ async function copyLink() {
   }
 }
 
+// ---------------------------------------------------------------- 手动记录心率
+/** 用本地时区取「今天」，避免 toISOString 在西八区之类的情况下差一天 */
+function localToday() {
+  const d = new Date();
+  const off = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 10);
+}
+
+const manual = ref({ date: localToday(), avg: 72, max: 96, min: 58, minutes: 5, saveAsRestingHr: true });
+const manualSaving = ref(false);
+
+async function saveManual() {
+  const { date, avg, max, min, minutes, saveAsRestingHr } = manual.value;
+  if (!(avg >= 20 && avg <= 250)) {
+    ElMessage.warning('请填写 20~250 之间的平均心率');
+    return;
+  }
+  // 自洽处理：最高不能小于平均，最低不能大于平均（用户随手填反了也不会写进脏数据）
+  const hi = Math.max(max || 0, avg);
+  const lo = Math.min(min || 999, avg);
+  manualSaving.value = true;
+  try {
+    await api.saveHeartRate({
+      deviceName: '手动录入（无蓝牙接口的设备/浏览器）',
+      avg,
+      max: hi,
+      min: lo,
+      durationSec: Math.max(60, Math.round(minutes * 60)),
+      date,
+      saveAsRestingHr,
+    });
+    ElMessage.success(saveAsRestingHr ? `已保存：平均 ${avg} bpm，并写入 ${date} 的静息心率` : `已保存：平均 ${avg} bpm`);
+    await refreshAll();
+  } finally {
+    manualSaving.value = false;
+  }
+}
+
 onMounted(async () => {
   /**
    * Web Bluetooth 可用性检测
@@ -1053,11 +1152,93 @@ onBeforeUnmount(() => {
   font-size: 12.5px;
 }
 
+/* ---------------- 手动记录心率 ---------------- */
+.manual-box {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+}
+.manual-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-1);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.manual-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+.manual-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 9px;
+}
+.mf {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.mf > span {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.mf-btn {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* ---------------- Apple 健康导入提示 ---------------- */
+.apple-tip {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+.apple-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9a3412;
+  margin-bottom: 4px;
+}
+.apple-body {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #7c2d12;
+}
+.apple-body code {
+  background: #fff;
+  border: 1px solid #fed7aa;
+  border-radius: 4px;
+  padding: 0 4px;
+  font-family: Consolas, monospace;
+  word-break: break-all;
+}
+
 /* ---------------- 移动端 ---------------- */
 @media (max-width: 900px) {
   .dev-hero {
     flex-direction: column;
     align-items: stretch;
+  }
+  /* 手动记录表单：中等屏两列 */
+  .manual-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mf-btn {
+    grid-column: 1 / -1;
+    justify-content: space-between;
   }
   /* 顶部三个指标卡：手机上等分一行，等宽避免挤压 */
   .hero-stats {

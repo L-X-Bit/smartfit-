@@ -121,8 +121,13 @@ router.get(
 );
 
 /**
- * ① 保存一次蓝牙心率会话
- * 前端连上设备后按秒采集，结束后把统计值提交上来。
+ * ① 保存一次心率会话
+ * ---------------------------------------------------------------------------
+ * 两种来源共用这一个接口：
+ *   · 蓝牙心率带（Web Bluetooth 实时采集，samples 有几百个点）；
+ *   · **手动录入**（手机浏览器没有蓝牙接口时的兜底：填平均/最高/最低/时长即可，
+ *     samples 省略）。手动录入对「夸克 / 小米 / iOS Safari / 微信内置浏览器」同样可用，
+ *     因为这些浏览器虽然没有 BLE 接口，但发 POST 请求毫无问题。
  */
 const heartRateSchema = z.object({
   deviceName: z.string().max(60).optional(),
@@ -131,8 +136,10 @@ const heartRateSchema = z.object({
   min: z.number().min(20).max(250),
   durationSec: z.number().min(1).max(36000),
   samples: z.array(z.number().min(20).max(250)).max(5000).optional(),
-  /** 是否把平均心率记为今日静息心率（写入身体数据） */
+  /** 是否把平均心率记为该日静息心率（写入身体数据），默认记到今天 */
   saveAsRestingHr: z.boolean().optional(),
+  /** 归属日期，缺省为今天；格式 YYYY-MM-DD（手动补录昨天/前天的数据用） */
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式应为 YYYY-MM-DD').optional(),
 });
 
 router.post(
@@ -145,7 +152,7 @@ router.post(
 
     let count = 0;
     if (d.saveAsRestingHr) {
-      const t = today();
+      const t = d.date || today();
       const exist = get('SELECT id FROM body_records WHERE user_id = ? AND record_date = ? ORDER BY id DESC LIMIT 1', [req.user.id, t]);
       const hr = Math.round(d.avg);
       if (exist) {
@@ -173,8 +180,10 @@ router.post(
 /**
  * ② 文件导入（CSV / JSON 文本）
  * CSV 表头（大小写不敏感、列顺序无关）：
- *   date,steps,restingHr,sleepHours,weightKg,activeMinutes
+ *   date,steps,restingHr,sleepHours,weightKg,activeMinutes,hrAvg,hrMax,hrMin
  * 只填有值的列即可，缺列自动跳过。
+ * 其中 hrAvg / hrMax / hrMin 是「当天心率统计」，来自手环 App 或 Apple 健康导出
+ * （tools/apple-health-to-csv.mjs 生成的就是这套列），会随同步记录一起存档。
  */
 const importSchema = z.object({
   format: z.enum(['csv', 'json']).default('csv'),
@@ -204,8 +213,20 @@ router.post(
         sleepHours: toNum(r.sleepHours ?? r.sleep_hours ?? r.sleep),
         weightKg: toNum(r.weightKg ?? r.weight_kg ?? r.weight),
         activeMinutes: toNum(r.activeMinutes ?? r.active_minutes ?? r.minutes),
+        // 当天心率统计（Apple 健康 / 手环 App 导出时会有）
+        hrAvg: toNum(r.hrAvg ?? r.hr_avg ?? r.avgHr ?? r.平均心率),
+        hrMax: toNum(r.hrMax ?? r.hr_max ?? r.maxHr ?? r.最高心率),
+        hrMin: toNum(r.hrMin ?? r.hr_min ?? r.minHr ?? r.最低心率),
       };
-      if (item.steps === null && item.restingHr === null && item.sleepHours === null && item.weightKg === null) continue;
+      if (
+        item.steps === null &&
+        item.restingHr === null &&
+        item.sleepHours === null &&
+        item.weightKg === null &&
+        item.hrAvg === null
+      ) {
+        continue;
+      }
       clean.push(item);
     }
     if (!clean.length) throw new BizError('数据行里没有可用的数值（steps / restingHr / sleepHours / weightKg）');
@@ -348,9 +369,9 @@ function upsertStepLog(userId, date, steps, weightKg, note) {
 /** 构建 CSV 模板（前端可下载） */
 function buildCsvTemplate() {
   return [
-    'date,steps,restingHr,sleepHours,weightKg,activeMinutes',
-    `${today()},8600,64,7.2,75.2,45`,
-    `${shiftDate(today(), -1)},7400,65,6.8,,38`,
+    'date,steps,restingHr,sleepHours,weightKg,activeMinutes,hrAvg,hrMax,hrMin',
+    `${today()},8600,64,7.2,75.2,45,78,132,58`,
+    `${shiftDate(today(), -1)},7400,65,6.8,,38,75,128,60`,
   ].join('\n');
 }
 
@@ -387,6 +408,11 @@ function parseCsv(text) {
     sleephours: 'sleepHours', 睡眠: 'sleepHours', 睡眠时长: 'sleepHours', sleep: 'sleepHours',
     weightkg: 'weightKg', 体重: 'weightKg', weight: 'weightKg',
     activeminutes: 'activeMinutes', 活动时长: 'activeMinutes', minutes: 'activeMinutes',
+    // 当天心率统计（Apple 健康 / 手环 App 导出）：表头去空格并转小写后是 hravg / hrmax / hrmin，
+    // 必须显式映射回驼峰字段；否则 row 里留下的是小写 key，取值永远拿到 null（踩过这个坑）
+    hravg: 'hrAvg', avghr: 'hrAvg', 平均心率: 'hrAvg',
+    hrmax: 'hrMax', maxhr: 'hrMax', 最高心率: 'hrMax',
+    hrmin: 'hrMin', minhr: 'hrMin', 最低心率: 'hrMin',
   };
   const keys = header.map((h) => alias[h] || h);
 
