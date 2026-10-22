@@ -1,0 +1,970 @@
+<!--
+  设备同步页（可穿戴设备 → 平台）
+  ===========================================================================
+  为什么要有这一页：
+    前面所有数据都是「人手工录进去的」（打卡、记饮食、填体重），而真实用户
+    大部分运动数据其实躺在手表/手环里。让设备数据自动进来，才叫「健康管理平台」；
+    否则只是一个记录本。
+
+  三条通路（覆盖所有实际情况，缺一不可）：
+    ① 蓝牙心率带实时连接 —— 浏览器 Web Bluetooth 直连设备的**标准 GATT 心率服务 0x180D**。
+       手环、心率带、智能手表普遍支持这个标准服务，不需要任何厂商授权，
+       也不受"华为/小米/Apple 云 API 需要企业资质 + OAuth 审核"的限制。
+    ② 导出手环 App 的数据文件（CSV / JSON）—— 兼容性最好的一条路，任何品牌都能用。
+    ③ 演示模式 —— 没有设备的场景（答辩现场、机房）一键生成 7 天模拟数据，
+       保证功能完整可演示，而不是"没设备就看不到效果"。
+
+  技术要点（讲解时可讲）：
+    · 心率测量特征值（0x2A37）第一个字节是 flags，bit0 = 1 表示心率是 16 位
+      （uint16 little-endian），否则是 8 位 —— 这是标准规定的，不是我们随便解析的；
+    · Web Bluetooth 只在"安全上下文"可用：https 或 localhost。所以用内网穿透的
+      https 域名时手机可以真连设备，用 http://内网IP 打开则不行；
+    · iOS 的 Safari 不支持 Web Bluetooth，此时页面自动引导用户走 ②③ 两条路，
+      不会出现"点了没反应"的死按钮。
+-->
+<template>
+  <div v-loading="loading">
+    <!-- ==================== 顶部总览 ==================== -->
+    <div class="dev-hero card">
+      <div class="hero-main">
+        <div class="hero-title">⌚ 把「手表 / 手环」的数据接进平台</div>
+        <div class="hero-desc">
+          蓝牙实时心率 · 文件导入 · 无设备演示，三条通路任选其一。设备数据进入平台后会参与
+          <b>每日目标热量、AI 教练判断、训练完成度</b> 的计算——不是只展示好看。
+        </div>
+        <div class="hero-chips">
+          <span class="chip" :class="btReady ? 'ok' : 'warn'">蓝牙接口 {{ btReady ? '可用' : '不可用' }}</span>
+          <span class="chip">已同步 {{ status.syncCount }} 次</span>
+          <span class="chip" v-if="status.lastSync">{{ sourceText(status.lastSync.source) }} · {{ status.lastSync.createdAt }}</span>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hs-item">
+          <div class="hs-label">最近静息心率</div>
+          <div class="hs-value">
+            {{ status.latestBody?.restingHr || '-' }}<span class="unit">bpm</span>
+          </div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-label">最近睡眠</div>
+          <div class="hs-value">
+            {{ status.latestBody?.sleepHours || '-' }}<span class="unit">h</span>
+          </div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-label">数据日期</div>
+          <div class="hs-value small">{{ status.latestBody?.date || '—' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid dev-grid" style="grid-template-columns: 1fr 380px">
+      <!-- ==================== ① 蓝牙实时心率 ==================== -->
+      <div class="card">
+        <div class="card-title">
+          <span>① 蓝牙心率带 / 手环（实时）</span>
+          <span class="sub">Web Bluetooth · 标准心率服务 0x180D</span>
+        </div>
+
+        <!-- 不支持时的说明：给出可执行的替代方案，而不是干瞪眼 -->
+        <div v-if="!btReady" class="bt-tip warn">
+          <b>当前环境用不了蓝牙</b>：{{ btReason }}
+          可以直接用下面的<b>「导入数据」</b>或<b>「演示模式」</b>，功能一样完整。
+        </div>
+
+        <div class="bt-bar">
+          <el-button
+            v-if="!connected"
+            type="primary"
+            class="btn-gradient"
+            :loading="connecting"
+            :disabled="!btReady"
+            @click="connect"
+          >
+            {{ connecting ? '正在连接…' : '连接设备' }}
+          </el-button>
+          <el-button v-else type="danger" plain @click="disconnect">断开连接</el-button>
+
+          <el-button v-if="!connected" :disabled="connecting" @click="simulate">无设备？生成一段模拟心率</el-button>
+
+          <span class="bt-state">
+            <span class="dot" :class="{ on: connected }"></span>
+            {{ connected ? `已连接 · ${deviceName}` : samples.length ? `未连接 · ${deviceName}` : '未连接' }}
+          </span>
+        </div>
+
+        <!-- 实时心率大数字：演示时最抓眼球的一块 -->
+        <div class="hr-stage">
+          <div class="hr-now">
+            <div class="hr-num" :class="{ live: connected }">{{ currentBpm ?? '--' }}</div>
+            <div class="hr-unit">bpm</div>
+          </div>
+          <div class="hr-stats">
+            <div class="hr-stat">
+              <div class="k">平均</div>
+              <div class="v">{{ stats.avg || '-' }}</div>
+            </div>
+            <div class="hr-stat">
+              <div class="k">最高</div>
+              <div class="v">{{ stats.max || '-' }}</div>
+            </div>
+            <div class="hr-stat">
+              <div class="k">最低</div>
+              <div class="v">{{ stats.min || '-' }}</div>
+            </div>
+            <div class="hr-stat">
+              <div class="k">时长</div>
+              <div class="v">{{ elapsed }}<span class="u">s</span></div>
+            </div>
+          </div>
+        </div>
+
+        <ChartBox :option="hrOption" height="200px" :empty="samples.length === 0" empty-text="连接设备或生成模拟心率后，这里会实时画出心率曲线" />
+
+        <div class="hr-foot">
+          <el-checkbox v-model="saveAsRestingHr">把平均心率记为今日静息心率（写入身体数据）</el-checkbox>
+          <el-button type="primary" plain :loading="saving" :disabled="!samples.length" @click="save">保存这次记录</el-button>
+        </div>
+      </div>
+
+      <!-- ==================== ② 导入 + ③ 演示 ==================== -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span>② 导入数据</span>
+            <span class="sub">手环 App 导出的 CSV / JSON</span>
+          </div>
+
+          <div class="imp-actions">
+            <el-button size="small" @click="downloadTemplate">下载 CSV 模板</el-button>
+            <el-button size="small" @click="pickFile">选择文件</el-button>
+            <input ref="fileInput" type="file" accept=".csv,.json,.txt" class="hidden-input" @change="onFile" />
+          </div>
+
+          <el-input
+            v-model="csvText"
+            type="textarea"
+            :rows="5"
+            resize="none"
+            placeholder="也可以直接粘贴，例如：
+date,steps,restingHr,sleepHours,weightKg
+2026-10-20,8600,64,7.2,75.2"
+          />
+
+          <div class="imp-actions bottom">
+            <el-button size="small" :loading="previewing" :disabled="!csvText.trim()" @click="doPreview">预览解析</el-button>
+            <el-button size="small" type="primary" :loading="importing" :disabled="!csvText.trim()" @click="doImport">
+              确认导入
+            </el-button>
+            <span class="imp-hint">支持中英文表头、列顺序随意、缺列自动跳过</span>
+          </div>
+
+          <!-- 预览表：先看再写库，避免"一股脑灌进去" -->
+          <div v-if="preview.length" class="imp-preview">
+            <div class="imp-preview-title">
+              预览（解析到 {{ previewTotal }} 行，最多展示 20 行）
+            </div>
+            <el-table :data="preview" size="small" max-height="220">
+              <el-table-column prop="date" label="日期" width="96" />
+              <el-table-column prop="steps" label="步数" width="72" />
+              <el-table-column prop="restingHr" label="心率" width="62" />
+              <el-table-column prop="sleepHours" label="睡眠" width="62" />
+              <el-table-column prop="weightKg" label="体重" />
+            </el-table>
+          </div>
+        </div>
+
+        <div class="card mt-16">
+          <div class="card-title">
+            <span>③ 演示模式</span>
+            <span class="sub">没有设备时也能完整演示</span>
+          </div>
+          <div class="demo-row">
+            <el-radio-group v-model="demoDays" size="small">
+              <el-radio-button :value="7">7 天</el-radio-button>
+              <el-radio-button :value="14">14 天</el-radio-button>
+              <el-radio-button :value="30">30 天</el-radio-button>
+            </el-radio-group>
+            <el-button type="primary" class="btn-gradient" :loading="demoRunning" @click="runDemo">一键生成</el-button>
+          </div>
+          <div class="demo-tip">
+            生成最近 {{ demoDays }} 天的步数 / 静息心率 / 睡眠：写入
+            <b>身体数据</b>，并按 MET 公式把步数折算成<b>步行打卡</b>——所以打卡日历、消耗热量、
+            完成度都会真的变化。数据在同步历史里标记为「演示」，不会和真实数据混淆。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 一周数据 + 同步历史 ==================== -->
+    <div class="grid grid-2 mt-16">
+      <div class="card">
+        <div class="card-title">
+          <span>设备带来的一周数据</span>
+          <span class="sub">来自导入 / 演示的每日汇总</span>
+        </div>
+        <ChartBox :option="weekOption" height="260px" :empty="!weekly.list.length" empty-text="还没有设备数据，先在上面导入或生成" />
+        <div v-if="weekly.list.length" class="week-sum">
+          <span>日均步数 <b>{{ weekly.summary.avgSteps }}</b></span>
+          <span>日均静息心率 <b>{{ weekly.summary.avgRestingHr }}</b> bpm</span>
+          <span>日均睡眠 <b>{{ weekly.summary.avgSleep }}</b> h</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>同步历史</span>
+          <span class="sub">最近 30 条</span>
+        </div>
+        <div v-if="!history.length" class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-text">还没有同步记录</div>
+        </div>
+        <div v-else class="hist-list">
+          <div v-for="h in history" :key="h.id" class="hist-row">
+            <el-tag size="small" :type="sourceTag(h.source)" effect="plain">{{ sourceText(h.source) }}</el-tag>
+            <div class="hist-body">
+              <div class="hist-sum">{{ h.summary }}</div>
+              <div class="hist-meta">{{ h.deviceName || '—' }} · {{ h.createdAt }} · 写入 {{ h.recordCount }} 条</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { api } from '@/api';
+import ChartBox from '@/components/ChartBox.vue';
+
+// ---------------------------------------------------------------- 状态数据
+const loading = ref(false);
+const status = ref({ syncCount: 0, lastSync: null, latestBody: null, importTemplate: '' });
+const history = ref([]);
+const weekly = ref({ list: [], summary: {} });
+
+// ---------------------------------------------------------------- 蓝牙部分
+const btReady = ref(false);
+const btReason = ref('');
+const connecting = ref(false);
+const connected = ref(false);
+const deviceName = ref('');
+const currentBpm = ref(null);
+/** 本次会话的心率采样（只在前端内存里，保存时才提交最近 200 个） */
+const samples = ref([]);
+const elapsed = ref(0);
+const saveAsRestingHr = ref(true);
+const saving = ref(false);
+
+let device = null; // BluetoothDevice
+let hrChar = null; // 心率测量特征值
+let timer = null; // 计时器
+
+const stats = computed(() => {
+  const s = samples.value;
+  if (!s.length) return { avg: 0, max: 0, min: 0 };
+  const sum = s.reduce((a, b) => a + b, 0);
+  return { avg: Math.round(sum / s.length), max: Math.max(...s), min: Math.min(...s) };
+});
+
+/** 实时心率曲线：只在有数据时显示，避免空图 */
+const hrOption = computed(() => ({
+  grid: { left: 40, right: 14, top: 14, bottom: 24 },
+  tooltip: { trigger: 'axis', formatter: (p) => `${p[0].axisValue} 秒 · ${p[0].data} bpm` },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: samples.value.map((_, i) => i + 1),
+    axisLabel: { fontSize: 10, color: '#94a3b8' },
+  },
+  yAxis: {
+    type: 'value',
+    scale: true,
+    axisLabel: { fontSize: 10, color: '#94a3b8' },
+    splitLine: { lineStyle: { type: 'dashed', color: '#eef2f7' } },
+  },
+  series: [
+    {
+      type: 'line',
+      smooth: true,
+      showSymbol: false,
+      data: samples.value,
+      lineStyle: { width: 2.4, color: '#ef4444' },
+      areaStyle: { color: 'rgba(239, 68, 68, 0.12)' },
+    },
+  ],
+}));
+
+/**
+ * 解析心率测量值（GATT 0x2A37）
+ * ---------------------------------------------------------------------------
+ * 标准规定：第 1 个字节是 Flags，Flags 的 bit0 = 1 时心率是 16 位无符号整数
+ * （小端序，占 2 字节），为 0 时是 8 位。这里严格按规范解析，而不是"猜一个数字"。
+ */
+function onMeasure(event) {
+  const v = event.target.value;
+  const flags = v.getUint8(0);
+  const bpm = flags & 0x01 ? v.getUint16(1, true) : v.getUint8(1);
+  if (!bpm || bpm < 20 || bpm > 250) return;
+  currentBpm.value = bpm;
+  if (samples.value.length < 3000) samples.value.push(bpm);
+}
+
+async function connect() {
+  if (!navigator.bluetooth) {
+    ElMessage.warning('当前浏览器不支持 Web Bluetooth');
+    return;
+  }
+  connecting.value = true;
+  try {
+    // filters 只列出标准心率服务：设备选择器里就只会出现真正的心率设备
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: ['heart_rate'] }],
+      optionalServices: ['battery_service'],
+    });
+    deviceName.value = device.name || '蓝牙心率设备';
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService('heart_rate');
+    hrChar = await service.getCharacteristic('heart_rate_measurement');
+    await hrChar.startNotifications();
+    hrChar.addEventListener('characteristicvaluechanged', onMeasure);
+
+    connected.value = true;
+    samples.value = [];
+    currentBpm.value = null;
+    elapsed.value = 0;
+    startTimer();
+    ElMessage.success(`已连接 ${deviceName.value}，正在接收心率`);
+  } catch (err) {
+    // 用户取消选择设备也会进 catch（NotFoundError），不弹错误打扰
+    if (err?.name !== 'NotFoundError') ElMessage.error(`连接失败：${err.message || err.name}`);
+  } finally {
+    connecting.value = false;
+  }
+}
+
+function onDisconnected() {
+  connected.value = false;
+  stopTimer();
+  ElMessage.warning('设备已断开连接');
+}
+
+async function disconnect() {
+  stopTimer();
+  try {
+    await hrChar?.stopNotifications();
+    device?.gatt?.connected && device.gatt.disconnect();
+  } catch {
+    /* 设备可能已经断开，忽略 */
+  }
+  connected.value = false;
+  ElMessage.info('已断开');
+}
+
+function startTimer() {
+  stopTimer();
+  timer = setInterval(() => {
+    elapsed.value += 1;
+  }, 1000);
+}
+function stopTimer() {
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+}
+
+/**
+ * 模拟一段心率（无设备时的兜底演示）
+ * 生成"静息 → 轻度活动 → 回落"的合理曲线：65~86 bpm，60 个采样点。
+ * 两个刻意的设计：
+ *   1. 峰值不超过 90——这是"日常活动"的强度，不是剧烈运动，演示时不至于夸张；
+ *   2. 默认**不勾选**「记为静息心率」——模拟数据的平均值不该覆盖真实的静息心率，
+ *      想让演示流程走完可以自己勾上，卡片上也会标「模拟」。
+ */
+function simulate() {
+  const n = 60;
+  const base = 72;
+  samples.value = [];
+  for (let i = 0; i < n; i += 1) {
+    const ramp = Math.sin((i / n) * Math.PI) * 14; // 先升后降的包络
+    const noise = (Math.random() - 0.5) * 4;
+    samples.value.push(Math.round(base + ramp + noise));
+  }
+  currentBpm.value = samples.value[samples.value.length - 1];
+  elapsed.value = n;
+  deviceName.value = '模拟心率（演示模式）';
+  connected.value = false;
+  saveAsRestingHr.value = false;
+  stopTimer();
+  ElMessage.info('已生成一段 60 秒的模拟心率（模拟数据默认不写入静息心率）');
+}
+
+async function save() {
+  if (!samples.value.length) return;
+  saving.value = true;
+  try {
+    // durationSec 用实际计时；模拟数据没有计时器，就用采样个数（1 个/秒）兜底
+    const durationSec = Math.max(1, elapsed.value || samples.value.length);
+    await api.saveHeartRate({
+      deviceName: deviceName.value || '蓝牙心率设备',
+      avg: stats.value.avg,
+      max: stats.value.max,
+      min: stats.value.min,
+      durationSec,
+      samples: samples.value.slice(-200),
+      saveAsRestingHr: saveAsRestingHr.value,
+    });
+    ElMessage.success(
+      saveAsRestingHr.value
+        ? `已保存：平均 ${stats.value.avg} bpm，并写入今日静息心率`
+        : `已保存：平均 ${stats.value.avg} bpm`,
+    );
+    await refreshAll();
+  } finally {
+    saving.value = false;
+  }
+}
+
+// ---------------------------------------------------------------- 导入部分
+const csvText = ref('');
+const preview = ref([]);
+const previewTotal = ref(0);
+const previewing = ref(false);
+const importing = ref(false);
+const fileInput = ref(null);
+
+function detectFormat() {
+  return /^\s*[[{]/.test(csvText.value) ? 'json' : 'csv';
+}
+
+function pickFile() {
+  fileInput.value?.click();
+}
+
+function onFile(ev) {
+  const f = ev.target.files?.[0];
+  if (!f) return;
+  if (f.size > 500 * 1024) {
+    ElMessage.warning('文件过大（请小于 500KB）');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    csvText.value = String(reader.result || '');
+    doPreview();
+  };
+  reader.readAsText(f, 'utf-8');
+  ev.target.value = ''; // 允许重复选择同一个文件
+}
+
+/** 下载 CSV 模板：用后端返回的模板内容生成 Blob，避免前端再维护一份格式 */
+function downloadTemplate() {
+  const content = status.value.importTemplate || 'date,steps,restingHr,sleepHours,weightKg\n';
+  const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' }); // 加 BOM，Excel 打开不乱码
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '智练-设备数据导入模板.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function doPreview() {
+  previewing.value = true;
+  try {
+    const res = await api.importDeviceData({ format: detectFormat(), content: csvText.value, dryRun: true });
+    preview.value = res.preview || [];
+    previewTotal.value = res.total || 0;
+    ElMessage.success(`解析到 ${res.total} 行`);
+  } finally {
+    previewing.value = false;
+  }
+}
+
+async function doImport() {
+  importing.value = true;
+  try {
+    const res = await api.importDeviceData({ format: detectFormat(), content: csvText.value });
+    ElMessage.success(res.summary || '导入完成');
+    preview.value = [];
+    previewTotal.value = 0;
+    csvText.value = '';
+    await refreshAll();
+  } finally {
+    importing.value = false;
+  }
+}
+
+// ---------------------------------------------------------------- 演示模式
+const demoDays = ref(7);
+const demoRunning = ref(false);
+
+async function runDemo() {
+  demoRunning.value = true;
+  try {
+    const res = await api.generateDeviceDemo(demoDays.value);
+    ElMessage.success(res.summary || '已生成演示数据');
+    await refreshAll();
+  } finally {
+    demoRunning.value = false;
+  }
+}
+
+// ---------------------------------------------------------------- 一周数据图
+const weekOption = computed(() => {
+  const list = weekly.value.list || [];
+  return {
+    grid: { left: 46, right: 40, top: 30, bottom: 26 },
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['步数', '静息心率'], top: 0, textStyle: { fontSize: 11 } },
+    xAxis: {
+      type: 'category',
+      data: list.map((x) => x.date.slice(5)),
+      axisLabel: { fontSize: 10, color: '#94a3b8' },
+    },
+    yAxis: [
+      { type: 'value', name: '步', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10, color: '#94a3b8' }, splitLine: { lineStyle: { type: 'dashed', color: '#eef2f7' } } },
+      // 静息心率的合理区间基本在 50~90，固定这个范围：
+      // 用 scale:true 自动缩放会把 63 和 66 的差别放大成整条曲线的剧烈起伏，看起来像心率飙升，反而误导
+      { type: 'value', name: 'bpm', nameTextStyle: { fontSize: 10 }, min: 50, max: 90, axisLabel: { fontSize: 10, color: '#94a3b8' }, splitLine: { show: false } },
+    ],
+    series: [
+      {
+        name: '步数',
+        type: 'bar',
+        barWidth: '46%',
+        data: list.map((x) => x.steps),
+        itemStyle: { color: '#10b981', borderRadius: [4, 4, 0, 0] },
+      },
+      {
+        name: '静息心率',
+        type: 'line',
+        yAxisIndex: 1,
+        smooth: true,
+        data: list.map((x) => x.restingHr),
+        lineStyle: { width: 2.4, color: '#ef4444' },
+        itemStyle: { color: '#ef4444' },
+      },
+    ],
+  };
+});
+
+// ---------------------------------------------------------------- 工具
+function sourceText(s) {
+  return { bluetooth: '蓝牙心率', import: '文件导入', demo: '演示数据' }[s] || s;
+}
+function sourceTag(s) {
+  return { bluetooth: 'danger', import: 'primary', demo: 'warning' }[s] || 'info';
+}
+
+/** 拉取页面所需的全部数据（概览 / 一周 / 历史） */
+async function refreshAll() {
+  loading.value = true;
+  try {
+    const [st, hist, day] = await Promise.all([api.deviceStatus(), api.deviceHistory(), api.deviceDaily(7)]);
+    status.value = st;
+    history.value = hist || [];
+    weekly.value = day || { list: [], summary: {} };
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(async () => {
+  /**
+   * Web Bluetooth 可用性检测
+   * -----------------------------------------------------------------------
+   * 三个条件缺一不可：
+   *   1. 浏览器实现了 navigator.bluetooth（Chrome / Edge / 部分安卓 WebView）；
+   *   2. 必须是安全上下文（https 或 localhost）—— http://192.168.x.x 会直接没有这个对象；
+   *   3. 不能是 iOS 的 Safari（Apple 至今未实现 Web Bluetooth）。
+   * 检测结果只影响"能不能用第 ① 条路"，②③ 永远可用，所以这里只是提示，不做拦截。
+   */
+  const hasApi = typeof navigator !== 'undefined' && !!navigator.bluetooth;
+  btReady.value = hasApi && window.isSecureContext;
+  if (!hasApi) btReason.value = '浏览器没有提供 Web Bluetooth 接口（iOS Safari 目前不支持，请用 Chrome / Edge / 安卓浏览器）。';
+  else if (!window.isSecureContext) btReason.value = '当前页面不是 https 或 localhost，浏览器出于安全限制不开放蓝牙（用内网穿透的 https 地址即可）。';
+
+  await refreshAll();
+});
+
+onBeforeUnmount(() => {
+  stopTimer();
+  try {
+    hrChar?.stopNotifications?.();
+    device?.gatt?.connected && device.gatt.disconnect();
+  } catch {
+    /* 卸载时忽略 */
+  }
+});
+</script>
+
+<style scoped>
+/* ---------------- 顶部总览 ---------------- */
+.dev-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5 55%, #ffffff);
+  border: 1px solid #d1fae5;
+}
+.hero-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #064e3b;
+}
+.hero-desc {
+  font-size: 12.5px;
+  color: #047857;
+  line-height: 1.7;
+  margin-top: 6px;
+  max-width: 640px;
+}
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.chip {
+  font-size: 11.5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #d1fae5;
+  color: #047857;
+}
+.chip.ok {
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 700;
+}
+.chip.warn {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #9a3412;
+  font-weight: 700;
+}
+.hero-stats {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.hs-item {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 96px;
+}
+.hs-label {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.hs-value {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f766e;
+  margin-top: 2px;
+}
+.hs-value.small {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.hs-value .unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+  margin-left: 2px;
+}
+
+/* ---------------- 蓝牙区 ---------------- */
+.bt-tip {
+  font-size: 12px;
+  line-height: 1.7;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 10px;
+}
+.bt-tip.warn {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+.bt-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.bt-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.bt-state .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+.bt-state .dot.on {
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.hr-stage {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 14px 0 8px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fef2f2, #fff);
+  border: 1px solid #fee2e2;
+}
+.hr-now {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.hr-num {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ef4444;
+  font-variant-numeric: tabular-nums;
+}
+.hr-num.live {
+  text-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
+}
+.hr-unit {
+  font-size: 12px;
+  color: #b91c1c;
+}
+.hr-stats {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
+}
+.hr-stat {
+  text-align: center;
+  min-width: 58px;
+}
+.hr-stat .k {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.hr-stat .v {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 2px;
+}
+.hr-stat .u {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-left: 1px;
+}
+.hr-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* ---------------- 导入区 ---------------- */
+.imp-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.imp-actions.bottom {
+  margin: 8px 0 0;
+}
+.imp-hint {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.hidden-input {
+  display: none;
+}
+.imp-preview {
+  margin-top: 10px;
+  border-top: 1px dashed var(--line);
+  padding-top: 8px;
+}
+.imp-preview-title {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+
+/* ---------------- 演示模式 ---------------- */
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.demo-tip {
+  font-size: 11.5px;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin-top: 10px;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+/* ---------------- 一周汇总 ---------------- */
+.week-sum {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 6px;
+}
+.week-sum b {
+  color: #0f766e;
+}
+
+/* ---------------- 同步历史 ---------------- */
+.hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.hist-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #fbfdfe;
+  border: 1px solid #f1f5f9;
+}
+.hist-row .el-tag {
+  flex-shrink: 0;
+}
+.hist-body {
+  min-width: 0;
+}
+.hist-sum {
+  font-size: 12.5px;
+  color: var(--text-1);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.hist-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.empty-state {
+  text-align: center;
+  padding: 26px 0;
+  color: var(--text-3);
+}
+.empty-icon {
+  font-size: 30px;
+  margin-bottom: 6px;
+}
+.empty-text {
+  font-size: 12.5px;
+}
+
+/* ---------------- 移动端 ---------------- */
+@media (max-width: 900px) {
+  .dev-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  /* 顶部三个指标卡：手机上等分一行，等宽避免挤压 */
+  .hero-stats {
+    width: 100%;
+  }
+  .hs-item {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+  }
+  .hs-value {
+    font-size: 16px;
+  }
+  /* 实时心率区：大数字和四个统计在窄屏改上下排列 */
+  .hr-stage {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+  .hr-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .hr-num {
+    font-size: 40px;
+  }
+  .bt-bar {
+    gap: 8px;
+  }
+  /* 蓝牙区的两个按钮在手机上整行，避免换行后错位 */
+  .bt-bar .el-button {
+    margin-left: 0;
+  }
+  .hist-list {
+    max-height: none;
+  }
+}
+@media (max-width: 600px) {
+  .demo-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .demo-row .el-radio-group {
+    display: flex;
+  }
+  .demo-row .el-radio-button {
+    flex: 1;
+  }
+  .demo-row :deep(.el-radio-button__inner) {
+    width: 100%;
+  }
+  .hr-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .week-sum {
+    gap: 10px;
+  }
+}
+</style>

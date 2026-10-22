@@ -253,3 +253,23 @@ CREATE TABLE IF NOT EXISTS food_scans (
   created_at    TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
 );
 CREATE INDEX IF NOT EXISTS idx_foodscan_user ON food_scans(user_id, id DESC);
+
+-- ---------------------------- 10. 可穿戴设备数据同步 ----------------------------
+
+-- 设备同步记录表：每一次从手环/手表/心率带同步 = 一条记录。
+-- 支持三种来源：
+--   bluetooth —— 浏览器 Web Bluetooth 实时连接心率带/手环（标准 GATT 心率服务 0x180D）
+--   import    —— 导入手环 App 导出的 CSV/JSON（步数、睡眠、心率、体重等）
+--   demo      —— 演示模式生成模拟数据（保证无设备时也能完整演示）
+CREATE TABLE IF NOT EXISTS device_syncs (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  source      TEXT    NOT NULL,                   -- bluetooth | import | demo
+  device_name TEXT,                               -- 设备名，如 "Mi Smart Band 8" / "Polar H10"
+  sync_type   TEXT    NOT NULL,                   -- heart_rate | daily | weight
+  payload     TEXT    NOT NULL DEFAULT '{}',      -- JSON：同步的原始数据（心率样本/每日指标）
+  summary     TEXT,                               -- 一句话摘要，便于列表展示
+  record_count INTEGER NOT NULL DEFAULT 0,        -- 写入的业务记录条数
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_devsync_user ON device_syncs(user_id, id DESC);

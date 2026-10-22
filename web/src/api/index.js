@@ -117,6 +117,14 @@ export const api = {
   // （FoodScan.vue 的「③ 份量试算 & 饮食建议」卡片依赖此方法，缺失会导致点击即报错）
   foodScanAdvice: (data) => http.post('/api/food-scan/advice', data),
 
+  // ---------------- 设备同步（可穿戴：蓝牙心率带 / 手环导入 / 演示） ----------------
+  deviceStatus: () => http.get('/api/devices/status'),
+  deviceHistory: () => http.get('/api/devices/history'),
+  deviceDaily: (days = 7) => http.get('/api/devices/daily', { params: { days } }),
+  saveHeartRate: (data) => http.post('/api/devices/heart-rate', data),
+  importDeviceData: (data) => http.post('/api/devices/import', data),
+  generateDeviceDemo: (days = 7) => http.post('/api/devices/demo', { days }),
+
   // ---------------- 仪表盘 ----------------
   overview: () => http.get('/api/dashboard/overview'),
 

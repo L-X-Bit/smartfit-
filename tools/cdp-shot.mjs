@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CDP 驱动的页面截图工具（本地验收用，不参与项目运行）
  * ---------------------------------------------------------------------------
  * 用途：录制演示前自动走一遍「登录 → 进页 → 点按钮 → 等真实 AI 返回 → 截图」，
@@ -405,6 +405,51 @@ async function waitFor(cdp, expression, timeoutMs = 120000, label = '') {
     await waitFor(cdp, `document.body.innerText.includes('AI 运行统计')`, 30000, 'profile');
     await sleep(1800);
     await save('09-profile');
+  }
+
+  // ============ 13. 设备同步（可穿戴：蓝牙心率 / 导入 / 演示）
+  if (need('devices')) {
+    console.log('[devices]');
+    await goto('/devices');
+    await waitFor(cdp, `document.body.innerText.includes('蓝牙心率带')`, 30000, 'devices');
+
+    // ① 无设备也能展示实时心率：点「生成一段模拟心率」，让曲线与统计都有数据
+    const sim = await cdp.eval(`(() => {
+      const b = [...document.querySelectorAll('button')].find(x => x.textContent.includes('模拟心率'));
+      if (!b) return 'no-button';
+      b.click(); return 'clicked';
+    })()`);
+    console.log('  模拟心率:', sim);
+    await waitFor(cdp, `document.querySelector('.hr-num') && !document.querySelector('.hr-num').innerText.includes('--')`, 20000, 'hr-num');
+    await sleep(1200);
+    const hr = await cdp.eval(`document.querySelector('.hr-num').innerText.trim()`);
+    console.log('  当前心率:', hr);
+
+    // 点「保存这次记录」→ 验证前端到后端的写入链路（会出现在同步历史里）
+    const saved = await cdp.eval(`(() => {
+      const b = [...document.querySelectorAll('button')].find(x => x.textContent.trim() === '保存这次记录');
+      if (!b) return 'no-button';
+      b.click(); return 'clicked';
+    })()`);
+    const savedOk = await waitFor(cdp, `document.body.innerText.includes('已保存')`, 25000, 'hr-saved')
+      .then(() => true)
+      .catch(() => false);
+    console.log(`  保存心率: ${saved} → ${savedOk ? '成功' : '未出现提示'}`);
+    await sleep(1500);
+
+    // ② 演示模式生成 7 天设备数据（会真的写入身体数据 + 步行打卡）
+    const demo = await cdp.eval(`(() => {
+      const b = [...document.querySelectorAll('button')].find(x => x.textContent.trim() === '一键生成');
+      if (!b) return 'no-button';
+      b.click(); return 'clicked';
+    })()`);
+    console.log('  演示模式:', demo);
+    await waitFor(cdp, `document.querySelectorAll('.hist-row').length > 0`, 40000, 'device-history');
+    await sleep(2200);
+    const rows = await cdp.eval(`document.querySelectorAll('.hist-row').length`);
+    const week = await cdp.eval(`(document.body.innerText.match(/日均步数\\s*\\d+/) || [''])[0]`);
+    console.log(`  同步历史 ${rows} 条，${week}`);
+    await save('12-devices');
   }
 
   console.log('\n完成。');

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Express 应用装配
  * ---------------------------------------------------------------------------
  * 分层结构：路由层（routes）→ 服务层（service / ai agent）→ 数据层（db）
@@ -25,6 +25,7 @@ import communityRoutes from './modules/community/routes.js';
 import dashboardRoutes from './modules/dashboard/routes.js';
 import aiRoutes from './modules/ai/routes.js';
 import foodScanRoutes from './modules/foodscan/routes.js';
+import deviceRoutes from './modules/devices/routes.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -71,6 +72,8 @@ export function createApp() {
   app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/ai', aiRoutes);
   app.use('/api/food-scan', foodScanRoutes);
+  // 可穿戴设备同步（蓝牙心率 / 文件导入 / 演示模式）
+  app.use('/api/devices', deviceRoutes);
 
   // 7) 生产模式下托管前端构建产物（npm run build 后 dist 目录）
   //    前端路由使用 history 模式，因此非 /api 开头的 GET 请求都回落到 index.html

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 路由配置
  * ---------------------------------------------------------------------------
  * · 使用 history 模式（需后端托管时回落到 index.html，已在 server 中处理）
@@ -19,6 +19,8 @@ const routes = [
       { path: 'checkin', name: 'checkin', component: () => import('@/views/Checkin.vue'), meta: { title: '运动打卡', icon: 'AlarmClock' } },
       { path: 'plan', name: 'plan', component: () => import('@/views/Plan.vue'), meta: { title: 'AI 健身计划', icon: 'Calendar' } },
       { path: 'body', name: 'body', component: () => import('@/views/Body.vue'), meta: { title: '身体数据', icon: 'Odometer' } },
+      // 可穿戴设备同步：蓝牙心率带实时心率 / 手环数据导入 / 无设备演示模式
+      { path: 'devices', name: 'devices', component: () => import('@/views/Devices.vue'), meta: { title: '设备同步', icon: 'Watch' } },
       { path: 'analytics', name: 'analytics', component: () => import('@/views/Analytics.vue'), meta: { title: '数据可视化', icon: 'TrendCharts' } },
       { path: 'coach', name: 'coach', component: () => import('@/views/Coach.vue'), meta: { title: 'AI 健身教练', icon: 'ChatDotRound', ai: true } },
       { path: 'diet', name: 'diet', component: () => import('@/views/Diet.vue'), meta: { title: '健康饮食', icon: 'Bowl' } },

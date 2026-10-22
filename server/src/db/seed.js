@@ -32,6 +32,7 @@ if (isReset) {
   const tables = [
     'ai_call_logs',
     'ai_messages',
+    'device_syncs',
     'food_scans',
     'comments',
     'post_likes',
@@ -46,7 +47,7 @@ if (isReset) {
     'users',
   ];
   for (const t of tables) db.exec(`DELETE FROM ${t};`);
-  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('users','body_records','workout_logs','plans','plan_items','diet_logs','posts','comments','ai_messages','ai_call_logs','food_scans');");
+  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('users','body_records','workout_logs','plans','plan_items','diet_logs','posts','comments','ai_messages','ai_call_logs','food_scans','device_syncs');");
   console.log('[reset] 已清空全部数据表');
 }
 
@@ -388,7 +389,41 @@ function seedDemoData() {
     );
   }
 
-  console.log('[3/3] 演示数据生成完成：身体数据 / 打卡记录 / 训练计划 / 饮食记录 / 社区帖子 / AI 调用样本');
+  /**
+   * 设备同步样本（演示用）
+   * 说明：让「设备同步」页首次启动就有同步历史与「一周数据」可看。
+   *      只写 device_syncs 这一张「同步日志」表，**不动**已经生成好的 60 天身体数据
+   *      与 21 天打卡——否则同一批数据会被重复计数（这个坑在开发时踩过）。
+   *      心率/睡眠取当天身体记录的真实值，保证页面上的数字互相自洽。
+   */
+  const demoDeviceRows = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const date = shiftDate(today(), -i);
+    const body = get('SELECT resting_hr, sleep_hours FROM body_records WHERE user_id = ? AND record_date = ?', [demoId, date]);
+    const dow = new Date(`${date}T00:00:00`).getDay();
+    const base = dow === 0 || dow === 6 ? 4600 : 8800; // 周末走得少一点，和真实习惯一致
+    demoDeviceRows.push({
+      date,
+      steps: base + ((i * 137) % 1800),
+      restingHr: body?.resting_hr || 64,
+      sleepHours: body?.sleep_hours || 7.2,
+    });
+  }
+  run(
+    `INSERT INTO device_syncs (user_id, source, device_name, sync_type, payload, summary, record_count)
+     VALUES (?,?,?,?,?,?,?)`,
+    [
+      demoId,
+      'demo',
+      '演示手环（示例数据）',
+      'daily',
+      JSON.stringify({ rows: demoDeviceRows }),
+      '演示设备同步 7 天数据（示例）',
+      demoDeviceRows.length,
+    ],
+  );
+
+  console.log('[3/3] 演示数据生成完成：身体数据 / 打卡记录 / 训练计划 / 饮食记录 / 社区帖子 / 设备同步样本 / AI 调用样本');
 }
 
 seedDemoData();
