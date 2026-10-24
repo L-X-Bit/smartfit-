@@ -100,29 +100,45 @@
           <div class="drop-desc">手机端可直接调用相机拍照</div>
 
           <!--
-            两个原生文件输入：一个带 capture（直接开相机），一个不带（开相册/文件管理）
+            两个 file input：一个带 capture（开相机），一个不带（开相册/文件）
             ------------------------------------------------------------------
-            为什么要两个、而且用 <label for> 而不是 JS 去 click 一个隐藏 input：
-            踩过的坑 —— 手机上点「从相册选择」没反应。原因有三层：
-              ① 原来的 input 是 display:none，微信 / 夸克 / UC 这类内核会拒绝为隐藏输入
-                 打开选择器（表现为点了完全没反应）；
-              ② 原来靠 JS 在点击瞬间切换 capture 属性，部分浏览器不生效，仍然只弹相机；
-              ③ JS 的 input.click() 在丢失用户手势（中间有 await）时会静默失败。
-            改成「两个真实 input + label 原生绑定」：点按钮等于原生点击 input，
-            不经过任何 JS，也不需要用户手势校验，是所有手机浏览器最稳的写法。
-            input 本身用「视觉隐藏但保留渲染」的 sr-input（不是 display:none）。
+            踩过的坑（手机端点了没反应，前后改了三版）：
+              ① 最早 input 是 display:none → 微信 / 夸克 / UC 内核拒绝为隐藏输入打开选择器；
+              ② 第二版改成 <label for> + 1px 视觉隐藏 → 安卓好了，**iOS Safari 仍会失效**：
+                 因为 label 外面那层 .drop-zone 也绑了 @click，一次点按触发两次打开请求，
+                 iOS 会直接忽略，表现就是"点了没反应"。
+              ③ 现在改成「透明 input 盖在按钮上」：点按的命中目标就是 input 本身，
+                 不经过 label、不经过 JS、也不会重复触发 —— iOS / 安卓 / 各内核最认这种形态。
+            这两个 sr-input 只留给桌面端"点整块虚线区域"用，手机不碰它们。
           -->
           <input id="scan-album-input" ref="albumInput" class="sr-input" type="file" accept="image/*" @change="onFileChange" />
           <input id="scan-camera-input" ref="cameraInput" class="sr-input" type="file" accept="image/*" capture="environment" @change="onFileChange" />
 
           <div class="drop-actions">
             <template v-if="cap.visionEnabled">
-              <label class="pick-btn primary" for="scan-camera-input">
-                <el-icon><Camera /></el-icon> 拍照
-              </label>
-              <label class="pick-btn" for="scan-album-input">
-                <el-icon><Picture /></el-icon> 从相册选择
-              </label>
+              <span class="pick-wrap">
+                <span class="pick-btn primary"><el-icon><Camera /></el-icon> 拍照</span>
+                <input
+                  class="pick-overlay"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  aria-label="拍照上传"
+                  @click.stop="markPickAttempt"
+                  @change="onFileChange"
+                />
+              </span>
+              <span class="pick-wrap">
+                <span class="pick-btn"><el-icon><Picture /></el-icon> 从相册选择</span>
+                <input
+                  class="pick-overlay"
+                  type="file"
+                  accept="image/*"
+                  aria-label="从相册选择照片"
+                  @click.stop="markPickAttempt"
+                  @change="onFileChange"
+                />
+              </span>
             </template>
             <template v-else>
               <el-button disabled :icon="Camera">拍照</el-button>
@@ -133,14 +149,28 @@
             选图失败时的**页面上**的说明（不是一闪而过的 toast）
             ------------------------------------------------------------------
             手机上 toast 很容易被忽略，用户就会以为"选了图没反应"。
-            这里把原因（格式 / 体积 / 解码失败）和下一步动作直接摆出来。
+            这里把原因（格式 / 体积 / 解码失败 / 选择器根本没打开）和下一步动作直接摆出来。
           -->
           <div v-if="uploadError" class="upload-error">
             <div class="ue-title">⚠️ {{ uploadError }}</div>
             <div v-if="uploadErrorTip" class="ue-tip">{{ uploadErrorTip }}</div>
             <div class="ue-actions">
-              <label class="pick-btn" for="scan-album-input">换一张</label>
-              <label class="pick-btn primary" for="scan-camera-input">直接拍照</label>
+              <span class="pick-wrap">
+                <span class="pick-btn"><el-icon><Picture /></el-icon> 换一张</span>
+                <input class="pick-overlay" type="file" accept="image/*" aria-label="换一张" @click.stop="markPickAttempt" @change="onFileChange" />
+              </span>
+              <span class="pick-wrap">
+                <span class="pick-btn primary"><el-icon><Camera /></el-icon> 直接拍照</span>
+                <input
+                  class="pick-overlay"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  aria-label="直接拍照"
+                  @click.stop="markPickAttempt"
+                  @change="onFileChange"
+                />
+              </span>
             </div>
           </div>
 
@@ -809,6 +839,7 @@ function onDrop(ev) {
 }
 
 function onFileChange(ev) {
+  clearTimeout(pickTimer); // 拿到文件了，取消"选择器没打开"的自诊断
   const file = ev.target.files?.[0];
   // 选完立刻清空，否则同一张图第二次选不会触发 change（用户会以为"点了没反应"）
   ev.target.value = '';
@@ -827,6 +858,30 @@ const uploadErrorTip = ref('');
 const analyzeError = ref('');
 /** 是否在微信内置浏览器里（企业微信也算）：里面拍照/选图基本不可用，要引导到外部浏览器 */
 const isWeChat = ref(false);
+/** 点按"拍照/相册"但系统选择器没出现时的自诊断计时器 */
+let pickTimer = null;
+
+/**
+ * 点按了文件输入，但 3.6 秒内没有拿到 change 事件
+ * ---------------------------------------------------------------------------
+ * 这说明浏览器**根本没打开**系统选择器（权限被禁 / 内核限制 / 不是安全上下文），
+ * 而不是"选完上传失败"。两种情况的处理完全不同，所以必须区分出来：
+ * 前者要改系统权限或换浏览器，后者才轮到格式与体积。
+ */
+function markPickAttempt() {
+  // 重新点按时先清掉上一次的错误提示，避免用户以为又失败了
+  uploadError.value = '';
+  uploadErrorTip.value = '';
+  clearTimeout(pickTimer);
+  pickTimer = setTimeout(() => {
+    // 用户可能还在相册里挑照片（页面被切到后台），回到前台再判断，避免误报
+    if (document.visibilityState !== 'visible') return;
+    if (preview.value || analyzing.value) return;
+    uploadError.value = '浏览器没有打开相册/相机';
+    uploadErrorTip.value =
+      '点按后系统选择器没有出现，说明被浏览器或系统权限挡住了。iPhone：设置 → Safari 浏览器 → 相机/照片 改为「允许」；安卓：给浏览器开启「照片/存储」权限。也可以换 Chrome / Edge 打开同一个链接。';
+  }, 3600);
+}
 
 /** 复制本页链接（微信里 clipboard API 常被禁用，失败就给一个可长按复制的输入框） */
 async function copyPageLink() {
@@ -1238,6 +1293,31 @@ onMounted(async () => {
 }
 .pick-btn .el-icon {
   font-size: 15px;
+}
+/*
+  透明 input 覆盖在按钮上
+  ---------------------------------------------------------------------------
+  这是移动端打开文件选择器**最可靠**的形态：用户点按的命中目标就是 input 元素本身，
+  不经过 <label>、不经过 JS 的 click()，因此不会被 iOS Safari / 安卓各内核拦截；
+  同时 input 有真实尺寸（inset:0），不像 1px 视觉隐藏那样被判定为"不可见控件"。
+*/
+.pick-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.pick-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-size: 0;
+  cursor: pointer;
+  z-index: 2;
+  /* iOS 上 iframe/webview 里 -webkit-appearance 保持默认即可，不要设 none */
 }
 /* 选图/识别失败的页面内提示 */
 .upload-error {
