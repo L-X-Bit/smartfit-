@@ -16,7 +16,16 @@
     · 识别结果全部落库（food_scans 表），支持历史回溯与「稍后再记」。
 -->
 <template>
-  <div v-loading="pageLoading">
+  <!--
+    注意：这里**不能**用 <div v-loading="pageLoading"> 包住整页。
+    ---------------------------------------------------------------------------
+    踩过的坑：v-loading 会盖一层 el-loading-mask（z-index 2000）铺满整个内容区，
+    在线上免费实例冷启动、接口要等好几秒的那段时间里，用户点「拍照 / 从相册选择」
+    命中的是这层遮罩而不是文件输入 → 表现依然是"点了没反应"。
+    （用 elementFromPoint 实测：命中的是 div.el-loading-mask，不是 input。）
+    所以整页加载态去掉，改成各区块自己的轻量提示。
+  -->
+  <div>
     <!-- ==================== 顶部功能区 ==================== -->
     <div class="card hero">
       <div class="hero-left">
@@ -98,6 +107,11 @@
           <div class="drop-icon">🍱</div>
           <div class="drop-title" @click.stop="openPicker('album')">点击选择照片，或把图片拖到这里</div>
           <div class="drop-desc">手机端可直接调用相机拍照</div>
+          <!-- 压缩中的轻量提示：不遮挡按钮（pointer-events:none），压缩一般不到 1 秒 -->
+          <div v-if="pageLoading" class="dz-loading">
+            <el-icon class="is-loading" :size="14"><Loading /></el-icon>
+            正在处理照片…
+          </div>
 
           <!--
             两个 file input：一个带 capture（开相机），一个不带（开相册/文件）
@@ -1379,6 +1393,16 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--text-3);
   margin-bottom: 16px;
+}
+/* 压缩照片时的轻量提示：不拦截点击，避免又变成"点了没反应" */
+.dz-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--brand-dark);
+  margin-bottom: 10px;
+  pointer-events: none;
 }
 .drop-actions {
   display: flex;
