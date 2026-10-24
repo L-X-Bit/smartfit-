@@ -103,6 +103,21 @@
               <el-button disabled :icon="Picture">从相册选择</el-button>
             </template>
           </div>
+          <!--
+            选图失败时的**页面上**的说明（不是一闪而过的 toast）
+            ------------------------------------------------------------------
+            手机上 toast 很容易被忽略，用户就会以为"选了图没反应"。
+            这里把原因（格式 / 体积 / 解码失败）和下一步动作直接摆出来。
+          -->
+          <div v-if="uploadError" class="upload-error">
+            <div class="ue-title">⚠️ {{ uploadError }}</div>
+            <div v-if="uploadErrorTip" class="ue-tip">{{ uploadErrorTip }}</div>
+            <div class="ue-actions">
+              <label class="pick-btn" for="scan-album-input">换一张</label>
+              <label class="pick-btn primary" for="scan-camera-input">直接拍照</label>
+            </div>
+          </div>
+
           <div class="drop-tips">
             <b>📏 想算准热量，关键是「参照物」</b>：照片没有深度，AI 只能靠已知尺寸的物体推算份量。<br />
             拍摄时请把 <b>筷子、勺子、一元硬币或手</b> 放进食盘旁，并尽量俯拍整盘——有参照物时份量误差可控制在 ±30%，没有则只能凭经验估算。
@@ -117,6 +132,15 @@
             <div class="row">
               <el-button size="small" :icon="Refresh" :disabled="analyzing" @click="analyze">重新识别</el-button>
               <el-button size="small" :icon="Close" :disabled="analyzing" @click="reset">换一张</el-button>
+            </div>
+          </div>
+
+          <!-- 图片已经选好了，只是识别接口失败（超时/网络）——单独提示并可一键重试 -->
+          <div v-if="analyzeError && !analyzing" class="upload-error">
+            <div class="ue-title">⚠️ {{ analyzeError }}</div>
+            <div class="ue-actions">
+              <el-button size="small" type="primary" :icon="Refresh" @click="analyze">重新识别</el-button>
+              <el-button size="small" :icon="Close" @click="reset">换一张图</el-button>
             </div>
           </div>
 
@@ -477,7 +501,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Camera, Picture, Refresh, Close, Check, Delete, Loading, Download, MagicStick } from '@element-plus/icons-vue';
 import { api } from '@/api';
-import { compressImage, dataUrlSize } from '@/utils/image';
+import { compressImage, dataUrlSize, looksLikeImage } from '@/utils/image';
 
 const mealNameMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
 
@@ -765,16 +789,38 @@ function onFileChange(ev) {
   if (file) handleFile(file);
 }
 
-/** 选中文件 → 压缩 → 自动识别 */
+/**
+ * 选中文件 → 压缩 → 自动识别
+ * ---------------------------------------------------------------------------
+ * 这里刻意把每一步失败都**显示在页面上**（uploadError），而不只是弹一个 2 秒的 toast。
+ * 原因：手机上 toast 很容易被忽略，用户就会以为"选了图没反应"。
+ */
+const uploadError = ref('');
+const uploadErrorTip = ref('');
+/** 识别阶段的错误（图片已选好，只是接口失败），单独提示并可一键重试 */
+const analyzeError = ref('');
+
 async function handleFile(file) {
-  if (!file.type.startsWith('image/')) {
+  uploadError.value = '';
+  uploadErrorTip.value = '';
+
+  // ① 类型：有些安卓文件选择器给出的 MIME 是空串，只能用扩展名兜底
+  if (!looksLikeImage(file)) {
+    uploadError.value = `这个文件不是图片（${file.type || '未识别格式'}）`;
+    uploadErrorTip.value = `文件名：${file.name || '未知'}。请选择 JPG / PNG / WebP 格式的照片。`;
     ElMessage.warning('请选择图片文件');
     return;
   }
-  if (file.size > 8 * 1024 * 1024) {
-    ElMessage.warning('图片请小于 8MB');
+
+  // ② 体积：手机原图常见 5~12MB，上限放宽到 20MB，并在提示里告诉用户实际大小
+  const mb = file.size / 1024 / 1024;
+  if (mb > 20) {
+    uploadError.value = `图片太大（${mb.toFixed(1)}MB），上限 20MB`;
+    uploadErrorTip.value = '可以在相册里先压缩/裁剪一下，或直接用「拍照」按钮拍一张（会自动压到 1280px）。';
+    ElMessage.warning(`图片请小于 20MB（当前 ${mb.toFixed(1)}MB）`);
     return;
   }
+
   try {
     pageLoading.value = true;
     const dataUrl = await compressImage(file, { maxEdge: 1280, quality: 0.85 });
@@ -791,6 +837,12 @@ async function handleFile(file) {
     pageLoading.value = false;
     await analyze();
   } catch (err) {
+    pageLoading.value = false;
+    const info = err.fileInfo;
+    uploadError.value = err.message || '图片处理失败';
+    uploadErrorTip.value = info
+      ? `文件名 ${info.name || '未知'} · 类型 ${info.type || '未知'} · ${Math.round((info.size || 0) / 1024)}KB`
+      : '如果反复失败，请换一张 JPG/PNG 照片，或直接用「拍照」按钮。';
     ElMessage.error(err.message || '图片处理失败');
   } finally {
     pageLoading.value = false;
@@ -810,14 +862,23 @@ async function analyze() {
     const res = await api.foodScanAnalyze(preview.value);
     initResultItems(res);
     result.value = res;
+    analyzeError.value = '';
     if (res.notFood) {
       ElMessage.warning(res.reason || '没有识别到食物');
     } else {
       ElMessage.success(`识别完成：${res.items.length} 种食物，约 ${res.totals.kcal} kcal`);
     }
     await loadHistory();      // 识别成功会落库，刷新历史
-  } catch {
-    /* 错误提示由 axios 拦截器统一处理 */
+  } catch (err) {
+    /**
+     * 识别失败要说清楚是"网"的问题，而不是让用户以为图没传上去。
+     * 线上用的是免费实例，休眠时首个请求可能要等 30~60 秒，容易触发前端 60 秒超时。
+     */
+    const msg = String(err?.message || '');
+    analyzeError.value = /timeout/i.test(msg)
+      ? '识别请求超时了：免费实例正在从休眠中唤醒（首个请求要 30~60 秒）。点「重新识别」再试一次就好。'
+      : `识别失败：${msg || '网络异常'}。图片已经选好了，点「重新识别」重试即可。`;
+    ElMessage.error(/timeout/i.test(msg) ? '识别超时，请点「重新识别」重试' : '识别失败，请重试');
   } finally {
     clearTimeout(t);
     analyzing.value = false;
@@ -1075,6 +1136,38 @@ onMounted(async () => {
 }
 .pick-btn .el-icon {
   font-size: 15px;
+}
+/* 选图/识别失败的页面内提示 */
+.upload-error {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  text-align: left;
+}
+.ue-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #b91c1c;
+  line-height: 1.6;
+}
+.ue-tip {
+  font-size: 11.5px;
+  color: #7f1d1d;
+  line-height: 1.65;
+  margin-top: 4px;
+  word-break: break-all;
+}
+.ue-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+.ue-actions .pick-btn {
+  padding: 7px 14px;
+  font-size: 12.5px;
 }
 .drop-zone {
   border: 2px dashed #cbd5e1;
