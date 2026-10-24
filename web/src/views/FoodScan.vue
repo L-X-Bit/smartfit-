@@ -59,6 +59,32 @@
           <span class="sub">jpg / png / webp · 自动压缩</span>
         </div>
 
+        <!--
+          微信内置浏览器专用提示
+          ------------------------------------------------------------------
+          iPhone 在微信里点开链接时，**拍照和选图都调不起来**——这是微信 iOS 内置浏览器的
+          限制（它忽略 capture 属性，对隐藏/包装过的 file input 也不放行），任何网页都绕不过去，
+          不是我们代码没写好。所以这里直接告诉用户正确做法（在浏览器中打开），
+          并给两个兜底：复制链接、微信里对"原生可见的文件输入"宽容性更高。
+        -->
+        <div v-if="isWeChat" class="wx-tip">
+          <div class="wx-title">⚠️ 你正在微信里打开这个页面</div>
+          <div class="wx-body">
+            微信内置浏览器不支持网页拍照/选图（iOS 上表现为「点了没反应」）。
+            请点右上角 <b>「···」→「在浏览器打开」</b>，就能正常拍照和选图。
+            <br />
+            如果仍不行，检查手机 <b>设置 → 微信 → 照片</b> 是否允许访问所有照片。
+          </div>
+          <div class="wx-actions">
+            <button type="button" class="pick-btn primary" @click="copyPageLink">复制本页链接</button>
+            <span class="wx-hint">复制后粘到 Safari / Chrome 打开</span>
+          </div>
+          <div class="wx-native">
+            <span>微信内也可以先试系统原生选择：</span>
+            <input type="file" accept="image/*" class="wx-file" @change="onFileChange" />
+          </div>
+        </div>
+
         <!-- 未选择图片：拖拽/点击上传 -->
         <div
           v-if="!preview"
@@ -799,6 +825,24 @@ const uploadError = ref('');
 const uploadErrorTip = ref('');
 /** 识别阶段的错误（图片已选好，只是接口失败），单独提示并可一键重试 */
 const analyzeError = ref('');
+/** 是否在微信内置浏览器里（企业微信也算）：里面拍照/选图基本不可用，要引导到外部浏览器 */
+const isWeChat = ref(false);
+
+/** 复制本页链接（微信里 clipboard API 常被禁用，失败就给一个可长按复制的输入框） */
+async function copyPageLink() {
+  const url = location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+    ElMessage.success('链接已复制，粘贴到 Safari / Chrome 打开即可');
+  } catch {
+    ElMessageBox.alert(
+      `<div style="word-break:break-all;font-size:13px;line-height:1.7">${url}</div>
+       <div style="margin-top:8px;color:#64748b;font-size:12px">长按上面链接全选 → 复制 → 粘贴到浏览器打开</div>`,
+      '请手动复制链接',
+      { dangerouslyUseHTMLString: true, confirmButtonText: '知道了' },
+    );
+  }
+}
 
 async function handleFile(file) {
   uploadError.value = '';
@@ -1006,6 +1050,8 @@ async function loadCapability() {
 }
 
 onMounted(async () => {
+  // 微信 / 企业微信内置浏览器：拍照与选图基本不可用，提前把提示亮出来
+  isWeChat.value = /MicroMessenger|wxwork/i.test(navigator.userAgent || '');
   pageLoading.value = true;
   try {
     await Promise.all([loadCapability(), loadHistory()]);
@@ -1073,6 +1119,62 @@ onMounted(async () => {
   font-size: 10px;
   color: var(--text-3);
   font-weight: 500;
+}
+
+/* ---------------- 微信内置浏览器提示 ---------------- */
+.wx-tip {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+}
+.wx-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #92400e;
+}
+.wx-body {
+  font-size: 12px;
+  line-height: 1.75;
+  color: #78350f;
+  margin-top: 5px;
+}
+.wx-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.wx-hint {
+  font-size: 11px;
+  color: #a16207;
+}
+/* 微信里对"原生可见的 file input"兼容性最好 */
+.wx-native {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #fcd34d;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: #78350f;
+}
+.wx-file {
+  font-size: 12px;
+  max-width: 100%;
+}
+.wx-file::file-selector-button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #fcd34d;
+  background: #fff;
+  color: #92400e;
+  font-size: 12px;
+  margin-right: 8px;
 }
 
 /* ---------------- 上传区 ---------------- */
