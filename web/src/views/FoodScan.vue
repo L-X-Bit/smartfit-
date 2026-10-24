@@ -64,17 +64,44 @@
           v-if="!preview"
           class="drop-zone"
           :class="{ dragging }"
-          @click="pickFile()"
+          @click="openPicker('album')"
           @dragover.prevent="dragging = true"
           @dragleave.prevent="dragging = false"
           @drop.prevent="onDrop"
         >
           <div class="drop-icon">🍱</div>
-          <div class="drop-title">点击选择照片，或把图片拖到这里</div>
+          <div class="drop-title" @click.stop="openPicker('album')">点击选择照片，或把图片拖到这里</div>
           <div class="drop-desc">手机端可直接调用相机拍照</div>
+
+          <!--
+            两个原生文件输入：一个带 capture（直接开相机），一个不带（开相册/文件管理）
+            ------------------------------------------------------------------
+            为什么要两个、而且用 <label for> 而不是 JS 去 click 一个隐藏 input：
+            踩过的坑 —— 手机上点「从相册选择」没反应。原因有三层：
+              ① 原来的 input 是 display:none，微信 / 夸克 / UC 这类内核会拒绝为隐藏输入
+                 打开选择器（表现为点了完全没反应）；
+              ② 原来靠 JS 在点击瞬间切换 capture 属性，部分浏览器不生效，仍然只弹相机；
+              ③ JS 的 input.click() 在丢失用户手势（中间有 await）时会静默失败。
+            改成「两个真实 input + label 原生绑定」：点按钮等于原生点击 input，
+            不经过任何 JS，也不需要用户手势校验，是所有手机浏览器最稳的写法。
+            input 本身用「视觉隐藏但保留渲染」的 sr-input（不是 display:none）。
+          -->
+          <input id="scan-album-input" ref="albumInput" class="sr-input" type="file" accept="image/*" @change="onFileChange" />
+          <input id="scan-camera-input" ref="cameraInput" class="sr-input" type="file" accept="image/*" capture="environment" @change="onFileChange" />
+
           <div class="drop-actions">
-            <el-button type="primary" class="btn-gradient" :icon="Camera" @click.stop="pickFile('camera')">拍照</el-button>
-            <el-button :icon="Picture" @click.stop="pickFile('gallery')">从相册选择</el-button>
+            <template v-if="cap.visionEnabled">
+              <label class="pick-btn primary" for="scan-camera-input">
+                <el-icon><Camera /></el-icon> 拍照
+              </label>
+              <label class="pick-btn" for="scan-album-input">
+                <el-icon><Picture /></el-icon> 从相册选择
+              </label>
+            </template>
+            <template v-else>
+              <el-button disabled :icon="Camera">拍照</el-button>
+              <el-button disabled :icon="Picture">从相册选择</el-button>
+            </template>
           </div>
           <div class="drop-tips">
             <b>📏 想算准热量，关键是「参照物」</b>：照片没有深度，AI 只能靠已知尺寸的物体推算份量。<br />
@@ -100,8 +127,8 @@
           </div>
         </div>
 
-        <!-- 隐藏的文件输入：capture=camera 让手机直接调起相机 -->
-        <input ref="fileInput" type="file" accept="image/*" class="hidden-input" @change="onFileChange" />
+        <!-- 隐藏的文件输入已改到上传区内部（见上方的 scan-album-input / scan-camera-input），
+             这里保留注释说明，避免后来者又加一个 display:none 的 input（手机端会点不开） -->
 
         <!-- 识别流程说明：既是排版补充，也是这一功能的技术注解 -->
         <div class="scan-explain">
@@ -468,8 +495,8 @@ const result = ref(null);         // 识别结果（含 scanId）
 const history = ref([]);          // 历史记录
 const mealType = ref('lunch');
 
-const fileInput = ref(null);
-let cameraMode = false;           // 是否以「调起相机」模式打开文件选择
+const albumInput = ref(null);      // 相册 / 文件（不带 capture）
+const cameraInput = ref(null);     // 相机（capture="environment"）
 
 // ---------------- 份量试算区状态 ----------------
 const calcMealType = ref('lunch');
@@ -706,20 +733,23 @@ function undoCalibration() {
 }
 
 // ---------------- 上传与识别 ----------------
-/** 打开文件选择：camera=true 时手机端直接调起相机 */
-function pickFile(mode) {
+/**
+ * 打开文件选择器
+ * ---------------------------------------------------------------------------
+ * mode='camera' → 带 capture 的那个 input（手机直接调后置摄像头）
+ * mode='album'  → 不带 capture 的 input（相册 / 文件管理）
+ * 说明：手机端两个按钮是 <label for> 原生绑定，**不经过这个函数**；
+ * 这里只服务于桌面端"点整块虚线区域"和代码里主动调用的场景。
+ */
+function openPicker(mode = 'album') {
   if (!cap.value.visionEnabled) {
     ElMessage.warning('未启用视觉模型（AI_VISION_MODEL），无法识别照片');
     return;
   }
-  cameraMode = mode === 'camera';
-  if (fileInput.value) {
-    // capture 属性只能在渲染前决定，这里运行时切换
-    if (cameraMode) fileInput.value.setAttribute('capture', 'environment');
-    else fileInput.value.removeAttribute('capture');
-    fileInput.value.value = '';       // 允许重复选择同一张图
-    fileInput.value.click();
-  }
+  const input = mode === 'camera' ? cameraInput.value : albumInput.value;
+  if (!input) return;
+  input.value = ''; // 允许重复选择同一张图
+  input.click();
 }
 
 function onDrop(ev) {
@@ -730,6 +760,8 @@ function onDrop(ev) {
 
 function onFileChange(ev) {
   const file = ev.target.files?.[0];
+  // 选完立刻清空，否则同一张图第二次选不会触发 change（用户会以为"点了没反应"）
+  ev.target.value = '';
   if (file) handleFile(file);
 }
 
@@ -985,6 +1017,64 @@ onMounted(async () => {
 /* ---------------- 上传区 ---------------- */
 .hidden-input {
   display: none;
+}
+/*
+  视觉隐藏但**保留渲染**的文件输入（不能用 display:none）
+  ---------------------------------------------------------------------------
+  手机浏览器（微信 / 夸克 / UC / 小米）对 display:none 的文件输入会拒绝弹出选择器，
+  表现就是"点了没反应"。这个类把 input 缩到 1px 透明，仍在布局里，
+  再由外层 <label for> 原生触发，兼容性最好。
+*/
+.sr-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  left: 0;
+  top: 0;
+}
+/* label 版按钮（原生触发 input，不依赖 JS 点击） */
+.pick-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text-1);
+  transition: all 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pick-btn:hover {
+  border-color: var(--brand);
+  color: var(--brand-dark);
+}
+.pick-btn:active {
+  transform: translateY(1px);
+}
+.pick-btn.primary {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.28);
+}
+.pick-btn.primary:hover {
+  color: #fff;
+}
+.pick-btn .el-icon {
+  font-size: 15px;
 }
 .drop-zone {
   border: 2px dashed #cbd5e1;
@@ -1627,6 +1717,15 @@ onMounted(async () => {
   .hero {
     flex-direction: column;
     align-items: stretch;
+  }
+  /* 上传区两个按钮在手机上各占一半，点按面积更大（手机上最怕按钮太小点不中） */
+  .drop-actions {
+    gap: 8px;
+  }
+  .pick-btn {
+    flex: 1;
+    padding: 11px 10px;
+    font-size: 13.5px;
   }
   .hero-stats {
     justify-content: space-between;
