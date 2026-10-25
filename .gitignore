@@ -50,3 +50,6 @@ tools/.health-sync-state.json
 # 监听目录里的健康导出原始文件（体积大且含隐私）
 健康导出/
 *.zip.icloud
+
+# ---------- 文档导出中间产物（PDF / docx 成品入库，HTML 排版稿不入库） ----------
+docs/*.print.html
