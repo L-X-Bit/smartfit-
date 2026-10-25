@@ -36,11 +36,7 @@
           <div class="welcome-emoji">🏋️</div>
           <div class="welcome-title">你好，我是你的 AI 健身教练</div>
           <div class="welcome-desc">
-            我可以结合你的身体数据、训练记录与饮食情况，给出可执行的建议。<br />
-            试试下面的问题：
-          </div>
-          <div class="quick-list">
-            <div v-for="q in quickQuestions" :key="q" class="quick-item" @click="ask(q)">{{ q }}</div>
+            我会结合你的身体数据、训练记录与饮食情况给建议，试试下面的问题 ↓
           </div>
         </div>
 
@@ -87,7 +83,7 @@
           @keydown.enter.exact.prevent="ask()"
         />
         <div class="input-foot">
-          <span class="text-muted">Enter 发送 · Shift+Enter 换行 · 回答仅供参考，不构成医疗建议</span>
+          <span class="text-muted">Enter 发送 · 回答仅供参考，不构成医疗建议</span>
           <el-button type="primary" class="btn-gradient" :loading="sending" :icon="Promotion" @click="ask()">发送</el-button>
         </div>
       </div>
@@ -102,7 +98,7 @@
         </div>
         <pre class="snapshot">{{ snapshotText || '加载中…' }}</pre>
         <div class="text-muted" style="margin-top: 8px">
-          上面这段文本会随问题一起发送给大模型，让回答「长在你的数据上」。
+          这段快照会随提问一起发给模型，让回答长在你的数据上。
         </div>
       </div>
 

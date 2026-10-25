@@ -216,23 +216,23 @@ export function quickSuggestions(userId) {
     tips.push({
       icon: '🏃',
       title: '本周训练还差一点',
-      content: `本周目标 ${target} 次，已完成 ${checkinCount} 次。今天安排 20 分钟快走或一组居家力量，就能补上进度。`,
+      content: `本周目标 ${target} 次，已完成 ${checkinCount} 次。今天补 20 分钟快走或一组居家力量即可。`,
     });
   } else {
-    tips.push({ icon: '🔥', title: '训练节奏很棒', content: `本周已完成 ${checkinCount} 次训练，注意安排 1 天主动恢复，避免过度训练。` });
+    tips.push({ icon: '🔥', title: '训练节奏很棒', content: `本周已完成 ${checkinCount} 次训练，记得安排 1 天主动恢复。` });
   }
 
   if (metrics.bmiLevel === '超重' || metrics.bmiLevel === '肥胖') {
     tips.push({
       icon: '🎯',
       title: '热量缺口建议',
-      content: `你当前 BMI ${metrics.bmi}，建议每日摄入控制在 ${metrics.targetCalories} kcal 左右，配合每周 3 次以上有氧，优先保证蛋白质 ${metrics.macros.protein}g。`,
+      content: `BMI ${metrics.bmi}，建议每日摄入 ${metrics.targetCalories} kcal 左右，蛋白质优先保证 ${metrics.macros.protein}g。`,
     });
   } else {
     tips.push({
       icon: '🎯',
       title: '营养配比',
-      content: `按你的目标，每日建议蛋白 ${metrics.macros.protein}g、碳水 ${metrics.macros.carb}g、脂肪 ${metrics.macros.fat}g，训练后 1 小时内补充蛋白效果最好。`,
+      content: `每日建议蛋白 ${metrics.macros.protein}g、碳水 ${metrics.macros.carb}g、脂肪 ${metrics.macros.fat}g，训练后补蛋白更有效。`,
     });
   }
 
@@ -240,7 +240,7 @@ export function quickSuggestions(userId) {
   tips.push({
     icon: '❤️',
     title: '今日有氧心率区间',
-    content: `燃脂区间为 ${zone[0]}~${zone[1]} 次/分（按 ${profile.age} 岁估算最大心率 ${metrics.maxHeartRate}）。有氧时把心率维持在这个区间，脂肪供能比例最高。`,
+    content: `燃脂区间 ${zone[0]}~${zone[1]} 次/分（按 ${profile.age} 岁估算），有氧保持在此区间脂肪供能最高。`,
   });
 
   return { tips, snapshot: { text: snapshot.text } };

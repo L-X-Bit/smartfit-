@@ -64,7 +64,7 @@
       <div class="card">
         <div class="card-title">
           <span>三大营养素供能比</span>
-          <span class="sub">推荐：蛋白 20~35% · 碳水 40~55% · 脂肪 20~30%</span>
+          <span class="sub">蛋白 20~35% · 碳水 40~55% · 脂肪 20~30%</span>
         </div>
         <ChartBox :option="macroOption" height="220px" :empty="!(summary.totals?.kcal > 0)" />
       </div>
@@ -92,7 +92,7 @@
             <el-button link type="danger" :icon="Close" size="small" @click="removeItem(item.id)" />
           </div>
         </div>
-        <div v-else class="meal-empty">还没有记录，点击「添加」或使用下方的 AI 配餐</div>
+        <div v-else class="meal-empty">还没有记录</div>
       </div>
     </div>
 
@@ -117,7 +117,7 @@
           <div class="vision-icon">📸</div>
           <div class="vision-title">拍一张食物照片，自动算出热量</div>
           <div class="vision-desc">
-            支持拍照或选择相册图片，AI 会识别食物种类、估算份量，并与食物库匹配后自动换算热量
+            拍照或选图，AI 识别食物种类与份量并换算热量
           </div>
           <div class="vision-actions">
             <el-button type="primary" class="btn-gradient" :icon="Camera" @click.stop="pickImage('camera')">拍照</el-button>
@@ -270,7 +270,7 @@
         <el-button type="success" class="btn-gradient mt-16" :icon="Check" @click="adoptDiet">一键采纳到今日饮食</el-button>
       </div>
 
-      <el-empty v-else description="点击「生成配餐」，AI 会按你的目标热量生成一日三餐方案" :image-size="70" />
+      <el-empty v-else description="点击「生成配餐」，按目标热量配好一日三餐" :image-size="70" />
     </div>
 
     <!-- ==================== 食物库 ==================== -->

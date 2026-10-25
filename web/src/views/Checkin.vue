@@ -20,7 +20,7 @@
         </div>
 
         <el-form :model="form" label-position="top" size="default">
-          <el-form-item label="选择运动（也可直接输入自定义名称）">
+          <el-form-item label="选择运动（可搜索，也可自填名称）">
             <el-select
               v-model="form.exerciseId"
               filterable
@@ -85,7 +85,7 @@
         <!-- 预计消耗提示：让用户体验「数据可信」 -->
         <div v-if="estimatedKcal" class="estimate">
           预计消耗 <b>{{ estimatedKcal }}</b> kcal
-          <span class="text-muted">（按最近体重与 MET 估算，实际以后端计算为准）</span>
+          <span class="text-muted">（按体重与 MET 估算）</span>
         </div>
       </div>
 
@@ -119,7 +119,7 @@
         <div class="card mt-16">
           <div class="card-title">
             <span>打卡日历</span>
-            <span class="sub">最近 3 个月 · 颜色越深训练越多</span>
+            <span class="sub">近 3 个月 · 越深练得越多</span>
           </div>
           <ChartBox :option="heatmapOption" height="230px" />
         </div>

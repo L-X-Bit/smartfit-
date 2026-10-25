@@ -29,8 +29,7 @@
       <div class="hero-main">
         <div class="hero-title">⌚ 把「手表 / 手环」的数据接进平台</div>
         <div class="hero-desc">
-          蓝牙实时心率 · 文件导入 · 无设备演示，三条通路任选其一。设备数据进入平台后会参与
-          <b>每日目标热量、AI 教练判断、训练完成度</b> 的计算——不是只展示好看。
+          蓝牙实时心率 / 文件导入 / 无设备演示，任选其一。同步后的数据会参与<b>目标热量、AI 判断与完成度</b>计算。
         </div>
         <div class="hero-chips">
           <span class="chip" :class="btReady ? 'ok' : 'warn'">蓝牙接口 {{ btReady ? '可用' : '不可用' }}</span>
@@ -87,9 +86,7 @@
             <el-button size="small" plain @click="copyLink">{{ linkCopied ? '已复制 ✓' : '复制本页链接' }}</el-button>
           </div>
           <div class="bt-tip-detail">
-            不用折腾浏览器：下面就有「<b>✍️ 手动填一次</b>」表单，2 秒填完整，
-            第 ② 条「<b>导入数据</b>」和第 ③ 条「<b>演示模式</b>」也都能用——数据一样进平台。
-            想要「实时心率曲线」才需要换 Chrome。
+            不换浏览器也能用：下方「✍️ 手动填一次」「② 导入数据」「③ 演示模式」都可正常写入数据。
           </div>
         </div>
 
@@ -121,8 +118,7 @@
           实测很多同学卡在这一步，所以写在界面上而不是只写进文档。
         -->
         <div v-if="btReady" class="bt-note">
-          💡 设备也要配合：心率带开机即广播；<b>小米手环请在 Zepp Life 里开启「心率广播」</b>，华为手环开启
-          「心率广播 / 运动心率共享」，并确保它当前没连着手机蓝牙设置或别的 App（同一时间只能被一个中心设备连接）。
+          💡 设备需自身广播心率：小米手环在 Zepp Life 开「心率广播」，华为开「心率广播 / 运动心率共享」，且不要同时连着手机蓝牙。
         </div>
         <!--
           手动记录心率 —— 「任何浏览器都能用」的兜底方案
@@ -240,12 +236,9 @@ date,steps,restingHr,sleepHours,weightKg
           <div class="apple-tip">
             <div class="apple-title">🍎 有 Apple Watch / iPhone？</div>
             <div class="apple-body">
-              网页<b>无法直连 Apple Watch</b>（Apple 不开放浏览器读 HealthKit）。正确做法：
-              ① iPhone「健康」App → 右上头像 → 最下面「<b>导出所有健康数据</b>」；
-              ② 把导出的 zip 传到电脑，运行
-              <code>node tools/apple-health-to-csv.mjs "导出.zip"</code>；
-              ③ 生成的小 CSV 用上面的「选择文件 / 粘贴」导入即可。
-              心率、静息心率、步数、睡眠、体重都会带进来。
+              网页连不上 Apple Watch（Apple 不开放 HealthKit 给浏览器）。走导出：
+              iPhone「健康」App → 头像 → 「导出所有健康数据」→ 运行
+              <code>node tools/apple-health-to-csv.mjs "导出.zip"</code> → 用左边「选择文件」导入。
             </div>
           </div>
 
@@ -278,9 +271,7 @@ date,steps,restingHr,sleepHours,weightKg
             <el-button type="primary" class="btn-gradient" :loading="demoRunning" @click="runDemo">一键生成</el-button>
           </div>
           <div class="demo-tip">
-            生成最近 {{ demoDays }} 天的步数 / 静息心率 / 睡眠：写入
-            <b>身体数据</b>，并按 MET 公式把步数折算成<b>步行打卡</b>——所以打卡日历、消耗热量、
-            完成度都会真的变化。数据在同步历史里标记为「演示」，不会和真实数据混淆。
+            生成最近 {{ demoDays }} 天的步数 / 静息心率 / 睡眠，并按 MET 折算成步行打卡；历史里标记为「演示」。
           </div>
         </div>
       </div>
@@ -303,18 +294,14 @@ date,steps,restingHr,sleepHours,weightKg
         iPhone 用系统自带「快捷指令」定时读健康 App，电脑用脚本监听目录，都只需要一枚令牌。
       -->
       <div class="sync-intro">
-        以前要「手环/健康 App 导出 → 转成 CSV → 网页选文件上传」，每天都要人动手。现在换成
-        <b>设备主动推</b>：生成一枚同步令牌后，iPhone 系统自带的「快捷指令」可以每天定时把
-        步数 / 心率 / 睡眠直接推到平台；电脑上的 <code>tools/health-sync.mjs</code> 也能直接喂
-        「健康」导出的 zip，连转换都省了。推上来的数据照样写进<b>身体数据</b>、照样按 MET 折算
-        <b>步行热量</b>，同步历史里标记为「自动同步」，和手动导入的数据一眼能区分。
+        生成令牌后，让能拿到数据的那一端主动推：iPhone「快捷指令」每天定时推送步数 / 心率 / 睡眠；电脑脚本直接吃「健康」导出的 zip。
       </div>
 
       <!-- 第一步：令牌 -->
       <div class="sync-token-box">
         <div class="st-left">
           <div class="st-title">第一步：生成同步令牌</div>
-          <div class="st-desc">令牌只用于推送健康数据（不能改资料、不能看社交内容），可随时撤销；服务端只存 SHA-256 摘要，明文<b>只在生成时显示一次</b>。</div>
+          <div class="st-desc">只用于推送健康数据，可随时撤销；明文只显示这一次。</div>
         </div>
         <div class="st-right">
           <el-input v-model="newTokenName" size="small" placeholder="给令牌起个名：iPhone 快捷指令" style="width: 210px" />
@@ -360,8 +347,8 @@ date,steps,restingHr,sleepHours,weightKg
           </template>
           <ol class="sc-steps">
             <li>
-              先复制下面这条<b>一次性验证地址</b>（已带上你的令牌），在 iPhone 的 Safari 里粘贴打开——返回
-              <code>code: 0</code> 就说明令牌与网络都通了（示例数字会真的写进今天的数据，之后可覆盖）。
+              先复制下面这条<b>验证地址</b>（已含令牌），在 iPhone Safari 打开，返回
+              <code>code: 0</code> 即通路正常。
               <div class="sc-copy">
                 <code class="sc-url">{{ syncUrlWithToken }}</code>
                 <el-button size="small" type="primary" plain @click="copyText(syncUrlWithToken, 'iphone-url')">
@@ -388,8 +375,7 @@ date,steps,restingHr,sleepHours,weightKg
             </li>
           </ol>
           <div class="sc-note">
-            没配成功也别急：①②③ 三条路一直都在。快捷指令只是「省掉每天手动那一下」的增强项，
-            答辩演示时可以直接用 ④ 的历史记录说明自动化链路已经打通。
+            配不通也没关系：①②③ 三条通路一直都在，快捷指令只是省掉每天手动那一下。
           </div>
         </el-collapse-item>
 
@@ -408,8 +394,7 @@ date,steps,restingHr,sleepHours,weightKg
               </el-button>
             </div>
             <div class="sc-tip">
-              把命令里的 <code>导出.zip</code> 换成「健康」App 导出的文件路径即可。脚本在本机流式解析
-              （几百 MB 也不吃内存），只把聚合后的每日指标 POST 上去，原始文件不上传。
+              把 <code>导出.zip</code> 换成真实文件路径即可。脚本在本机流式解析，只上传聚合后的每日指标。
             </div>
           </div>
           <div class="sc-block">
@@ -421,9 +406,8 @@ date,steps,restingHr,sleepHours,weightKg
               </el-button>
             </div>
             <div class="sc-tip">
-              指定一个目录（建议用 iCloud 云盘的文件夹）：iPhone 快捷指令往里「存储文件」、或把健康导出 zip
-              丢进去，脚本发现新文件就自动解析推送；已推过的文件记在
-              <code>tools/.health-sync-state.json</code>，不会重复推，内容变了会自动再推一次。
+              指定一个目录（如 iCloud 云盘）：新文件丢进去就自动解析推送，已推过的记在
+              <code>tools/.health-sync-state.json</code>，不会重复推。
             </div>
           </div>
         </el-collapse-item>
@@ -440,10 +424,9 @@ date,steps,restingHr,sleepHours,weightKg
               「附近的设备」权限，点允许。
             </li>
             <li>
-              <b>定时推送</b>：装一个免费的「HTTP Shortcuts」（或 MacroDroid / Tasker），新建一个脚本，
-              向 <code>{{ syncSetup.pushUrl }}</code> 发 GET/POST，带上请求头
-              <code>X-Sync-Token</code> 和同样这几个参数（<code>steps / restingHr / sleepHours</code>），
-              再设成每天定时执行即可。
+              <b>定时推送</b>：装免费的「HTTP Shortcuts」（或 MacroDroid / Tasker），向
+              <code>{{ syncSetup.pushUrl }}</code> 发 GET/POST，带上请求头
+              <code>X-Sync-Token</code> 与参数 <code>steps / restingHr / sleepHours</code>，设为每天定时。
             </li>
             <li>
               小米 / 华为手环记得先在自家 App 里打开「心率广播」，否则蓝牙搜不到设备。

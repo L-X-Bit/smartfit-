@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   数据总览（首页 / 仪表盘）
   ---------------------------------------------------------------
   这是演示视频的「主镜头」页面，聚合了平台最核心的四类信息：
@@ -14,9 +14,8 @@
       <div class="welcome-left">
         <div class="hello">你好，{{ store.nickname }} 👋</div>
         <div class="sub">
-          今天是 {{ data.date }}，目标「{{ data.user?.goalText || '保持健康' }}」，
-          <span v-if="data.streak > 0" class="text-brand">已连续打卡 {{ data.streak }} 天，继续保持！</span>
-          <span v-else>开始今天的第一次打卡吧！</span>
+          今天是 {{ data.date }}，目标「{{ data.user?.goalText || '保持健康' }}」
+          <span v-if="data.streak > 0" class="text-brand">· 已连续打卡 {{ data.streak }} 天</span>
         </div>
       </div>
       <div class="welcome-right">
@@ -127,7 +126,7 @@
             />
           </div>
           <div class="plan-tip">
-            💡 完成计划中的动作后，勾选即可自动生成运动打卡，形成「计划 → 执行 → 打卡」闭环。
+            💡 勾选完成即自动生成运动打卡（计划 → 执行 → 打卡）。
           </div>
         </template>
 

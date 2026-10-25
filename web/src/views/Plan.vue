@@ -78,7 +78,7 @@
           {{ generating ? 'AI 正在生成…' : '生成我的专属计划' }}
         </el-button>
         <span class="text-muted" style="margin-left: 12px">
-          生成过程包含：画像构建 → 指标计算 → 知识库检索(RAG) → 大模型生成 → 结构校验 → 安全审核
+          多阶段 Agent · 全过程可解释
         </span>
       </el-form>
     </div>
@@ -132,8 +132,18 @@
         </span>
       </div>
 
-      <el-alert v-if="plan.summary" :title="plan.summary" type="success" :closable="false" show-icon class="mb-8" />
-      <el-alert v-if="plan.nutritionTips" :title="`饮食配套建议：${plan.nutritionTips}`" type="warning" :closable="false" show-icon />
+      <el-collapse v-if="plan.summary || plan.nutritionTips" v-model="summaryOpen" class="plan-summary">
+        <el-collapse-item name="s">
+          <template #title>
+            <span class="ps-head">
+              <span class="ps-title">📋 方案说明与饮食建议</span>
+              <span class="ps-sub">展开查看</span>
+            </span>
+          </template>
+          <el-alert v-if="plan.summary" :title="plan.summary" type="success" :closable="false" show-icon class="mb-8" />
+          <el-alert v-if="plan.nutritionTips" :title="`饮食配套建议：${plan.nutritionTips}`" type="warning" :closable="false" show-icon />
+        </el-collapse-item>
+      </el-collapse>
 
       <el-tabs v-model="activeWeek" class="mt-16">
         <el-tab-pane v-for="w in plan.weeklySchedule" :key="w.week" :label="`第 ${w.week} 周`" :name="String(w.week)">
@@ -221,6 +231,8 @@ const aiMeta = ref(null);
 const ragRefs = ref([]);
 const history = ref([]);
 const activeWeek = ref('1');
+/** 「方案说明与饮食建议」折叠面板：默认收起，避免一大段文字压在上面 */
+const summaryOpen = ref([]);
 
 /** 生成参数（默认值来自用户档案） */
 const form = reactive({
@@ -326,6 +338,35 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ---------------- 方案说明（默认收起） ---------------- */
+.plan-summary {
+  margin-bottom: 10px;
+  border-top: none;
+  border-bottom: 1px solid #eef2f7;
+}
+.plan-summary :deep(.el-collapse-item__header) {
+  height: 40px;
+  border-bottom: none;
+  gap: 8px;
+}
+.plan-summary :deep(.el-collapse-item__wrap) {
+  border-bottom: none;
+}
+.ps-head {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.ps-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.ps-sub {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
 /* ---------------- AI 生成过程 ---------------- */
 .stages {
   display: grid;

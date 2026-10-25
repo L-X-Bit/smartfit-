@@ -15,7 +15,7 @@
           个人健康与运动管理平台
         </h1>
         <p class="brand-desc">
-          融合大模型、AI Agent 与 RAG 知识库，为你生成真正「长在身上」的训练与饮食方案。
+          大模型 + AI Agent + RAG，生成贴合你身体的训练与饮食方案。
         </p>
 
         <ul class="feature-list">
@@ -111,10 +111,10 @@ const rules = {
 };
 
 const features = [
-  { icon: '🤖', title: 'AI 健身教练', desc: '多阶段 Agent 编排，输入身体数据自动生成周计划' },
-  { icon: '📚', title: 'RAG 知识库', desc: '动作库 + 训练指南检索增强，拒绝「编造动作」' },
-  { icon: '📊', title: '数据可视化', desc: '体重趋势、热量收支、打卡热力图一目了然' },
-  { icon: '🥗', title: '健康饮食配比', desc: '按目标热量自动核算三大营养素与一日餐单' },
+  { icon: '🤖', title: 'AI 健身教练', desc: '多阶段 Agent 生成训练计划' },
+  { icon: '📚', title: 'RAG 知识库', desc: '动作库检索增强，少编动作' },
+  { icon: '📊', title: '数据可视化', desc: '体重 / 热量 / 打卡一目了然' },
+  { icon: '🥗', title: '健康饮食配比', desc: '按目标热量核算营养素与餐单' },
 ];
 
 /** 一键填入演示账号 */

@@ -31,7 +31,7 @@
       <div class="hero-left">
         <div class="hero-title">📷 AI 拍照识热量</div>
         <div class="hero-desc">
-          上传或拍一张饭菜照片，多模态 AI 自动识别食物种类与份量，并与本地食物营养库匹配后换算热量
+          拍照即识别食物与份量，匹配本地食物库后换算热量
         </div>
         <div class="hero-chips">
           <span class="ai-chip" :class="{ off: !cap.visionEnabled }">
@@ -189,8 +189,7 @@
           </div>
 
           <div class="drop-tips">
-            <b>📏 想算准热量，关键是「参照物」</b>：照片没有深度，AI 只能靠已知尺寸的物体推算份量。<br />
-            拍摄时请把 <b>筷子、勺子、一元硬币或手</b> 放进食盘旁，并尽量俯拍整盘——有参照物时份量误差可控制在 ±30%，没有则只能凭经验估算。
+            📏 盘边放<b>筷子 / 勺子 / 一元硬币</b>做参照，份量误差可控制在 ±30%
           </div>
         </div>
 
@@ -224,16 +223,23 @@
         <!-- 隐藏的文件输入已改到上传区内部（见上方的 scan-album-input / scan-camera-input），
              这里保留注释说明，避免后来者又加一个 display:none 的 input（手机端会点不开） -->
 
-        <!-- 识别流程说明：既是排版补充，也是这一功能的技术注解 -->
-        <div class="scan-explain">
-          <div class="se-title">🔬 识别是怎么做的</div>
-          <ol class="se-list">
-            <li><b>视觉识别</b>：多模态模型（{{ cap.model || '视觉模型' }}）识别食物种类、按参照物估算克数</li>
-            <li><b>库内匹配</b>：名称包含 + 词法相关性（BM25）+ 二元组重叠过半字符；「风味 / 原味 / 迷你 / 袋装」这类口味包装词不算相似依据</li>
-            <li><b>以库为准</b>：命中则用食物库每 100g 的数值重算热量；未命中才采用模型估算并明确标注</li>
-            <li><b>冲突拦截</b>：命中但库值与估算相差 3 倍以上 → 判为误匹配，弃用库值、按 AI 估算计，并在该条目标注「差了几倍」（例如「面汤」不能按「意面」算）</li>
-          </ol>
-        </div>
+        <!-- 识别流程说明：默认收起，避免一大段技术注解常驻在页面上 -->
+        <el-collapse v-model="explainOpen" class="scan-explain">
+          <el-collapse-item name="e">
+            <template #title>
+              <span class="se-head">
+                <span class="se-title">🔬 识别是怎么做的</span>
+                <span class="se-sub">展开看</span>
+              </span>
+            </template>
+            <ol class="se-list">
+              <li><b>视觉识别</b>：多模态模型（{{ cap.model || '视觉模型' }}）识别食物种类、按参照物估算克数</li>
+              <li><b>库内匹配</b>：名称包含 + BM25 词法相关性 + 二元组重叠；「风味 / 原味 / 迷你」等包装词不算依据</li>
+              <li><b>以库为准</b>：命中则用食物库每 100g 数值重算热量，未命中才用模型估算并标注</li>
+              <li><b>冲突拦截</b>：库值与估算相差 3 倍以上判为误匹配，弃用库值并按 AI 估算计（如「面汤」不按「意面」算）</li>
+            </ol>
+          </el-collapse-item>
+        </el-collapse>
       </div>
 
       <!-- ==================== ② 识别结果 ==================== -->
@@ -501,13 +507,12 @@
           <span class="text-muted">午餐建议 30~42%</span>
         </div>
       </div>
-
       <!-- AI 评估按钮 -->
       <div v-if="calcRows.length" class="calc-actions">
         <el-button type="primary" class="btn-gradient" :icon="MagicStick" :loading="advising" @click="runAdvice">
           AI 分析这一餐
         </el-button>
-        <span class="text-muted">会结合你的体重、BMI、减脂目标与今日已摄入热量给建议</span>
+        <span class="text-muted">结合体重 / BMI / 今日已摄入给建议</span>
       </div>
 
       <!-- 评估结果 -->
@@ -588,6 +593,9 @@ const imageWH = ref('');
 const result = ref(null);         // 识别结果（含 scanId）
 const history = ref([]);          // 历史记录
 const mealType = ref('lunch');
+
+// 「识别是怎么做的」折叠面板：默认收起，减少页面文字量
+const explainOpen = ref([]);
 
 const albumInput = ref(null);      // 相册 / 文件（不带 capture）
 const cameraInput = ref(null);     // 相机（capture="environment"）
@@ -1762,19 +1770,39 @@ onMounted(async () => {
   font-weight: 600;
 }
 
-/* ---------------- 识别流程说明 ---------------- */
+/* ---------------- 识别流程说明（折叠，默认收起） ---------------- */
 .scan-explain {
   margin-top: 14px;
-  padding: 12px 14px;
   border-radius: 12px;
   background: #f8fafc;
   border: 1px dashed #cbd5e1;
+  padding: 0 12px;
+}
+.scan-explain :deep(.el-collapse-item__header) {
+  height: 38px;
+  border-bottom: none;
+  background: transparent;
+}
+.scan-explain :deep(.el-collapse-item__wrap) {
+  border-bottom: none;
+  background: transparent;
+}
+.scan-explain :deep(.el-collapse-item__content) {
+  padding-bottom: 12px;
+}
+.se-head {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
 }
 .se-title {
   font-size: 12.5px;
   font-weight: 700;
   color: var(--text-2);
-  margin-bottom: 8px;
+}
+.se-sub {
+  font-size: 11px;
+  color: var(--text-3);
 }
 .se-list {
   margin: 0;
