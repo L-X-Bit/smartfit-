@@ -108,6 +108,8 @@
 | ![设备同步](docs/screenshots/12-devices.png) | ![身体数据](docs/screenshots/04-body.png) |
 
 > 更多界面截图见 [`docs/screenshots/`](docs/screenshots/)，完整技术方案见 [`docs/智练SmartFit-技术文档.pdf`](docs/智练SmartFit-技术文档.pdf)。
+>
+> 📹 **录制演示视频**：先看 [`docs/功能详解与演讲稿.md`](docs/功能详解与演讲稿.md)（12 个页面逐页详解 + 8 分钟/5 分钟两版演讲稿 + 提词器纯念稿 + 评委追问应答），再看 [`docs/演示视频讲解稿.md`](docs/演示视频讲解稿.md)（逐段念稿与超时删句清单）。
 
 ---
 
