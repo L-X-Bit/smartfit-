@@ -984,8 +984,19 @@ stream = blob.stream().pipeThrough(new DecompressionStream('deflate-raw'));
 <p>
 这样做有三个好处：<b>原始文件不出本机</b>（只把聚合后的每日指标发给 <code>/api/devices/import</code>，接口一行没改）、
 <b>不依赖服务器内存</b>（几百 MB 的导出也不会压到后端）、<b>任何设备都能用</b>（iPhone 上也能直接选文件，不必开电脑）。
+</p>
+<p>
+<b>踩过的坑（真实案例）：</b>主数据文件<b>不叫 export.xml</b>——iPhone 是中文系统时 Apple 会本地化成
+<code>apple_health_export/导出.xml</code>，而包里还有一个 <code>export_cda.xml</code> 是 CDA 格式的摘要，
+里面一条 <code>&lt;Record&gt;</code> 都没有。第一版把文件名写死成 <code>export.xml</code>，
+结果中文用户的包全部报「zip 里没有 export.xml」。现在的选择顺序是：① 名字正好 <code>export.xml</code>
+② 以 export / 导出 等本地化前缀开头的 <code>.xml</code> ③ 兜底取解压后体积最大的 <code>.xml</code>，
+并显式排除 <code>export_cda.xml</code>；同时把「实际解析了包内哪个条目」回显在页面上，方便用户对账。
+</p>
+<p>
 解析口径有专门的验收脚本 <code>node tools/test-apple-health-browser.mjs</code>：造一份仿真导出，分别以裸 XML、
-deflate zip、store zip 三种形态喂进去，再和命令行解析库逐字段比对，保证「页面导入」和「脚本推送」给出同一套数字。
+deflate zip、store zip、<b>中文文件名 zip（导出.xml + 更大的 export_cda.xml 干扰项）</b>四种形态喂进去，
+再和命令行解析库逐字段比对，保证「页面导入」和「脚本推送」给出同一套数字。
 </p>
 
 <h3>5.9.2 心率数据的解析不是"猜"，是照标准读</h3>

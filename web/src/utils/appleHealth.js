@@ -104,12 +104,15 @@ async function openZipXmlStream(file, onWarn) {
   }
   if (cdSize > MAX_CD_BYTES) throw new Error('zip 目录异常，无法在浏览器里解析，请用命令行：node tools/apple-health-to-csv.mjs "导出.zip"');
 
-  // 2) 读中央目录，找 export.xml（可能在 apple_health_export/ 子目录里）
+  // 2) 读中央目录，挑出「主数据文件」
+  //    ⚠️ 踩过的坑：主文件不叫 export.xml！iPhone 是中文系统时，Apple 会把名字**本地化**成
+  //    「导出.xml」（英文系统才是 export.xml），而 zip 里还有一个 export_cda.xml 是 CDA 格式的
+  //    摘要，里面一条 <Record> 都没有。写死 export.xml 的话，中文用户的包一律被判"没有 export.xml"。
   const cd = new Uint8Array(await file.slice(cdOffset, cdOffset + cdSize).arrayBuffer());
   const cdView = dv(cd);
   const decoder = new TextDecoder('utf-8');
 
-  let target = null;
+  const xmlCandidates = []; // 所有像"健康记录主文件"的条目
   let p = 0;
   for (let i = 0; i < cdCount; i += 1) {
     if (p + 46 > cd.length || cdView.getUint32(p, true) !== SIG_CD) break;
@@ -122,13 +125,27 @@ async function openZipXmlStream(file, onWarn) {
     const localOffset = cdView.getUint32(p + 42, true);
     const name = decoder.decode(cd.subarray(p + 46, p + 46 + nameLen));
 
-    if (/(^|\/)export\.xml$/i.test(name)) {
-      target = { method, compSize, uncompSize, localOffset, name };
-      break;
+    if (/\.xml$/i.test(name) && !/export_cda\.xml$/i.test(name)) {
+      xmlCandidates.push({ method, compSize, uncompSize, localOffset, name });
     }
     p += 46 + nameLen + extraLen + commentLen;
   }
-  if (!target) throw new Error('zip 里没有 export.xml，请确认导出的是「健康」App 的「导出所有健康数据」');
+  if (!xmlCandidates.length) {
+    throw new Error('这个 zip 里没有健康记录 XML（只有 Workout 轨迹、心电图 CSV 之类），请确认导出的是「健康」App 的「导出所有健康数据」');
+  }
+
+  /**
+   * 选择顺序：
+   *   ① 名字正好是 export.xml（英文系统）
+   *   ② 名字以 export / 导出 开头的 .xml（各语言本地化，如 导出.xml、exportar.xml）
+   *   ③ 兜底：解压后体积最大的那个 .xml（健康记录永远是大头）
+   */
+  const baseName = (n) => n.split('/').pop().toLowerCase();
+  const target =
+    xmlCandidates.find((c) => baseName(c.name) === 'export.xml') ||
+    xmlCandidates.find((c) => /^(export|导出|輸出|exporter|exportar)/i.test(baseName(c.name))) ||
+    xmlCandidates.slice().sort((a, b) => b.uncompSize - a.uncompSize)[0];
+
   if (target.compSize === 0xffffffff || target.localOffset === 0xffffffff) {
     throw new Error('zip 用了 zip64 格式，浏览器里解不了，请用命令行：node tools/apple-health-to-csv.mjs "导出.zip"');
   }
@@ -142,7 +159,7 @@ async function openZipXmlStream(file, onWarn) {
   const dataBlob = file.slice(dataStart, dataStart + target.compSize);
 
   if (target.method === 0) {
-    return { stream: dataBlob.stream(), totalBytes: target.compSize || target.uncompSize, mode: 'store' };
+    return { stream: dataBlob.stream(), totalBytes: target.compSize || target.uncompSize, mode: 'store', entryName: target.name };
   }
   if (target.method !== 8) {
     throw new Error(`zip 条目用了不支持的压缩方式（method=${target.method}），请用命令行：node tools/apple-health-to-csv.mjs "导出.zip"`);
@@ -153,7 +170,7 @@ async function openZipXmlStream(file, onWarn) {
   if (typeof DecompressionStream === 'function') {
     try {
       const stream = dataBlob.stream().pipeThrough(new DecompressionStream('deflate-raw'));
-      return { stream, totalBytes: target.uncompSize, mode: 'native' };
+      return { stream, totalBytes: target.uncompSize, mode: 'native', entryName: target.name };
     } catch {
       // 少数浏览器构造函数不接受 'deflate-raw'：静默落到 JS 兜底
     }
@@ -170,7 +187,7 @@ async function openZipXmlStream(file, onWarn) {
   if (onWarn) onWarn('当前浏览器不支持流式解压，已启用兼容模式（整块解压）');
   const compressed = new Uint8Array(await dataBlob.arrayBuffer());
   const inflated = inflateRaw(compressed, { maxOutput: JS_INFLATE_LIMIT });
-  return { stream: bufferToStream(inflated), totalBytes: inflated.length, mode: 'js' };
+  return { stream: bufferToStream(inflated), totalBytes: inflated.length, mode: 'js', entryName: target.name };
 }
 
 /** 解析 Apple 的时间字符串："2026-10-20 23:30:00 +0800"（时区前有空格，Date.parse 会 NaN） */
@@ -206,8 +223,11 @@ export async function parseAppleHealthFile(file, opts = {}) {
   let stream;
   let totalBytes;
   let decompressMode = 'xml'; // xml | store | native | js
+  let sourceEntry = file.name || ''; // zip 里真正被解析的条目名（方便排查"为什么没数据"）
   if (isZip) {
-    ({ stream, totalBytes, mode: decompressMode } = await openZipXmlStream(file, onWarn));
+    let entryName;
+    ({ stream, totalBytes, mode: decompressMode, entryName } = await openZipXmlStream(file, onWarn));
+    if (entryName) sourceEntry = entryName;
   } else {
     stream = file.stream();
     totalBytes = file.size;
@@ -341,6 +361,8 @@ export async function parseAppleHealthFile(file, opts = {}) {
       fileName: file.name || '',
       /** 解压通道：native=浏览器原生流式 / js=纯 JS 兜底（老 Safari）/ store=没压缩 / xml=直接是 xml */
       decompressMode,
+      /** zip 里实际被解析的条目（中文系统是 导出.xml，英文是 export.xml），排查问题全靠它 */
+      sourceEntry,
     },
   };
 }

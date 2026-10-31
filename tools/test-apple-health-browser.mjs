@@ -218,5 +218,41 @@ await check('删掉 DecompressionStream 后，zip 仍能解析且结果一致', 
   }
 });
 
+console.log('\n[本地化文件名] 中文系统导出：主文件叫「导出.xml」，还混着 export_cda.xml');
+// 真机案例：iPhone 中文系统导出的包里，主数据文件是 apple_health_export/导出.xml，
+// 另有 apple_health_export/export_cda.xml（CDA 格式摘要，里面一条 <Record> 都没有）。
+// 早先写死 export.xml，导致中文用户的包一律报「zip 里没有 export.xml」。
+const localizedZipPath = path.join(tmpDir, 'localized.zip');
+// 故意让 export_cda.xml 在目录里更大，确认我们是按"名字"排除它、而不是碰巧选对了大小
+const cdaDecoy = Buffer.from(`<?xml version="1.0"?>\n<ClinicalDocument>${'x'.repeat(400_000)}</ClinicalDocument>`);
+fs.writeFileSync(
+  localizedZipPath,
+  buildZip([
+    { name: 'apple_health_export/workout-routes/route_2026-10-28.gpx', data: Buffer.from('<gpx/>', 'utf8'), method: 8 },
+    { name: 'apple_health_export/electrocardiograms/ecg_2026-10-29.csv', data: Buffer.from('date,value\n', 'utf8'), method: 8 },
+    { name: 'apple_health_export/export_cda.xml', data: cdaDecoy, method: 8 },
+    { name: 'apple_health_export/导出.xml', data: xmlBuf, method: 8 },
+  ]),
+);
+await check('自动挑中 导出.xml（而不是更大或名字带 export 的 export_cda.xml），解析结果与英文包一致', async () => {
+  const localized = await parseAppleHealthFile(asFile(fs.readFileSync(localizedZipPath), '导出 2.zip', 'application/zip'));
+  assert.equal(localized.stats.sourceEntry, 'apple_health_export/导出.xml');
+  assert.deepEqual(localized.rows, fromXml.rows);
+});
+
+await check('命令行解析库同样认得「导出.xml」（两端口径一致）', async () => {
+  const cliLocalized = await parseAppleHealth(localizedZipPath);
+  assert.deepEqual(cliLocalized.rows, fromXml.rows);
+});
+
+await check('zip 里只有 export_cda.xml（没有主数据文件）时给出明确提示', async () => {
+  const onlyCda = path.join(tmpDir, 'only-cda.zip');
+  fs.writeFileSync(onlyCda, buildZip([{ name: 'apple_health_export/export_cda.xml', data: cdaDecoy, method: 8 }]));
+  await assert.rejects(
+    () => parseAppleHealthFile(asFile(fs.readFileSync(onlyCda), 'only.zip', 'application/zip')),
+    /没有健康记录 XML/,
+  );
+});
+
 fs.rmSync(tmpDir, { recursive: true, force: true });
 console.log(`\n全部通过（${pass} 项断言）\n`);

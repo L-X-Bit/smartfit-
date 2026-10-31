@@ -23,8 +23,9 @@ import readline from 'node:readline';
 /**
  * 在 zip 里定位 export.xml 并返回一个可读流
  * ---------------------------------------------------------------------------
- * 极简 zip 读取：从文件尾部找 EOCD（0x06054b50）→ 读中央目录 → 找到名字为
- * export.xml 的条目 → 跳到它的本地文件头 → 从数据区开始流式解压。
+ * 极简 zip 读取：从文件尾部找 EOCD（0x06054b50）→ 读中央目录 → 挑出健康记录主文件
+ * （英文系统叫 export.xml，中文系统被 Apple 本地化成「导出.xml」，且必须排除 CDA 摘要
+ *  export_cda.xml）→ 跳到它的本地文件头 → 从数据区开始流式解压。
  * 只支持最常见的 deflate(8) 与 store(0) 两种压缩方式（Apple 导出就是这个）。
  */
 export function openZipEntry(file) {
@@ -51,23 +52,31 @@ export function openZipEntry(file) {
   fs.readSync(fd, cd, 0, cdSize, cdOffset);
 
   let p = 0;
-  let target = null;
+  const xmlCandidates = [];
   for (let i = 0; i < cdCount; i += 1) {
     if (cd.readUInt32LE(p) !== 0x02014b50) break;
     const method = cd.readUInt16LE(p + 10);
     const compSize = cd.readUInt32LE(p + 20);
+    const uncompSize = cd.readUInt32LE(p + 24);
     const nameLen = cd.readUInt16LE(p + 28);
     const extraLen = cd.readUInt16LE(p + 30);
     const commentLen = cd.readUInt16LE(p + 32);
     const localOffset = cd.readUInt32LE(p + 42);
     const name = cd.toString('utf8', p + 46, p + 46 + nameLen);
-    if (/(^|\/)export\.xml$/i.test(name)) {
-      target = { method, compSize, localOffset };
-      break;
+    // ⚠️ 主文件不叫 export.xml：中文/其他语言系统里 Apple 会本地化文件名（如「导出.xml」），
+    //    而 export_cda.xml 是 CDA 摘要、里面没有 <Record>，必须排除
+    if (/\.xml$/i.test(name) && !/export_cda\.xml$/i.test(name)) {
+      xmlCandidates.push({ method, compSize, uncompSize, localOffset, name });
     }
     p += 46 + nameLen + extraLen + commentLen;
   }
-  if (!target) throw new Error('zip 里没有 export.xml（确认导出的是「健康」App 的完整导出）');
+  if (!xmlCandidates.length) throw new Error('zip 里没有健康记录 XML（确认导出的是「健康」App 的完整导出）');
+
+  const baseName = (n) => n.split('/').pop().toLowerCase();
+  const target =
+    xmlCandidates.find((c) => baseName(c.name) === 'export.xml') ||
+    xmlCandidates.find((c) => /^(export|导出|輸出|exporter|exportar)/i.test(baseName(c.name))) ||
+    xmlCandidates.slice().sort((a, b) => b.uncompSize - a.uncompSize)[0];
 
   // 跳过本地文件头，拿到真正的数据起点
   const local = Buffer.alloc(30);

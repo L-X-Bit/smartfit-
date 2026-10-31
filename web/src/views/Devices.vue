@@ -810,6 +810,8 @@ async function importAppleHealth(f) {
     appleNote.value =
       `已从「${f.name}」解析出 ${use.length} 天（${use[0].date} ~ ${use[use.length - 1].date}）` +
       `，命中 ${stats.kept} 条原始记录` +
+      // 中文系统的包主文件叫「导出.xml」，把实际解析的条目名显示出来，省得用户对不上
+      (stats.sourceEntry && stats.sourceEntry !== f.name ? `（zip 内条目：${stats.sourceEntry}）` : '') +
       (use.length < rows.length ? `（共 ${rows.length} 天，超出单次上限，只取最近的 ${use.length} 天）` : '') +
       ' · 原始文件未上传，只有聚合后的每日指标会写库';
 

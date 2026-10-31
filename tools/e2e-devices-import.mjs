@@ -8,8 +8,9 @@
  *   → 等页面自己解析 + 预览 → 截图存档。
  *
  * 运行：
- *   node tools/e2e-devices-import.mjs                        # 默认打 http://127.0.0.1:3000
+ *   node tools/e2e-devices-import.mjs                        # 默认打 http://127.0.0.1:3000，用自动生成的示例包
  *   node tools/e2e-devices-import.mjs https://xxx.onrender.com
+ *   node tools/e2e-devices-import.mjs https://xxx.onrender.com "D:\\我的导出.zip"   # 用真实导出验收
  *
  * 依赖：本机装了 Edge 或 Chrome（自动探测，也可用 EDGE_PATH / CHROME_PATH 指定）。
  * 截图输出：logs/e2e-devices.png
@@ -22,6 +23,8 @@ import zlib from 'node:zlib';
 import assert from 'node:assert/strict';
 
 const BASE = (process.argv[2] || 'http://127.0.0.1:3000').replace(/\/$/, '');
+/** 可选：传入自己真实的「健康」导出 zip，用它验收（不传就现场造一个 14 天的示例包） */
+const CUSTOM_ZIP = process.argv[3] || process.env.E2E_ZIP || '';
 const PORT = Number(process.env.CDP_PORT || 9333);
 const SHOT = path.resolve('logs/e2e-devices.png');
 const USER = process.env.SMARTFIT_USER || 'demo';
@@ -207,8 +210,13 @@ const goto = async (url) => {
 };
 
 // ---------------------------------------------------------------- 跑流程
-const zipPath = path.join(os.tmpdir(), 'smartfit-e2e-导出.zip');
-buildSampleZip(zipPath);
+const zipPath = CUSTOM_ZIP ? path.resolve(CUSTOM_ZIP) : path.join(os.tmpdir(), 'smartfit-e2e-导出.zip');
+if (CUSTOM_ZIP) {
+  assert.ok(fs.existsSync(zipPath), '找不到指定的导出文件：' + zipPath);
+  console.log(`用你自己的导出验收：${zipPath}（${(fs.statSync(zipPath).size / 1024 / 1024).toFixed(1)} MB）`);
+} else {
+  buildSampleZip(zipPath);
+}
 
 try {
   await send('Page.enable');
@@ -248,14 +256,23 @@ try {
 
   console.log('[5/5] 等页面解析并出预览');
   let state = null;
-  for (let i = 0; i < 120; i += 1) {
+  // 注意：解析完先出「摘要」，预览表要等 /api/devices/import 的 dryRun 返回才有，
+  // 所以这里必须等 previewTitle，而不是看到摘要就往下走（否则会误判成"没出预览"）
+  for (let i = 0; i < 160; i += 1) {
     await sleep(500);
     state = await evaluate(`(() => ({
       note: (document.querySelector('.apple-note')?.textContent || '').trim(),
       previewTitle: (document.querySelector('.imp-preview-title')?.textContent || '').replace(/\\s+/g, ' ').trim(),
       previewRows: document.querySelectorAll('.el-table__body tr').length,
+      toasts: Array.from(document.querySelectorAll('.el-message')).map((el) => el.textContent.trim()),
     }))()`);
-    if (state.note || state.previewTitle) break;
+    if (state.previewTitle) break;
+  }
+
+  if (!state?.previewTitle) {
+    console.log('      摘要：' + (state?.note || '(空)'));
+    console.log('      页面提示：' + JSON.stringify(state?.toasts || []));
+    throw new Error('没有出现预览表：' + JSON.stringify(state));
   }
 
   assert.ok(/解析出 \d+ 天/.test(state.note || ''), '没有出现解析摘要：' + JSON.stringify(state));
@@ -277,5 +294,6 @@ try {
 } finally {
   ws.close();
   child.kill();
-  fs.rmSync(zipPath, { force: true });
+  // 只删我们自己造的临时包；用户传进来的真实导出不能动
+  if (!CUSTOM_ZIP) fs.rmSync(zipPath, { force: true });
 }
