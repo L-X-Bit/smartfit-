@@ -288,8 +288,8 @@ function handlePush(req, res, payload, deviceName) {
 
   const first = clean[0].date;
   const last = clean[clean.length - 1].date;
-  const range = first === last ? first : `${first} ~ ${last}`;
-  const summary = `自动同步 ${clean.length} 天（${range}）· 写入 ${written} 条${updated ? `、更新 ${updated} 条打卡` : ''}`;
+  const range = first === last ? first.slice(5) : `${first.slice(5)}~${last.slice(5)}`;
+  const summary = `自动同步 ${clean.length} 天（${range}）· 写 ${written} 条${updated ? ` / 更新 ${updated} 打卡` : ''}`;
   const id = recordDeviceSync(req.user.id, {
     source: 'auto',
     deviceName: d.device || deviceName || '自动同步',

@@ -29,7 +29,7 @@
       <div class="hero-main">
         <div class="hero-title">⌚ 把「手表 / 手环」的数据接进平台</div>
         <div class="hero-desc">
-          蓝牙心率 / 文件导入 / 演示模式，任选其一。数据会参与<b>目标热量与完成度</b>计算。
+          蓝牙心率 / 文件导入 / 演示模式，任选其一。
         </div>
         <div class="hero-chips">
           <span class="chip" :class="btReady ? 'ok' : 'warn'">蓝牙接口 {{ btReady ? '可用' : '不可用' }}</span>
@@ -62,7 +62,7 @@
       <div class="card">
         <div class="card-title">
           <span>① 蓝牙心率带 / 手环（实时）</span>
-          <span class="sub">Web Bluetooth · 标准心率服务 0x180D</span>
+          <span class="sub">标准心率服务 0x180D</span>
         </div>
 
         <!--
@@ -86,7 +86,7 @@
             <el-button size="small" plain @click="copyLink">{{ linkCopied ? '已复制 ✓' : '复制本页链接' }}</el-button>
           </div>
           <div class="bt-tip-detail">
-            不换浏览器也能用：下方「✍️ 手动填一次」「② 导入数据」「③ 演示模式」都可正常写入数据。
+            不换浏览器也能用：下方手动填、② 导入、③ 演示都可写数据。
           </div>
         </div>
 
@@ -118,7 +118,7 @@
           实测很多同学卡在这一步，所以写在界面上而不是只写进文档。
         -->
         <div v-if="btReady" class="bt-note">
-          💡 手环要先开「心率广播」（小米 Zepp Life / 华为运动健康），并断开手机蓝牙。
+          💡 手环需先在自家 App 开「心率广播」，并断开手机蓝牙。
         </div>
         <!--
           手动记录心率 —— 「任何浏览器都能用」的兜底方案
@@ -131,7 +131,7 @@
         <div class="manual-box">
           <div class="manual-title">
             ✍️ 没有蓝牙接口？直接手动填一次
-            <span class="manual-sub">任何浏览器都能用（夸克 / 小米 / iPhone 全支持）</span>
+            <span class="manual-sub">任何浏览器可用</span>
           </div>
           <div class="manual-grid">
             <label class="mf">
@@ -186,10 +186,10 @@
           </div>
         </div>
 
-        <ChartBox :option="hrOption" height="200px" :empty="samples.length === 0" empty-text="连接设备或生成模拟心率后，这里会实时画出心率曲线" />
+        <ChartBox :option="hrOption" height="200px" :empty="samples.length === 0" empty-text="连接设备后显示实时心率曲线" />
 
         <div class="hr-foot">
-          <el-checkbox v-model="saveAsRestingHr">把平均心率记为今日静息心率（写入身体数据）</el-checkbox>
+          <el-checkbox v-model="saveAsRestingHr">记为今日静息心率</el-checkbox>
           <el-button type="primary" plain :loading="saving" :disabled="!samples.length" @click="save">保存这次记录</el-button>
         </div>
       </div>
@@ -199,7 +199,7 @@
         <div class="card">
           <div class="card-title">
             <span>② 导入数据</span>
-            <span class="sub">手环 CSV / JSON ·「健康」导出 zip / export.xml</span>
+            <span class="sub">CSV / JSON / 健康导出 zip</span>
           </div>
 
           <div class="imp-actions">
@@ -255,16 +255,15 @@ date,steps,restingHr,sleepHours,weightKg
             聚合出每日指标后走同一套「预览 → 确认导入」流程，后端接口不用改。
           -->
           <div class="apple-tip">
-            <div class="apple-title">🍎 有 Apple Watch / iPhone？直接选「健康」导出文件</div>
+            <div class="apple-title">🍎 Apple Watch / iPhone 用户：直接选「健康」导出文件</div>
             <div class="apple-body">
-              iPhone「健康」→ 头像 → 「导出所有健康数据」→ 把 <code>导出.zip</code> 选进来即可（<code>export.xml</code> 也行）。
-              <b>原始文件不上传</b>，只写聚合后的每日指标。
+              「健康」→ 头像 → 导出所有健康数据，选 <code>导出.zip</code> 即可（<code>export.xml</code> 也行）；<b>原始文件不上传</b>。
             </div>
             <details class="apple-more">
               <summary>选不了 zip / 想全自动？</summary>
               <div class="apple-body">
-                文件是灰的、点不动＝还在 iCloud 没下载完，去「文件」App 点一下它再回来选。
-                想彻底不手动：用下面 ④ 自动同步，或
+                灰的点不动＝还在 iCloud 没下载完，去「文件」App 点一下。
+                想全自动用下面 ④，或
                 <code>node tools/health-sync.mjs --once "导出.zip" --token sft_xxxx</code>。
               </div>
             </details>
@@ -299,7 +298,7 @@ date,steps,restingHr,sleepHours,weightKg
             <el-button type="primary" class="btn-gradient" :loading="demoRunning" @click="runDemo">一键生成</el-button>
           </div>
           <div class="demo-tip">
-            生成最近 {{ demoDays }} 天的步数 / 心率 / 睡眠，并折算成步行打卡。
+            生成最近 {{ demoDays }} 天的步数 / 心率 / 睡眠。
           </div>
         </div>
       </div>
@@ -308,8 +307,8 @@ date,steps,restingHr,sleepHours,weightKg
     <!-- ==================== ④ 自动同步（免导出 / 免上传） ==================== -->
     <div class="card mt-16 sync-card">
       <div class="card-title">
-        <span>④ 自动同步（不用导出、不用转 CSV、不用上传）</span>
-        <span class="sub">同步令牌 · iPhone 快捷指令 · 电脑监听脚本</span>
+        <span>④ 自动同步（免导出、免上传）</span>
+        <span class="sub">令牌 · 快捷指令 · 监听脚本</span>
       </div>
 
       <!--
@@ -322,14 +321,14 @@ date,steps,restingHr,sleepHours,weightKg
         iPhone 用系统自带「快捷指令」定时读健康 App，电脑用脚本监听目录，都只需要一枚令牌。
       -->
       <div class="sync-intro">
-        生成令牌后，让能拿到数据的一端每天主动推：iPhone「快捷指令」或电脑脚本。
+        生成令牌后，让能拿到数据的一方每天主动推。
       </div>
 
       <!-- 第一步：令牌 -->
       <div class="sync-token-box">
         <div class="st-left">
           <div class="st-title">第一步：生成同步令牌</div>
-          <div class="st-desc">只用于推送健康数据，可随时撤销；明文只显示这一次。</div>
+          <div class="st-desc">只用于推送健康数据，明文只显示一次。</div>
         </div>
         <div class="st-right">
           <el-input v-model="newTokenName" size="small" placeholder="给令牌起个名：iPhone 快捷指令" style="width: 210px" />
@@ -370,8 +369,8 @@ date,steps,restingHr,sleepHours,weightKg
         <!-- ============ iPhone ============ -->
         <el-collapse-item name="iphone">
           <template #title>
-            <span class="sc-title">🍎 iPhone：系统「快捷指令」每天自动推</span>
-            <span class="sc-sub">不装任何第三方 App，也不用手动导出</span>
+            <span class="sc-title">🍎 iPhone：快捷指令每天自动推</span>
+            <span class="sc-sub">不装第三方 App</span>
           </template>
           <ol class="sc-steps">
             <li>
@@ -385,12 +384,10 @@ date,steps,restingHr,sleepHours,weightKg
               </div>
             </li>
             <li>
-              打开 iPhone 自带「<b>快捷指令</b>」App → 底部「<b>自动化</b>」→ 右上「+」→「创建个人自动化」→
-              选「<b>时间</b>」→ 每天 <b>22:00</b>（也可选「App 关闭时 → 健康」）→ 下一步。
+              「<b>快捷指令</b>」App → 自动化 → 右上「+」→ 创建个人自动化 → 时间 → 每天 <b>22:00</b> → 下一步。
             </li>
             <li>
-              点「添加操作」，搜「<b>获取健康样本</b>」：类型选「步数」，时间范围选「今天」；
-              再各加一条同样的操作，类型分别选「静息心率」「睡眠」（睡眠选「睡眠分析」）。
+              添加操作「<b>获取健康样本</b>」：「步数」+ 时间范围「今天」；再加两条，分别选「静息心率」「睡眠」。
             </li>
             <li>
               再加操作「<b>获取 URL 内容</b>」，URL 填上面那条地址，把 <code>8600</code> / <code>64</code> / <code>7.2</code>
@@ -408,11 +405,11 @@ date,steps,restingHr,sleepHours,weightKg
         <!-- ============ 电脑 ============ -->
         <el-collapse-item name="pc">
           <template #title>
-            <span class="sc-title">💻 电脑：监听目录 / 直接吃健康导出 zip</span>
-            <span class="sc-sub">完全告别「转 CSV → 手动上传」</span>
+            <span class="sc-title">💻 电脑：监听目录 / 吃导出 zip</span>
+            <span class="sc-sub">免转 CSV、免上传</span>
           </template>
           <div class="sc-block">
-            <div class="sc-block-title">A. 一次性推送（替代"转 CSV 再上传"）</div>
+            <div class="sc-block-title">A. 一次性推送</div>
             <div class="sc-copy">
               <code class="sc-url">{{ exportCommandWithToken }}</code>
               <el-button size="small" type="primary" plain @click="copyText(exportCommandWithToken, 'cmd-once')">
@@ -420,11 +417,11 @@ date,steps,restingHr,sleepHours,weightKg
               </el-button>
             </div>
             <div class="sc-tip">
-              把 <code>导出.zip</code> 换成真实文件路径即可。脚本在本机流式解析，只上传聚合后的每日指标。
+              把 <code>导出.zip</code> 换成真实路径；只上传聚合后的每日指标。
             </div>
           </div>
           <div class="sc-block">
-            <div class="sc-block-title">B. 后台自动同步（真正无人值守）</div>
+            <div class="sc-block-title">B. 后台自动同步</div>
             <div class="sc-copy">
               <code class="sc-url">{{ watchCommandWithToken }}</code>
               <el-button size="small" type="primary" plain @click="copyText(watchCommandWithToken, 'cmd-watch')">
@@ -432,8 +429,7 @@ date,steps,restingHr,sleepHours,weightKg
               </el-button>
             </div>
             <div class="sc-tip">
-              指定一个目录（如 iCloud 云盘）：新文件丢进去就自动解析推送，已推过的记在
-              <code>tools/.health-sync-state.json</code>，不会重复推。
+              新文件丢进指定目录即自动推送，推过的不会重复推。
             </div>
           </div>
         </el-collapse-item>
@@ -441,21 +437,17 @@ date,steps,restingHr,sleepHours,weightKg
         <!-- ============ 安卓 ============ -->
         <el-collapse-item name="android">
           <template #title>
-            <span class="sc-title">🤖 安卓：Chrome 蓝牙直连 / 免费 App 定时推</span>
-            <span class="sc-sub">国产浏览器没蓝牙接口时也有路走</span>
+            <span class="sc-title">🤖 安卓：蓝牙直连 / 免费 App 定时推</span>
+            <span class="sc-sub">国产浏览器没蓝牙接口也有路</span>
           </template>
           <ul class="sc-steps">
             <li>
-              <b>实时心率</b>：用 Chrome / Edge 打开本页（https 域名）走上面的 ①，安卓系统首次会询问
-              「附近的设备」权限，点允许。
+              <b>实时心率</b>：用 Chrome 打开本页走上面的 ①，首次需允许「附近的设备」。
             </li>
             <li>
-              <b>定时推送</b>：装免费的「HTTP Shortcuts」（或 MacroDroid / Tasker），向
-              <code>{{ syncSetup.pushUrl }}</code> 发 GET/POST，带上请求头
-              <code>X-Sync-Token</code> 与参数 <code>steps / restingHr / sleepHours</code>，设为每天定时。
-            </li>
-            <li>
-              小米 / 华为手环记得先在自家 App 里打开「心率广播」，否则蓝牙搜不到设备。
+              <b>定时推送</b>：装「HTTP Shortcuts」，向
+              <code>{{ syncSetup.pushUrl }}</code> 发 GET/POST，带请求头
+              <code>X-Sync-Token</code> 与参数 <code>steps / restingHr / sleepHours</code>。
             </li>
           </ul>
         </el-collapse-item>
@@ -491,7 +483,7 @@ date,steps,restingHr,sleepHours,weightKg
             <el-tag size="small" :type="sourceTag(h.source)" effect="plain">{{ sourceText(h.source) }}</el-tag>
             <div class="hist-body">
               <div class="hist-sum">{{ h.summary }}</div>
-              <div class="hist-meta">{{ h.deviceName || '—' }} · {{ h.createdAt }} · 写入 {{ h.recordCount }} 条</div>
+              <div class="hist-meta">{{ h.deviceName || '—' }} · {{ shortTime(h.createdAt) }} · {{ h.recordCount }} 条</div>
             </div>
           </div>
         </div>
@@ -1029,6 +1021,12 @@ function sourceText(s) {
 }
 function sourceTag(s) {
   return { bluetooth: 'danger', import: 'primary', auto: 'success', demo: 'warning' }[s] || 'info';
+}
+
+/** 历史行的时间只留「月-日 时:分」：截到秒既挤又没人看 */
+function shortTime(ts) {
+  const m = String(ts || '').match(/\d{4}-(\d{2}-\d{2})[ T](\d{2}:\d{2})/);
+  return m ? `${m[1]} ${m[2]}` : String(ts || '—');
 }
 
 /** 拉取页面所需的全部数据（概览 / 一周 / 历史） */

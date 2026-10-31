@@ -240,7 +240,7 @@ router.post(
       stepNote: '设备导入的步数',
     });
 
-    const summary = `导入 ${clean.length} 行 · 写入 ${written} 条记录${updated ? `、更新 ${updated} 条打卡` : ''}（${clean[0].date} ~ ${clean[clean.length - 1].date}）`;
+    const summary = `导入 ${clean.length} 行 · 写 ${written} 条${updated ? ` / 更新 ${updated} 打卡` : ''}（${clean[0].date.slice(5)}~${clean[clean.length - 1].date.slice(5)}）`;
     const id = recordDeviceSync(req.user.id, {
       source: 'import',
       deviceName: d.deviceName || '导入文件',
@@ -295,7 +295,7 @@ router.post(
       else updated += 1;
     }
 
-    const summary = `演示设备同步 ${days} 天数据 · 写入 ${written} 条${updated ? `、更新 ${updated} 条打卡` : ''}`;
+    const summary = `演示同步 ${days} 天 · 写 ${written} 条${updated ? ` / 更新 ${updated} 打卡` : ''}`;
     const id = recordDeviceSync(req.user.id, {
       source: 'demo',
       deviceName: '演示手环（模拟）',
