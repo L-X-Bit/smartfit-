@@ -199,13 +199,30 @@
         <div class="card">
           <div class="card-title">
             <span>② 导入数据</span>
-            <span class="sub">手环 App 导出的 CSV / JSON</span>
+            <span class="sub">手环 CSV / JSON ·「健康」导出 zip / export.xml</span>
           </div>
 
           <div class="imp-actions">
             <el-button size="small" @click="downloadTemplate">下载 CSV 模板</el-button>
-            <el-button size="small" @click="pickFile">选择文件</el-button>
-            <input ref="fileInput" type="file" accept=".csv,.json,.txt" class="hidden-input" @change="onFile" />
+            <el-button size="small" :loading="appleParsing" @click="pickFile">选择文件</el-button>
+            <!--
+              accept 用变量而不是写死：
+              iOS / iPadOS Safari 对 accept 的类型推断很不稳定，写 `.zip` 也常把导出包显示成灰色不可选，
+              所以苹果设备上干脆不传 accept（等同"所有文件"），由 JS 按扩展名分流；其他平台照常过滤。
+            -->
+            <input
+              ref="fileInput"
+              type="file"
+              :accept="fileAccept"
+              class="hidden-input"
+              @change="onFile"
+            />
+          </div>
+
+          <!-- 解析进度：大文件在本机流式处理，进度条让用户知道页面没卡死 -->
+          <div v-if="appleParsing" class="apple-progress">
+            <span class="apple-progress-text">🍎 正在本机解析「健康」导出：{{ appleProgress }}</span>
+            <div class="apple-progress-bar"><i :style="{ width: applePercent + '%' }" /></div>
           </div>
 
           <el-input
@@ -223,22 +240,32 @@ date,steps,restingHr,sleepHours,weightKg
             <el-button size="small" type="primary" :loading="importing" :disabled="!csvText.trim()" @click="doImport">
               确认导入
             </el-button>
-            <span class="imp-hint">支持中英文表头、列顺序随意、缺列自动跳过</span>
+            <span class="imp-hint">支持中英文表头、列顺序随意、缺列自动跳过；「健康」导出的 zip / export.xml 也能直接选</span>
           </div>
+
+          <!-- 解析结果摘要：让人一眼看出「这是从哪个文件、聚合出多少天」，而不是只有一句"解析到 N 行" -->
+          <div v-if="appleNote" class="apple-note">{{ appleNote }}</div>
 
           <!--
             Apple Watch / iPhone 用户必看
             ------------------------------------------------------------------
             网页**连不上 Apple Watch**：它不广播蓝牙标准心率服务（0x180D），只和 iPhone 私有通信，
-            Apple 也没给浏览器开放 HealthKit。唯一正路是走「Apple 健康」App 的导出数据，
-            所以这里给一条明确可执行的路径，而不是让用户以为功能坏了。
+            Apple 也没给浏览器开放 HealthKit。唯一正路是走「Apple 健康」App 的导出数据。
+            现在导出文件（zip / export.xml）**可以直接在本页选择**：浏览器里流式解压 + 解析，
+            聚合出每日指标后走同一套「预览 → 确认导入」流程，后端接口不用改。
           -->
           <div class="apple-tip">
-            <div class="apple-title">🍎 有 Apple Watch / iPhone？</div>
+            <div class="apple-title">🍎 有 Apple Watch / iPhone？导出文件可以直接选</div>
             <div class="apple-body">
-              网页连不上 Apple Watch（Apple 不开放 HealthKit 给浏览器）。走导出：
-              iPhone「健康」App → 头像 → 「导出所有健康数据」→ 运行
-              <code>node tools/apple-health-to-csv.mjs "导出.zip"</code> → 用左边「选择文件」导入。
+              iPhone「健康」App → 头像 → 「导出所有健康数据」→ 把得到的 <code>导出.zip</code> 传到电脑/手机，
+              点上面的「选择文件」直接选它（解压出来的 <code>export.xml</code> 也可以）。
+              浏览器里完成解析，<b>原始文件不上传</b>，只有聚合后的每日指标会写库。
+              <br />
+              <b>选文件时 zip 是灰的、点不动？</b>那是它还在 iCloud 里没下载到本机——去「文件」App 里点一下它，
+              等下载转圈结束再回来选；或者把 zip 存到「我的 iPhone / 我的 iPad」里再选。
+              <br />
+              想彻底不手动：用 ④ 自动同步，或命令行
+              <code>node tools/health-sync.mjs --once "导出.zip" --token sft_xxxx</code>。
             </div>
           </div>
 
@@ -479,6 +506,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { api } from '@/api';
 import ChartBox from '@/components/ChartBox.vue';
+// 「健康」导出（zip / export.xml）在浏览器里解压 + 解析，不再要求用户先跑命令行转 CSV
+import { isAppleHealthFile, parseAppleHealthFile, rowsToCsv } from '@/utils/appleHealth';
 
 // ---------------------------------------------------------------- 状态数据
 const loading = ref(false);
@@ -677,6 +706,33 @@ const previewing = ref(false);
 const importing = ref(false);
 const fileInput = ref(null);
 
+/** 「健康」导出（zip / export.xml）的解析状态：大文件要几十秒，必须有进度反馈 */
+const appleParsing = ref(false);
+const appleProgress = ref('');
+const applePercent = ref(0);
+const appleNote = ref('');
+
+/** 文本类格式的体积上限（后端 content 也是 500KB 字符，这里先挡住，省得白传一次） */
+const TEXT_FILE_LIMIT = 500 * 1024;
+/** 「健康」导出只防呆：正常几百 MB 的导出都吃得下（流式处理，不整包进内存） */
+const APPLE_FILE_LIMIT = 800 * 1024 * 1024;
+/** 单次导入天数上限：与后端 server/src/modules/devices/routes.js 的 MAX_IMPORT_ROWS 保持一致 */
+const MAX_IMPORT_ROWS = 1000;
+
+/**
+ * 文件选择框的 accept
+ * ---------------------------------------------------------------------------
+ * iOS / iPadOS Safari 上写 accept=".zip" 经常导致「健康」导出的 zip 在选择器里显示为灰色、点不动
+ * （Safari 会按自家 UTI 规则过滤，扩展名提示并不可靠）。苹果设备上不传 accept，交给 JS 按扩展名分流；
+ * 桌面和安卓仍然过滤，用户体验更好。
+ */
+const IS_IOS =
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    // iPadOS 13+ 的 UA 伪装成 Mac，只能靠触摸点数区分
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+const fileAccept = IS_IOS ? undefined : '.csv,.json,.txt,.zip,.xml';
+
 function detectFormat() {
   return /^\s*[[{]/.test(csvText.value) ? 'json' : 'csv';
 }
@@ -687,18 +743,83 @@ function pickFile() {
 
 function onFile(ev) {
   const f = ev.target.files?.[0];
+  ev.target.value = ''; // 允许重复选择同一个文件（必须在异步之前清空，否则第二次不触发 change）
   if (!f) return;
-  if (f.size > 500 * 1024) {
-    ElMessage.warning('文件过大（请小于 500KB）');
+
+  // 「健康」导出的 zip / export.xml：走浏览器端解析（以前会被 accept 直接过滤掉）
+  if (isAppleHealthFile(f)) {
+    importAppleHealth(f);
+    return;
+  }
+
+  if (f.size > TEXT_FILE_LIMIT) {
+    ElMessage.warning('文件过大（请小于 500KB）；「健康」导出的 zip / export.xml 可以直接选原文件');
     return;
   }
   const reader = new FileReader();
   reader.onload = () => {
     csvText.value = String(reader.result || '');
+    appleNote.value = '';
     doPreview();
   };
   reader.readAsText(f, 'utf-8');
-  ev.target.value = ''; // 允许重复选择同一个文件
+}
+
+/**
+ * 直接把「健康」导出的 zip / export.xml 变成可导入的数据
+ * ---------------------------------------------------------------------------
+ * 为什么放在前端做：
+ *   · 用户的手机/电脑上不一定有 Node，也不该为导一次数据去开命令行；
+ *   · 原始导出动辄几百 MB，传后端既慢又占服务器内存——浏览器本地解压，
+ *     只把聚合后的每日指标（几十行）发给 /api/devices/import，接口一行都不用改；
+ *   · 解析口径与 tools/lib/apple-health.mjs 完全一致，页面导入和脚本推送的数字对得上。
+ */
+async function importAppleHealth(f) {
+  if (f.size > APPLE_FILE_LIMIT) {
+    ElMessage.warning('文件过大（请小于 800MB），可改用命令行：node tools/health-sync.mjs --once "导出.zip"');
+    return;
+  }
+
+  appleParsing.value = true;
+  applePercent.value = 0;
+  appleProgress.value = '读取中…';
+  appleNote.value = '';
+  preview.value = [];
+  previewTotal.value = 0;
+  csvText.value = '';
+
+  try {
+    const { rows, stats } = await parseAppleHealthFile(f, {
+      onProgress: (p) => {
+        applePercent.value = p.percent;
+        appleProgress.value = `已扫描 ${Math.round(p.scanned / 10000)} 万行 · 命中 ${p.kept} 条原始记录 · ${p.percent}%`;
+      },
+    });
+
+    if (!rows.length) {
+      ElMessage.error('文件里没有找到步数 / 心率 / 睡眠记录，请确认导出的是「健康」App 的「导出所有健康数据」');
+      return;
+    }
+
+    // 后端单次导入上限 1000 天（server/src/modules/devices/routes.js 的 MAX_IMPORT_ROWS）：
+    // 超出时保留**最近的**日期——导了两三年数据的人，想看的显然是最近那段，而不是最早的 1000 天
+    const use = rows.length > MAX_IMPORT_ROWS ? rows.slice(-MAX_IMPORT_ROWS) : rows;
+    const csv = rowsToCsv(use);
+
+    csvText.value = csv;
+    appleNote.value =
+      `已从「${f.name}」解析出 ${use.length} 天（${use[0].date} ~ ${use[use.length - 1].date}）` +
+      `，命中 ${stats.kept} 条原始记录` +
+      (use.length < rows.length ? `（共 ${rows.length} 天，超出单次上限，只取最近的 ${use.length} 天）` : '') +
+      ' · 原始文件未上传，只有聚合后的每日指标会写库';
+
+    await doPreview().catch(() => {}); // 失败提示由 api 拦截器统一给出，这里不重复弹
+  } catch (e) {
+    ElMessage.error(e?.message || '解析失败，请确认文件是「健康」App 导出的 zip 或 export.xml');
+  } finally {
+    appleParsing.value = false;
+    appleProgress.value = '';
+  }
 }
 
 /** 下载 CSV 模板：用后端返回的模板内容生成 Blob，避免前端再维护一份格式 */
@@ -732,6 +853,7 @@ async function doImport() {
     preview.value = [];
     previewTotal.value = 0;
     csvText.value = '';
+    appleNote.value = '';
     await refreshAll();
   } finally {
     importing.value = false;
@@ -1322,6 +1444,42 @@ onBeforeUnmount(() => {
 }
 .hidden-input {
   display: none;
+}
+/* 「健康」导出 zip/xml 的解析进度（本机流式解析，几百 MB 也不至于让页面看着像卡死） */
+.apple-progress {
+  margin: 6px 0 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+}
+.apple-progress-text {
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+.apple-progress-bar {
+  margin-top: 6px;
+  height: 4px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+.apple-progress-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #fb923c, #f97316);
+  transition: width 0.2s linear;
+}
+/* 解析结果摘要：从哪个文件来、聚合出多少天 */
+.apple-note {
+  margin-top: 8px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #9a3412;
+  background: #fff7ed;
+  border: 1px dashed #fed7aa;
+  border-radius: 8px;
 }
 .imp-preview {
   margin-top: 10px;

@@ -956,8 +956,8 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
     </tr>
     <tr>
       <td><b>② 文件导入</b></td>
-      <td>解析手环 App 导出的 <b>CSV / JSON</b>：表头大小写与中英文均可、列顺序无关、缺列跳过；<b>先 <code>dryRun</code> 预览再写库</b></td>
-      <td>兼容性最好的一条路，任何品牌都能用；单文件 ≤500KB、≤400 行</td>
+      <td>解析手环 App 导出的 <b>CSV / JSON</b>：表头大小写与中英文均可、列顺序无关、缺列跳过；<b>先 <code>dryRun</code> 预览再写库</b>；<b>Apple「健康」导出的 <code>导出.zip</code> / <code>export.xml</code> 可直接选择</b>——浏览器端自行解压 + 流式解析并聚合为每日指标，原始文件不上传</td>
+      <td>兼容性最好的一条路，任何品牌都能用；文本文件 ≤500KB、单次 ≤1000 天；「健康」导出 zip 上限 800MB（全程本地处理）</td>
     </tr>
     <tr>
       <td><b>③ 演示模式</b></td>
@@ -967,7 +967,28 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
   </tbody>
 </table>
 
-<h3>5.9.1 心率数据的解析不是"猜"，是照标准读</h3>
+<h3>5.9.1 「健康」导出的 zip 为什么能在浏览器里直接导入</h3>
+<p>
+起初的做法是「先跑命令行脚本把 <code>导出.zip</code> 转成 CSV，再到网页上传」，但那意味着用手机的用户根本没有这条路，
+而且页面上的文件选择框只写了 <code>accept=".csv,.json,.txt"</code>——用户按提示去选 zip 会被直接过滤掉，看起来像功能坏了。
+现在把解压与解析整体搬到浏览器：
+</p>
+<pre>// 1) File.slice() 取子 Blob，绝不把几百 MB 的导出整包读进内存
+const tail = await file.slice(file.size - 66_000).arrayBuffer();   // 尾部找 EOCD
+// 2) 读中央目录 → 定位 apple_health_export/export.xml → 只解压这一个条目
+const { stream } = openZipXmlStream(file);                          // method 8 → deflate
+// 3) 零依赖解压：浏览器原生的 DecompressionStream('deflate-raw')
+stream = blob.stream().pipeThrough(new DecompressionStream('deflate-raw'));
+// 4) 逐行正则抓 &lt;Record .../&gt;，按天聚合（口径与 tools/lib/apple-health.mjs 完全一致）
+</pre>
+<p>
+这样做有三个好处：<b>原始文件不出本机</b>（只把聚合后的每日指标发给 <code>/api/devices/import</code>，接口一行没改）、
+<b>不依赖服务器内存</b>（几百 MB 的导出也不会压到后端）、<b>任何设备都能用</b>（iPhone 上也能直接选文件，不必开电脑）。
+解析口径有专门的验收脚本 <code>node tools/test-apple-health-browser.mjs</code>：造一份仿真导出，分别以裸 XML、
+deflate zip、store zip 三种形态喂进去，再和命令行解析库逐字段比对，保证「页面导入」和「脚本推送」给出同一套数字。
+</p>
+
+<h3>5.9.2 心率数据的解析不是"猜"，是照标准读</h3>
 <p>
 心率测量特征值（0x2A37）的第一个字节是 <b>Flags</b>，其中 <b>bit0 = 1</b> 时心率是 16 位无符号整数（小端序，占 2 字节），
 为 0 时是 8 位。实现严格按规范解析并做合理性夹取（20~250 bpm），而不是把读到的字节当作"大概的数字"：
@@ -982,7 +1003,7 @@ if (!bpm || bpm &lt; 20 || bpm &gt; 250) return;                                
 既真实可用、又能被评委现场验证。
 </p>
 
-<h3>5.9.2 数据进入平台后必须"参与计算"，而不是只展示</h3>
+<h3>5.9.3 数据进入平台后必须"参与计算"，而不是只展示</h3>
 <table>
   <thead><tr><th style="width: 22%;">设备数据</th><th style="width: 40%;">写入目标</th><th style="width: 38%;">带来的连锁效果</th></tr></thead>
   <tbody>

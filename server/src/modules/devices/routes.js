@@ -208,6 +208,16 @@ const importSchema = z.object({
   dryRun: z.boolean().optional(),
 });
 
+/**
+ * 单次导入最多接受的天数
+ * ---------------------------------------------------------------------------
+ * 原来是 400 行：够「手环导出一两个月」，但「健康」导出动辄两三年（730 天以上），
+ * 会被静默截断成最早的 400 天——用户以为导了两年，其实只进去了一年多，还都是老数据。
+ * 这里放宽到 1000 天（约 2.7 年，按每天一行算 body 才几十 KB），
+ * 前端在超出时会保留**最近的** N 天并明确提示。
+ */
+const MAX_IMPORT_ROWS = 1000;
+
 router.post(
   '/import',
   writeLimit,
@@ -217,7 +227,7 @@ router.post(
     if (!rows.length) throw new BizError('没有解析到有效数据行，请检查文件格式');
 
     // 归一化 + 校验（别名、缺列、非法日期都在这里统一处理）
-    const clean = normalizeRows(rows, 400);
+    const clean = normalizeRows(rows, MAX_IMPORT_ROWS);
     if (!clean.length) throw new BizError('数据行里没有可用的数值（steps / restingHr / sleepHours / weightKg）');
 
     if (d.dryRun) {

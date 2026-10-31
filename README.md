@@ -56,7 +56,7 @@
 | 🏃 **运动打卡** | 动作库搜索打卡、组数/次数/时长/强度、体温感受、日历热力图、连续打卡天数 | 无（MET 公式确定性计量） |
 | 🤖 **AI 健身计划** | 输入身体情况 → 生成周计划；勾选完成可自动生成打卡 | ⭐ 核心（Agent 编排 + RAG + 校验） |
 | 📏 **身体数据** | 体重/体脂/肌肉/围度/静息心率/睡眠录入、BMI 与体脂评估、代谢指标 | 间接（作为 AI 上下文） |
-| ⌚ **设备同步** | 五条通路把可穿戴数据接进来：**蓝牙心率带实时心率**（Web Bluetooth 标准 GATT 0x180D，含实时曲线与统计）/ **手动录入一次心率**（任何浏览器都能用：夸克、小米浏览器、iPhone 皆可）/ **手环 App 导出的 CSV·JSON**（先预览再写库，支持中英文表头）/ **Apple Watch 走「健康」App 导出**（`node tools/apple-health-to-csv.mjs 导出.zip` 本地转 CSV 再导入）/ **无设备演示模式**；此外还有 **🔁 自动同步**：生成同步令牌后，iPhone 系统「快捷指令」每天定时把步数/心率/睡眠推到平台，电脑端 `tools/health-sync.mjs` 可直接监听目录或吃「健康」导出 zip（不用再转 CSV、不用手动上传），见 [`docs/健康数据自动同步.md`](docs/健康数据自动同步.md)；步数按 MET 折算成步行打卡、静息心率与睡眠写入身体数据 | 无（标准蓝牙协议 + 确定性换算） |
+| ⌚ **设备同步** | 五条通路把可穿戴数据接进来：**蓝牙心率带实时心率**（Web Bluetooth 标准 GATT 0x180D，含实时曲线与统计）/ **手动录入一次心率**（任何浏览器都能用：夸克、小米浏览器、iPhone 皆可）/ **手环 App 导出的 CSV·JSON**（先预览再写库，支持中英文表头）/ **Apple Watch 走「健康」App 导出**（网页「选择文件」**直接选 `导出.zip` 或解压后的 `export.xml`**：浏览器里自己解压 + 流式解析并聚合每日指标，原始文件不上传；也可用 `node tools/apple-health-to-csv.mjs 导出.zip` 转成 CSV 再导入）/ **无设备演示模式**；此外还有 **🔁 自动同步**：生成同步令牌后，iPhone 系统「快捷指令」每天定时把步数/心率/睡眠推到平台，电脑端 `tools/health-sync.mjs` 可直接监听目录或吃「健康」导出 zip（不用再转 CSV、不用手动上传），见 [`docs/健康数据自动同步.md`](docs/健康数据自动同步.md)；步数按 MET 折算成步行打卡、静息心率与睡眠写入身体数据 | 无（标准蓝牙协议 + 确定性换算） |
 | 📊 **数据可视化** | 热量收支、训练量、部位均衡度、身体成分、打卡热力图、目标仪表盘 | 无（数据聚合） |
 | 💬 **AI 健身教练** | 多轮对话、逐字流式输出、引用知识库来源、展示注入的用户数据快照 | ⭐ 核心（SSE + RAG） |
 | 🥗 **健康饮食** | 食物库检索、四餐记录、三大营养素供能比、AI 一日配餐一键采纳 | ⭐ 较强（大模型 + 食物库约束） |
@@ -428,9 +428,10 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │
 ├── tools/                          # ═══ 本地工具（不参与线上运行） ═══
 │   ├── health-sync.mjs             # 健康数据自动同步客户端（--once 推文件 / --watch 监听目录）
-│   ├── lib/apple-health.mjs        # Apple「健康」导出解析（zip 流式解压 + 按天聚合）
-│   ├── apple-health-to-csv.mjs     # 导出 → CSV（手动导入用，与上面共用解析逻辑）
+│   ├── lib/apple-health.mjs        # Apple「健康」导出解析（zip 流式解压 + 按天聚合，命令行用）
+│   ├── apple-health-to-csv.mjs     # 导出 → CSV（命令行转档，与网页里的解析口径一致）
 │   ├── test-devices.mjs            # 设备同步自测（含自动同步令牌全流程）
+│   ├── test-apple-health-browser.mjs # 网页端「健康」导出解析自测（zip/xml 三形态 + 与命令行逐字段比对）
 │   ├── audit-pages.mjs             # 11 页功能与移动端布局体检
 │   └── verify-online.mjs           # 线上地址完整验收
 │
@@ -511,6 +512,7 @@ node server/scripts/smoke-test.mjs
 | --- | --- | --- |
 | 接口冒烟 | `node server/scripts/smoke-test.mjs` | 登录、总览、打卡、身体数据、AI 计划、勾选自动打卡、AI 配餐批量采纳、社区互动、图片上传、SSE 对话、AI 统计 |
 | 设备同步 | `node tools/test-devices.mjs` | 蓝牙会话落库、CSV 导入（预览 + 写库）、演示数据生成、重复计数防护、非法输入拦截、**自动同步令牌全流程**（签发 → 令牌鉴权推送 → 同日合并不丢指标 → 撤销即失效） |
+| 网页端健康数据解析 | `node tools/test-apple-health-browser.mjs` | 「健康」导出 zip（deflate / store）/ 裸 `export.xml` 在浏览器端解压解析：步数求和、静息心率与体重均值、心率 avg/max/min、磅→公斤、跨零点睡眠、InBed 与越界值丢弃；**与 `tools/lib/apple-health.mjs` 逐字段比对一致** |
 | 自动同步脚本 | `node tools/health-sync.mjs --once 导出.zip --token sft_xxx` | Apple「健康」导出 zip 流式解析 → 直接推送（不再产生中间 CSV）、目录监听去重与变更重推 |
 | 食物匹配 | `node tools/test-food-match.mjs` | 13 个名称匹配用例（该拒的拒、该中的中） |
 | 真实模型回放 | `node tools/test-vision-replay.mjs` | 拿真实照片重跑「识别 → 库匹配 → 双源校验」并打印每项数据来源 |
