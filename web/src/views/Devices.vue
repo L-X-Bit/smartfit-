@@ -29,7 +29,7 @@
       <div class="hero-main">
         <div class="hero-title">⌚ 把「手表 / 手环」的数据接进平台</div>
         <div class="hero-desc">
-          蓝牙实时心率 / 文件导入 / 无设备演示，任选其一。同步后的数据会参与<b>目标热量、AI 判断与完成度</b>计算。
+          蓝牙心率 / 文件导入 / 演示模式，任选其一。数据会参与<b>目标热量与完成度</b>计算。
         </div>
         <div class="hero-chips">
           <span class="chip" :class="btReady ? 'ok' : 'warn'">蓝牙接口 {{ btReady ? '可用' : '不可用' }}</span>
@@ -118,7 +118,7 @@
           实测很多同学卡在这一步，所以写在界面上而不是只写进文档。
         -->
         <div v-if="btReady" class="bt-note">
-          💡 设备需自身广播心率：小米手环在 Zepp Life 开「心率广播」，华为开「心率广播 / 运动心率共享」，且不要同时连着手机蓝牙。
+          💡 手环要先开「心率广播」（小米 Zepp Life / 华为运动健康），并断开手机蓝牙。
         </div>
         <!--
           手动记录心率 —— 「任何浏览器都能用」的兜底方案
@@ -240,7 +240,7 @@ date,steps,restingHr,sleepHours,weightKg
             <el-button size="small" type="primary" :loading="importing" :disabled="!csvText.trim()" @click="doImport">
               确认导入
             </el-button>
-            <span class="imp-hint">支持中英文表头、列顺序随意、缺列自动跳过；「健康」导出的 zip / export.xml 也能直接选</span>
+            <span class="imp-hint">中英文表头 / 列顺序随意 / 缺列自动跳过</span>
           </div>
 
           <!-- 解析结果摘要：让人一眼看出「这是从哪个文件、聚合出多少天」，而不是只有一句"解析到 N 行" -->
@@ -255,18 +255,19 @@ date,steps,restingHr,sleepHours,weightKg
             聚合出每日指标后走同一套「预览 → 确认导入」流程，后端接口不用改。
           -->
           <div class="apple-tip">
-            <div class="apple-title">🍎 有 Apple Watch / iPhone？导出文件可以直接选</div>
+            <div class="apple-title">🍎 有 Apple Watch / iPhone？直接选「健康」导出文件</div>
             <div class="apple-body">
-              iPhone「健康」App → 头像 → 「导出所有健康数据」→ 把得到的 <code>导出.zip</code> 传到电脑/手机，
-              点上面的「选择文件」直接选它（解压出来的 <code>export.xml</code> 也可以）。
-              浏览器里完成解析，<b>原始文件不上传</b>，只有聚合后的每日指标会写库。
-              <br />
-              <b>选文件时 zip 是灰的、点不动？</b>那是它还在 iCloud 里没下载到本机——去「文件」App 里点一下它，
-              等下载转圈结束再回来选；或者把 zip 存到「我的 iPhone / 我的 iPad」里再选。
-              <br />
-              想彻底不手动：用 ④ 自动同步，或命令行
-              <code>node tools/health-sync.mjs --once "导出.zip" --token sft_xxxx</code>。
+              iPhone「健康」→ 头像 → 「导出所有健康数据」→ 把 <code>导出.zip</code> 选进来即可（<code>export.xml</code> 也行）。
+              <b>原始文件不上传</b>，只写聚合后的每日指标。
             </div>
+            <details class="apple-more">
+              <summary>选不了 zip / 想全自动？</summary>
+              <div class="apple-body">
+                文件是灰的、点不动＝还在 iCloud 没下载完，去「文件」App 点一下它再回来选。
+                想彻底不手动：用下面 ④ 自动同步，或
+                <code>node tools/health-sync.mjs --once "导出.zip" --token sft_xxxx</code>。
+              </div>
+            </details>
           </div>
 
           <!-- 预览表：先看再写库，避免"一股脑灌进去" -->
@@ -298,7 +299,7 @@ date,steps,restingHr,sleepHours,weightKg
             <el-button type="primary" class="btn-gradient" :loading="demoRunning" @click="runDemo">一键生成</el-button>
           </div>
           <div class="demo-tip">
-            生成最近 {{ demoDays }} 天的步数 / 静息心率 / 睡眠，并按 MET 折算成步行打卡；历史里标记为「演示」。
+            生成最近 {{ demoDays }} 天的步数 / 心率 / 睡眠，并折算成步行打卡。
           </div>
         </div>
       </div>
@@ -321,7 +322,7 @@ date,steps,restingHr,sleepHours,weightKg
         iPhone 用系统自带「快捷指令」定时读健康 App，电脑用脚本监听目录，都只需要一枚令牌。
       -->
       <div class="sync-intro">
-        生成令牌后，让能拿到数据的那一端主动推：iPhone「快捷指令」每天定时推送步数 / 心率 / 睡眠；电脑脚本直接吃「健康」导出的 zip。
+        生成令牌后，让能拿到数据的一端每天主动推：iPhone「快捷指令」或电脑脚本。
       </div>
 
       <!-- 第一步：令牌 -->
@@ -392,17 +393,15 @@ date,steps,restingHr,sleepHours,weightKg
               再各加一条同样的操作，类型分别选「静息心率」「睡眠」（睡眠选「睡眠分析」）。
             </li>
             <li>
-              再加一个操作「<b>获取 URL 内容</b>」，URL 填上面那条地址；把 URL 里的
-              <code>8600</code> / <code>64</code> / <code>7.2</code> 换成前三个操作的变量
-              （在 URL 输入框里点「插入变量」即可）。方法保持 GET。
+              再加操作「<b>获取 URL 内容</b>」，URL 填上面那条地址，把 <code>8600</code> / <code>64</code> / <code>7.2</code>
+              换成前三个操作的变量（点「插入变量」）。
             </li>
             <li>
-              下一步后<b>关闭「运行前询问」</b>——这一步不做的话每天还得手点一下，就不算自动了。
-              保存完成，之后每天到点自动推送。
+              最后<b>关闭「运行前询问」</b>，否则每天还得手点一下，就不算自动了。
             </li>
           </ol>
           <div class="sc-note">
-            配不通也没关系：①②③ 三条通路一直都在，快捷指令只是省掉每天手动那一下。
+            配不通也没关系，①②③ 一直可用。
           </div>
         </el-collapse-item>
 
@@ -901,8 +900,8 @@ const newTokenPlain = ref('');
 const syncBusy = ref(false);
 /** 当前处于「已复制」反馈状态的按钮标识 */
 const copiedKey = ref('');
-/** 默认把 iPhone 那一段展开：它是普通用户最需要看的一条 */
-const syncOpen = ref(['iphone']);
+/** 三种接法默认全部收起：页面只留令牌这一步，想看哪条再展开，避免一进页就是整屏指令 */
+const syncOpen = ref([]);
 
 /** 命令/网址里用的平台地址（线上是 https 域名，本地是 localhost） */
 const syncBaseUrl = computed(() => syncSetup.value.origin || (typeof location !== 'undefined' ? location.origin : ''));
@@ -1090,31 +1089,30 @@ const btDiag = computed(() => {
     return {
       android,
       title: '这个页面不是 https，浏览器不允许用蓝牙',
-      detail: 'Web Bluetooth 只在这两种地址下可用：https:// 开头的网址，或本机的 localhost。',
-      hint: '换成 https 的地址打开（例如云端的 https://smartfit-qsyh.onrender.com）即可。',
+      detail: 'Web Bluetooth 只在 https 或 localhost 下可用。',
+      hint: '换成 https 地址打开即可。',
     };
   }
   if (env.isIOS) {
     return {
       android: false,
       title: 'iPhone / iPad 用不了蓝牙心率',
-      detail: 'Apple 至今没有实现 Web Bluetooth 标准，Safari 和 iOS 上的 Chrome / 微信内置浏览器都不支持——这是系统限制，不是本功能没做。',
-      hint: '换一台安卓手机用 Chrome 打开本页即可连心率带；或者直接用下面的「导入数据 / 演示模式」。',
+      detail: 'Apple 没有实现 Web Bluetooth，iOS 上所有浏览器都不支持——系统限制，不是功能没做。',
+      hint: '换安卓 Chrome 连心率带，或直接用下面的「导入数据 / 演示模式」。',
     };
   }
   if (android) {
     return {
       android: true,
       title: `你用的「${env.browser}」没有开放蓝牙接口`,
-      detail:
-        '小米 / 夸克 / UC / QQ 这类国产浏览器虽然内核是 Chromium，但普遍关掉了 navigator.bluetooth，所以页面拿不到蓝牙对象。',
-      hint: '点下面的按钮用 Chrome（或 Edge / 三星浏览器）打开本页，第一次连接时系统会询问「附近的设备/位置」权限，必须点允许。',
+      detail: '小米 / 夸克 / UC / QQ 这类国产浏览器关掉了 navigator.bluetooth，页面拿不到蓝牙对象。',
+      hint: '点下面按钮用 Chrome 打开；首次连接需允许「附近的设备」权限。',
     };
   }
   return {
     android,
     title: `「${env.browser}」没有提供 Web Bluetooth 接口`,
-    detail: '桌面端请用 Chrome 或 Edge（Windows 10 及以上，且电脑要有蓝牙适配器）；Firefox、Safari 桌面版都不支持该接口。',
+    detail: '桌面端请用 Chrome / Edge（需蓝牙适配器），Firefox 与 Safari 桌面版不支持。',
     hint: '把本页链接复制到 Chrome / Edge 打开即可。',
   };
 });
@@ -1643,6 +1641,29 @@ onBeforeUnmount(() => {
   padding: 0 4px;
   font-family: Consolas, monospace;
   word-break: break-all;
+}
+/* 详情默认收起：页面只留一行主干说明，选不了文件 / 想全自动的排查再展开 */
+.apple-more {
+  margin-top: 6px;
+}
+.apple-more > summary {
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #b45309;
+  list-style: none;
+}
+.apple-more > summary::-webkit-details-marker {
+  display: none;
+}
+.apple-more > summary::before {
+  content: '▸ ';
+}
+.apple-more[open] > summary::before {
+  content: '▾ ';
+}
+.apple-more .apple-body {
+  margin-top: 4px;
 }
 
 /* ---------------- ④ 自动同步 ---------------- */

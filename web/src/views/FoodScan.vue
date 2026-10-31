@@ -79,10 +79,9 @@
         <div v-if="isWeChat" class="wx-tip">
           <div class="wx-title">⚠️ 你正在微信里打开这个页面</div>
           <div class="wx-body">
-            微信内置浏览器不支持网页拍照/选图（iOS 上表现为「点了没反应」）。
-            请点右上角 <b>「···」→「在浏览器打开」</b>，就能正常拍照和选图。
+            微信内置浏览器不支持网页拍照 / 选图，点右上角 <b>「···」→「在浏览器打开」</b> 即可。
             <br />
-            如果仍不行，检查手机 <b>设置 → 微信 → 照片</b> 是否允许访问所有照片。
+            仍不行就检查手机 <b>设置 → 微信 → 照片</b> 权限。
           </div>
           <div class="wx-actions">
             <button type="button" class="pick-btn primary" @click="copyPageLink">复制本页链接</button>
@@ -188,9 +187,7 @@
             </div>
           </div>
 
-          <div class="drop-tips">
-            📏 盘边放<b>筷子 / 勺子 / 一元硬币</b>做参照，份量误差可控制在 ±30%
-          </div>
+          <div class="drop-tips">📏 旁边放个筷子 / 硬币做参照，份量更准</div>
         </div>
 
         <!-- 已选择图片：预览 -->
@@ -315,7 +312,7 @@
             <span v-if="calibrated" class="wb-badge">
               ✓ 已按{{ calibrated.mode === 'total' ? '总重' : '单项' }}校准（×{{ calibrated.factor }}）· 热量已精确换算
             </span>
-            <span v-else class="wb-hint">用厨房秤称一下整盘，输入总克数即按识别比例自动分配</span>
+            <span v-else class="wb-hint">称一下整盘，输入总克数即按比例分配</span>
           </div>
 
           <!-- 食物清单 -->
