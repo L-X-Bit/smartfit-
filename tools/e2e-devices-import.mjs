@@ -243,9 +243,15 @@ try {
 
   console.log('[3/5] 打开 /devices 并确认是新版页面');
   await goto(`${BASE}/devices`);
-  await sleep(1500);
-  const pageText = await evaluate('document.body.innerText || ""');
+  // 页面是懒加载 + 云实例冷启动时首屏偏慢，所以轮询等标志文案，别只 sleep 一次就断言
+  let pageText = '';
+  for (let i = 0; i < 60; i += 1) {
+    await sleep(500);
+    pageText = await evaluate('document.body.innerText || ""');
+    if (pageText.includes('export.xml') && pageText.includes('导入数据')) break;
+  }
   assert.ok(pageText.includes('export.xml'), '页面里没有「export.xml」字样 —— 说明部署的还是旧版本前端');
+  assert.ok(pageText.includes('导入数据'), '页面没渲染出「导入数据」卡片');
   console.log('      新版标志「export.xml」已出现');
 
   console.log('[4/5] 把示例 zip 塞进 file input（等价于用户点「选择文件」并选中它）');
