@@ -38,3 +38,36 @@ app.use(createPinia());
 app.use(router);
 
 app.mount('#app');
+
+/**
+ * 移除首屏插屏（index.html 里的 #splash）
+ * ---------------------------------------------------------------------------
+ * 免费实例冷启动 20~30 秒时，用户至少能看到品牌 + 进度动画 + 「首次访问需要唤醒服务」的提示，
+ * 而不是一片白屏。挂载完成后再淡出移除，避免它一直盖住界面（之前踩过一次坑：
+ * 整页 loading 遮罩没关掉，按钮全被挡住点不动）。
+ */
+function removeSplash() {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+  splash.classList.add('splash-hide');
+  setTimeout(() => splash.remove(), 400);
+}
+removeSplash();
+
+/**
+ * 后台「唤醒」探测：真正的冷启动是服务端在睡觉，页面已经在跑了但首批接口会超时。
+ * 这里在页面隐藏前每 10 分钟轻量 ping 一次健康检查，让演示期间实例不会中途睡回去；
+ * 页面不可见时不发请求，避免无意义的流量。
+ */
+function keepWarm() {
+  const ping = () => {
+    if (document.visibilityState !== 'visible') return;
+    fetch('/api/health', { method: 'GET', credentials: 'include' }).catch(() => {});
+  };
+  ping();
+  setInterval(ping, 10 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') ping();
+  });
+}
+keepWarm();

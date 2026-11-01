@@ -42,9 +42,14 @@ router.get(
  * 识别一张照片
  * 说明：图片以 base64 dataURL 提交（前端已用 canvas 压缩），
  * 这样无需引入 multipart 中间件，且能一次性把原图落盘供历史回溯。
+ *
+ * 上限说明：这里只做「别把明显超大的东西塞进来」的粗筛，
+ * 真正的体积判定在 foodVision.decodeImagePayload 里（超限返回 413 + 具体 MB 数）。
+ * 之前 zod 上限写 12MB 而 express body 上限 10MB，手机原图的报错会变成一句看不懂的
+ * 「服务器内部错误」——两个数字现在统一由 config.uploads 决定。
  */
 const analyzeSchema = z.object({
-  imageDataUrl: z.string().min(100, '请上传食物照片').max(12_000_000, '图片过大，请压缩后再试'),
+  imageDataUrl: z.string().min(100, '请上传食物照片').max(20_000_000, '图片过大，请压缩后再试'),
 });
 
 router.post(

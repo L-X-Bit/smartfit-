@@ -11,7 +11,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { config, SERVER_ROOT } from './config/index.js';
-import { requestLogger } from './middleware/common.js';
+import { requestLogger, requestId } from './middleware/common.js';
 import { notFoundHandler, errorHandler } from './middleware/error.js';
 
 // 业务路由
@@ -44,10 +44,46 @@ export function createApp() {
   app.use(compression({ threshold: 1024, level: 6 }));
 
   // 1) 跨域：开发环境前端跑在 5173，需要放开（生产环境建议用 Nginx 同源代理）
+  //    credentials: true 是为了让 HttpOnly 登录 Cookie 能随请求带上
   app.use(cors({ origin: true, credentials: true }));
 
-  // 2) 请求体解析：AI 相关接口可能带 base64 图片，放宽到 10MB
-  app.use(express.json({ limit: '10mb' }));
+  /**
+   * 1.5) 安全响应头
+   * --------------------------------------------------------------------
+   * 验收报告里有一条「前端 token 存 localStorage（XSS 风险）」，除了把登录态改成
+   * HttpOnly Cookie（见 modules/auth 与 middleware/auth），这里再补上两道防线：
+   *   · CSP：只允许加载同源脚本，即使某处不慎把用户输入插进 DOM，外部脚本也执行不了；
+   *   · nosniff / Referrer-Policy / frame-ancestors：常规的点击劫持与嗅探防护。
+   * 说明：样式必须放行 'unsafe-inline'（Element Plus 与 ECharts 会写内联 style），
+   *      图片放行 data:（识图结果是 base64 预览）。
+   */
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "connect-src 'self'",
+        "frame-ancestors 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join('; '),
+    );
+    next();
+  });
+
+  // 1.8) 请求 ID（错误响应与日志都带上它，便于线上按 id 定位）
+  app.use(requestId);
+
+  // 2) 请求体解析：AI 相关接口可能带 base64 图片
+  //    上限统一由 config.uploads 控制，超限会被错误中间件翻译成 413 + 可读提示
+  app.use(express.json({ limit: config.uploads.maxBodyBytes }));
   app.use(express.urlencoded({ extended: true }));
 
   // 3) 上传目录静态托管

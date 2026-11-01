@@ -88,22 +88,59 @@ export function tx(fn) {
   }
 }
 
-/** 当前本地时间字符串，统一时间格式 'YYYY-MM-DD HH:mm:ss' */
+/**
+ * 时区化的日期工具
+ * ---------------------------------------------------------------------------
+ * 踩过的坑（线上验收报告里的一条）：容器 / Render 的进程时区是 UTC，
+ * `new Date().getHours()` 拿到的是 UTC 小时，于是中国时间 00:00~08:00 之间
+ * 「今天」会被算成昨天——首页「今日」栏显示的日期比手机上的日期少一天。
+ * 解决方式：所有「今天/现在」都按 config.timezone（默认 Asia/Shanghai）来计算，
+ * 与服务器所在时区无关，部署到任何云平台结果都一致。
+ */
+const TZ = config.timezone || 'Asia/Shanghai';
+const tzFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: TZ,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+});
+
+/** 当前时区下的 { date:'YYYY-MM-DD', time:'HH:mm:ss' } */
+export function tzNow() {
+  const parts = {};
+  for (const p of tzFormatter.formatToParts(new Date())) parts[p.type] = p.value;
+  // en-CA 在个别 Node 版本上会把 24 点给成 '24'，统一收敛成 '00'
+  const hour = parts.hour === '24' ? '00' : parts.hour;
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${hour}:${parts.minute}:${parts.second}` };
+}
+
+/** 当前时区时间字符串，统一时间格式 'YYYY-MM-DD HH:mm:ss' */
 export function nowStr() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  const n = tzNow();
+  return `${n.date} ${n.time}`;
 }
 
-/** 今天日期字符串 'YYYY-MM-DD' */
+/** 今天日期字符串 'YYYY-MM-DD'（按 config.timezone） */
 export function today() {
-  return nowStr().slice(0, 10);
+  return tzNow().date;
 }
 
-/** 在指定日期上加减天数，返回 'YYYY-MM-DD' */
+/** 两个 'YYYY-MM-DD' 之间相差的天数（to - from） */
+export function daysBetween(from, to) {
+  const a = Date.parse(`${from}T00:00:00Z`);
+  const b = Date.parse(`${to}T00:00:00Z`);
+  if (Number.isNaN(a) || Number.isNaN(b)) return 0;
+  return Math.round((b - a) / 86400000);
+}
+
+/** 在指定日期上加减天数，返回 'YYYY-MM-DD'（纯日历运算，与时区无关） */
 export function shiftDate(dateStr, days) {
-  const d = new Date(`${dateStr}T00:00:00`);
-  d.setDate(d.getDate() + days);
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
   const p = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`;
 }

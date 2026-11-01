@@ -11,10 +11,33 @@ import { z } from 'zod';
 import { asyncHandler, ok, BizError } from '../../utils/response.js';
 import { hashPassword, verifyPassword, signToken } from '../../utils/security.js';
 import { get, run, all } from '../../db/index.js';
-import { requireAuth } from '../../middleware/auth.js';
+import { requireAuth, AUTH_COOKIE } from '../../middleware/auth.js';
 import { calcBMI, calcAge } from '../../utils/health.js';
+import { config } from '../../config/index.js';
 
 const router = Router();
+
+/**
+ * 把登录态写进 HttpOnly Cookie
+ * ---------------------------------------------------------------------------
+ * 为什么不把 token 交给 localStorage 保管（验收报告里的一条低危问题）：
+ *   localStorage 对页面里任何 JS 都是明文可读的，一旦出现 XSS（比如某处把用户昵称
+ *   直接 v-html 出来），攻击者一行 `localStorage.getItem('smartfit_token')` 就能带走登录态。
+ *   HttpOnly Cookie 由浏览器保管，JS 读不到，配合 app.js 里的 CSP 双重收口。
+ * 兼容性：响应体里仍然返回 token，命令行脚本 / 自动化测试可以直接用 Bearer 头调用。
+ */
+function setAuthCookie(req, res, token) {
+  const secure = req.secure || String(req.headers['x-forwarded-proto'] || '').includes('https');
+  const attrs = [
+    `${AUTH_COOKIE}=${encodeURIComponent(token)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    `Max-Age=${7 * 24 * 3600}`,
+  ];
+  if (secure) attrs.push('Secure');
+  res.append('Set-Cookie', attrs.join('; '));
+}
 
 /** 注册参数校验规则 */
 const registerSchema = z.object({
@@ -38,7 +61,9 @@ router.post(
     ).lastInsertRowid;
 
     const user = get('SELECT * FROM users WHERE id = ?', [id]);
-    return ok(res, { token: signToken(user), user: publicUser(user) }, '注册成功，已自动登录');
+    const token = signToken(user);
+    setAuthCookie(req, res, token);
+    return ok(res, { token, user: publicUser(user) }, '注册成功，已自动登录');
   }),
 );
 
@@ -57,7 +82,18 @@ router.post(
     if (!user || !verifyPassword(password, user.password_hash)) {
       throw new BizError('账号或密码错误', 401);
     }
-    return ok(res, { token: signToken(user), user: publicUser(user) }, '登录成功');
+    const token = signToken(user);
+    setAuthCookie(req, res, token);
+    return ok(res, { token, user: publicUser(user) }, '登录成功');
+  }),
+);
+
+/** 退出登录：清掉 HttpOnly Cookie（前端同时也清本地缓存） */
+router.post(
+  '/logout',
+  asyncHandler((req, res) => {
+    res.append('Set-Cookie', `${AUTH_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
+    return ok(res, null, '已退出登录');
   }),
 );
 

@@ -13,8 +13,10 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
-import { db, initSchema, run, get, tx, today, shiftDate } from './index.js';
+import { db, initSchema, run, get, all, tx, today, shiftDate } from './index.js';
+import { config } from '../config/index.js';
 import { hashPassword } from '../utils/security.js';
 import { calcCalories } from '../utils/health.js';
 
@@ -427,6 +429,231 @@ function seedDemoData() {
 }
 
 seedDemoData();
+
+/**
+ * 演示数据补充：让「排行榜 / AI 教练历史 / 识别历史」在首次启动时就不是空的
+ * ===========================================================================
+ * 线上验收报告里提到「排行榜仅 1 人、AI 历史空」——库里其实建了 4 个演示账号，
+ * 但只有 demo 有打卡记录，排行榜自然只有 1 行；AI 对话与识图历史也完全没种子。
+ * 这里补齐三样东西（都是「相对今天」生成的，不会随时间过期）：
+ *   ① 另外 3 个演示账号近 7 天的打卡 → 排行榜有 4 个人，名次才像样；
+ *   ② demo 的一段 AI 教练对话（3 问 3 答）→ 教练页有历史可看；
+ *   ③ 2 条拍照识图记录 + 对应占位图 → 识热量页的「识别历史」有内容。
+ */
+function seedExtras() {
+  const t = today();
+
+  // ① 其他演示账号的打卡（只补最近 7 天，够排行榜用）
+  const others = all("SELECT id, username FROM users WHERE username IN ('lily','coach','runner')");
+  if (others.length && get('SELECT COUNT(*) AS c FROM workout_logs WHERE user_id != ?', [demoId]).c === 0) {
+    const pattern = {
+      lily: ['ex_jumping_jack', 'ex_squat_bw', 'ex_plank'],
+      coach: ['ex_goblet_squat', 'ex_pushup', 'ex_row_db', 'ex_plank'],
+      runner: ['ex_jogging', 'ex_mountain_climber'],
+    };
+    tx(() => {
+      for (const u of others) {
+        const exIds = pattern[u.username] || ['ex_jogging'];
+        for (let i = 6; i >= 0; i -= 1) {
+          const date = shiftDate(t, -i);
+          // 每个人练的频率不同：教练几乎每天，lily 隔天，runner 每周 4 次
+          const skip = { lily: i % 2 === 1, coach: i === 3, runner: [0, 5].includes(i) }[u.username];
+          if (skip) continue;
+          for (const exId of exIds) {
+            const ex = exercises.find((e) => e.id === exId);
+            if (!ex) continue;
+            const minutes = ex.category === '有氧' ? 32 : 15;
+            run(
+              `INSERT INTO workout_logs (user_id, log_date, exercise_id, exercise_name, category, duration_min, intensity, sets, reps, calories, feeling, note)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+              [
+                u.id,
+                date,
+                ex.id,
+                ex.name,
+                ex.category,
+                minutes,
+                ex.category === 'HIIT' ? 'high' : 'medium',
+                ex.category === '有氧' ? 0 : 3,
+                ex.category === '有氧' ? 0 : 12,
+                calcCalories(ex.met, 60, minutes, 'medium'),
+                '适中',
+                '',
+              ],
+            );
+          }
+        }
+      }
+    });
+    console.log('[补充] 其他演示账号的打卡已生成（排行榜不再只有 1 人）');
+  }
+
+  // ② AI 教练对话历史
+  if (get('SELECT COUNT(*) AS c FROM ai_messages WHERE user_id = ?', [demoId]).c === 0) {
+    const dialog = [
+      ['user', '我想减脂，但膝盖有旧伤，怎么安排训练？'],
+      ['assistant', '膝盖有旧伤完全可以减脂，关键是避开跳跃和深屈膝。建议这样排：\n· 周一/周四：骑车 30 分钟（中等强度，能说话但微喘）+ 臀桥 3 组 × 15 次 + 鸟狗式 3 组 × 每侧 10 次\n· 周二/周五：快走 40 分钟 + 坐姿划船 3 组 × 12 次 + 平板支撑 3 组 × 40 秒\n· 周六：游泳或椭圆机 30 分钟（对膝零冲击）\n每次训练后做 5 分钟股四头肌与腘绳肌拉伸，膝痛时把屈膝角度控制在 45° 以内。'],
+      ['user', '训练后肌肉酸痛正常吗？需要休息几天？'],
+      ['assistant', '正常的延迟性肌肉酸痛（DOMS）通常在训练后 24~48 小时达到高峰，2~3 天自行缓解，属于肌肉在适应的信号。\n需要警惕的是：\n· 关节刺痛或疼在骨头缝里 —— 不是酸痛，要停练并检查动作\n· 超过 72 小时仍明显疼痛 —— 说明强度超了，下次减量 20%\n· 尿色变成可乐色 —— 立即就医（横纹肌溶解征兆）\n缓解办法：低强度有氧 15 分钟 + 充足蛋白与睡眠，比躺着不动恢复更快。'],
+      ['user', '每天都想吃夜宵，怎么控制？'],
+      ['assistant', '夜宵冲动大多不是真饿，而是白天蛋白/纤维吃不够 + 晚上放松后的补偿性进食。三个具体做法：\n1. 把晚餐蛋白提到 35~40g（一掌半鸡胸或一份豆腐 + 两个蛋），饱腹感能顶到睡觉\n2. 晚饭后立刻刷牙，给大脑一个「进食结束」的信号\n3. 真饿了就吃 200g 无糖希腊酸奶 + 一小把坚果，约 150 kcal，不会破坏热量缺口\n先执行一周，记录哪天的夜宵最难忍，我们再看那天白天的摄入哪里偏少。'],
+    ];
+    tx(() => {
+      for (const [role, content] of dialog) {
+        run('INSERT INTO ai_messages (user_id, role, content) VALUES (?,?,?)', [demoId, role, content]);
+      }
+    });
+    console.log('[补充] AI 教练对话历史已生成');
+  }
+
+  // ③ 拍照识图记录：真写一张占位图到 uploads 目录，历史回看时图片能显示出来
+  if (get('SELECT COUNT(*) AS c FROM food_scans WHERE user_id = ?', [demoId]).c === 0) {
+    const imgUrl = writePlaceholderImage();
+    /** 从食物库算一条「库内精确」记录，保证热量与库值完全一致（演示数据也不能自相矛盾） */
+    const fromLib = (id, amountG, extra = {}) => {
+      const f = foods.find((x) => x.id === id);
+      const k = amountG / 100;
+      return {
+        amountG,
+        amountMin: Math.round(amountG * 0.8),
+        amountMax: Math.round(amountG * 1.2),
+        kcal: Math.round(f.kcal * k),
+        protein: Number((f.protein * k).toFixed(1)),
+        fat: Number((f.fat * k).toFixed(1)),
+        carb: Number((f.carb * k).toFixed(1)),
+        source: 'library',
+        foodId: f.id,
+        libraryName: f.name,
+        matchHow: 'name',
+        modelKcal: Math.round(f.kcal * k),
+        matchedFoodId: f.id,
+        matchedFoodName: f.name,
+        ...extra,
+      };
+    };
+    const samples = [
+      {
+        daysAgo: 1,
+        items: [
+          { name: '米饭', ...fromLib('fd_rice', 200, { reference: '以筷子长度推算碗口约 12cm，米饭七分满', confidence: 'high' }) },
+          { name: '番茄', ...fromLib('fd_tomato', 150, { reference: '半个餐盘份量', confidence: 'medium' }) },
+          { name: '鸡蛋', ...fromLib('fd_egg', 100, { reference: '两枚炒蛋铺满盘边', confidence: 'high' }) },
+          {
+            name: '清炒时蔬',
+            amountG: 150,
+            amountMin: 110,
+            amountMax: 190,
+            kcal: 62,
+            protein: 2.6,
+            fat: 3.4,
+            carb: 5.8,
+            source: 'model',
+            foodId: null,
+            libraryName: null,
+            matchHow: null,
+            modelKcal: 62,
+            matchedFoodId: null,
+            matchedFoodName: null,
+            reference: '无参照物，按常见餐盘尺寸保守估算',
+            confidence: 'low',
+          },
+        ],
+      },
+      {
+        daysAgo: 3,
+        items: [
+          { name: '鸡胸肉', ...fromLib('fd_chicken_breast', 120, { reference: '以一次性纸杯高度推算，肉块铺满餐盒一半', confidence: 'medium' }) },
+          { name: '牛油果', ...fromLib('fd_avocado', 60, { reference: '半个牛油果切片', confidence: 'high' }) },
+        ],
+      },
+    ];
+    tx(() => {
+      for (const s of samples) {
+        const date = shiftDate(t, -s.daysAgo);
+        const sum = (k) => Number(s.items.reduce((acc, i) => acc + (i[k] || 0), 0).toFixed(1));
+        run(
+          `INSERT INTO food_scans (user_id, image_url, items, total_kcal, total_protein, total_fat, total_carb, advice, provider, model, matched_count, latency_ms, ref_object, scale_confidence, created_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          [
+            demoId,
+            imgUrl,
+            JSON.stringify(s.items),
+            Math.round(sum('kcal')),
+            sum('protein'),
+            sum('fat'),
+            sum('carb'),
+            '这一餐蛋白充足、油脂主要来自烹调油，建议再补一份深色蔬菜提高膳食纤维。',
+            'vision',
+            'deepseek-vl',
+            s.items.filter((i) => i.source === 'library').length,
+            2400,
+            '餐具（筷子 / 纸杯）',
+            'high',
+            `${date} 12:20:00`,
+          ],
+        );
+      }
+    });
+    console.log('[补充] 拍照识图历史已生成（含占位图）');
+  }
+}
+
+/**
+ * 生成一张 480×360 的纯色渐变占位图（PNG），写到 uploads 目录，供识图历史展示。
+ * 用 node:zlib 手工拼 PNG，避免为了种子数据引入图像处理依赖。
+ */
+function writePlaceholderImage() {
+  const w = 480;
+  const h = 360;
+  const raw = Buffer.alloc((w * 3 + 1) * h);
+  for (let y = 0; y < h; y += 1) {
+    const rowStart = y * (w * 3 + 1);
+    raw[rowStart] = 0; // filter: none
+    for (let x = 0; x < w; x += 1) {
+      const o = rowStart + 1 + x * 3;
+      const t1 = x / w;
+      const t2 = y / h;
+      raw[o] = Math.round(250 - 40 * t2);
+      raw[o + 1] = Math.round(206 - 70 * t1);
+      raw[o + 2] = Math.round(150 - 60 * t2);
+    }
+  }
+
+  const crcTable = [];
+  for (let n = 0; n < 256; n += 1) {
+    let c = n;
+    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    crcTable[n] = c >>> 0;
+  }
+  const chunk = (type, data) => {
+    const len = Buffer.alloc(4);
+    len.writeUInt32BE(data.length);
+    const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+    let crc = 0xffffffff;
+    for (const b of body) crc = crcTable[(crc ^ b) & 0xff] ^ (crc >>> 8);
+    const crcBuf = Buffer.alloc(4);
+    crcBuf.writeUInt32BE((crc ^ 0xffffffff) >>> 0);
+    return Buffer.concat([len, body, crcBuf]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0);
+  ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 2; // color type: truecolor
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk('IHDR', ihdr),
+    chunk('IDAT', zlib.deflateSync(raw, { level: 9 })),
+    chunk('IEND', Buffer.alloc(0)),
+  ]);
+
+  fs.mkdirSync(config.uploadDir, { recursive: true });
+  const name = 'seed_food_sample.png';
+  fs.writeFileSync(path.join(config.uploadDir, name), png);
+  return `${config.uploadUrlPrefix}/${name}`;
+}
+
+seedExtras();
 
 console.log('\n✅ 数据库初始化完成！');
 console.log(`   数据库文件：${process.env.DB_FILE || 'server/data/smartfit.db'}`);

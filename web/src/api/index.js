@@ -11,21 +11,36 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 
 const TOKEN_KEY = 'smartfit_token';
+/** 登录标记：真正的凭证在 HttpOnly Cookie 里，localStorage 只留一个「是否登录」的开关 */
+const AUTHD_FLAG_KEY = 'smartfit_auth';
 
 export const http = axios.create({
   // 开发环境走 Vite 代理（baseURL 留空即同源 /api）；生产可用 VITE_API_BASE 指定后端地址
   baseURL: import.meta.env.VITE_API_BASE || '',
-  timeout: 60000, // AI 生成较慢，超时给足 60 秒
+  // 免费实例冷启动要 20~30 秒，首屏几个请求不能一上来就判死；配合下面的自动重试
+  timeout: 45000,
+  // 登录态走 HttpOnly Cookie，跨域/代理场景都要带上凭证
+  withCredentials: true,
 });
 
-// ---------------- 请求拦截：注入 token
+/** 网络层可重试的错误（冷启动 / 网关抖动 / 超时），业务错误不重试 */
+function isRetryable(error) {
+  if (!error.response) return true; // 没响应：网络断 / 冷启动超时
+  const status = error.response.status;
+  return status === 502 || status === 503 || status === 504;
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---------------- 请求拦截：注入 token（兼容命令行 / 自动化脚本，正常浏览器走 Cookie）
 http.interceptors.request.use((config) => {
+  // 只有显式写入过 localStorage 的老客户端才带 Bearer；浏览器默认依赖 HttpOnly Cookie
   const token = localStorage.getItem(TOKEN_KEY);
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// ---------------- 响应拦截：解包 + 统一错误提示
+// ---------------- 响应拦截：解包 + 统一错误提示 + 冷启动重试
 http.interceptors.response.use(
   (response) => {
     const body = response.data;
@@ -35,26 +50,53 @@ http.interceptors.response.use(
     ElMessage.error(body.message || '请求失败');
     return Promise.reject(new Error(body.message || '请求失败'));
   },
-  (error) => {
+  async (error) => {
+    const cfg = error.config || {};
+    // 冷启动重试：GET 幂等，最多再试 2 次（累计等待约 2s + 4s），并提示用户「正在唤醒服务」
+    if (isRetryable(error) && (cfg.method || '').toLowerCase() === 'get') {
+      cfg.__retry = (cfg.__retry || 0) + 1;
+      if (cfg.__retry <= 2) {
+        if (cfg.__retry === 1) ElMessage.info('服务正在唤醒（免费实例冷启动约 20~30 秒），请稍候…');
+        await sleep(cfg.__retry === 1 ? 2000 : 4000);
+        return http(cfg);
+      }
+    }
+
     const status = error.response?.status;
-    const message = error.response?.data?.message || error.message || '网络异常';
+    const body = error.response?.data || {};
+    const reqId = body.requestId ? `（请求号 ${body.requestId}）` : '';
+    let message = body.message || error.message || '网络异常';
+    if (!error.response) message = '连接不上服务器：请检查网络，或稍后重试（免费实例冷启动需要 20~30 秒）';
     if (status === 401) {
+      localStorage.removeItem(AUTHD_FLAG_KEY);
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem('smartfit_user');
       // 避免在登录页重复跳转
       if (!location.hash.includes('/login')) location.hash = '#/login';
       ElMessage.warning('登录已过期，请重新登录');
+    } else if (status === 504) {
+      ElMessage.error(`${message}`);
     } else {
-      ElMessage.error(message);
+      ElMessage.error(`${message}${reqId}`);
     }
     return Promise.reject(error);
   },
 );
 
 export const tokenStore = {
+  /** 兼容老客户端 / 自动化脚本：显式写进 localStorage 的 token 仍然有效 */
   get: () => localStorage.getItem(TOKEN_KEY),
-  set: (t) => localStorage.setItem(TOKEN_KEY, t),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
+  /**
+   * 登录成功后调用：**不把 JWT 明文写进 localStorage**（XSS 里最容易被偷的就是它），
+   * 真正的凭证由后端写在 HttpOnly Cookie 里；这里只留一个布尔标记供路由守卫判断。
+   */
+  set: () => localStorage.setItem(AUTHD_FLAG_KEY, '1'),
+  /** 是否处于登录态：Cookie 模式下看标记，兼容脚本注入 token 的老方式 */
+  has: () => Boolean(localStorage.getItem(AUTHD_FLAG_KEY) || localStorage.getItem(TOKEN_KEY)),
+  clear: () => {
+    localStorage.removeItem(AUTHD_FLAG_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+  },
 };
 
 /** 按业务模块组织的 API 集合 */
@@ -62,6 +104,7 @@ export const api = {
   // ---------------- 鉴权
   register: (data) => http.post('/api/auth/register', data),
   login: (data) => http.post('/api/auth/login', data),
+  logout: () => http.post('/api/auth/logout'),
   me: () => http.get('/api/auth/me'),
   updateProfile: (data) => http.put('/api/auth/profile', data),
 
@@ -155,18 +198,28 @@ export const api = {
  * @returns {Promise<void>}
  */
 export async function streamCoach(question, { onDelta, onDone, onError, onMeta } = {}) {
+  const token = tokenStore.get();
   const response = await fetch('/api/ai/coach', {
     method: 'POST',
+    // 浏览器默认靠 HttpOnly Cookie 鉴权；脚本注入过 token 时继续用 Bearer（兼容）
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${tokenStore.get() || ''}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ question }),
   });
 
   if (!response.ok || !response.body) {
     const text = await response.text().catch(() => '');
-    throw new Error(text || `请求失败(${response.status})`);
+    let msg = text || `请求失败(${response.status})`;
+    try {
+      const j = JSON.parse(text);
+      msg = j.message || msg;
+    } catch {
+      /* 非 JSON 就原样 */
+    }
+    throw new Error(msg);
   }
 
   const reader = response.body.getReader();

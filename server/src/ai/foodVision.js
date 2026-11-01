@@ -27,6 +27,57 @@ import { visionChat, AiError } from './provider.js';
 import { parseJsonLoose } from './validators.js';
 import { retrieveFoods } from './rag.js';
 import { logAiCall } from './observability.js';
+import { BizError } from '../utils/response.js';
+
+/**
+ * 图片校验：按**文件头魔数**判断真实格式，而不是只看 dataURL 前缀或体积
+ * ---------------------------------------------------------------------------
+ * 线上验收报告里的两个确定性 500 就出在这一步：
+ *   ① 纯色 PNG —— 压缩后只有几 KB，被「图片太小（<8KB）」直接判死，异常又被打成 500；
+ *      可它明明是一张合法图片，应该交给模型判断「这不是食物」。
+ *   ② 真实 JPEG —— 手机原图 base64 后超过请求体上限，express 抛 413，同样被打成 500；
+ *      现在把上限统一放在 config.uploads 里，并明确返回 413 + 该怎么办。
+ * 另外顺手兼容三种真实的输入形态：标准 dataURL、大写 MIME（Data:IMAGE/JPEG）、以及裸 base64。
+ */
+const MAGIC = [
+  { ext: 'png', test: (b) => b.length > 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 },
+  { ext: 'jpg', test: (b) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: 'webp', test: (b) => b.length > 12 && b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP' },
+];
+
+function decodeImagePayload(imageDataUrl) {
+  const raw = String(imageDataUrl || '').trim();
+  if (!raw) throw new BizError('请上传食物照片', 400);
+
+  // 允许 data:image/png;base64,xxx / Data:IMAGE/JPEG;base64,xxx / 纯 base64
+  const m = raw.match(/^data:image\/([a-z0-9.+-]+);base64,([\s\S]+)$/i);
+  let buffer;
+  const declared = m ? m[1].toLowerCase() : '';
+  const base64Body = m ? m[2] : raw;
+  try {
+    buffer = Buffer.from(base64Body.replace(/\s+/g, ''), 'base64');
+  } catch {
+    throw new BizError('图片解码失败，请重新选择照片', 400);
+  }
+  if (!buffer.length) throw new BizError('图片内容为空，请重新选择照片', 400);
+
+  const hit = MAGIC.find((k) => k.test(buffer));
+  if (!hit) {
+    throw new BizError(
+      `不是有效的图片文件（识别到 ${declared || '未知格式'}，仅支持 JPG / PNG / WebP）。iPhone 的 HEIC 照片请先在相册里"存储为 JPG"再上传。`,
+      415,
+    );
+  }
+  if (buffer.length > config.uploads.maxImageBytes) {
+    const mb = (config.uploads.maxImageBytes / 1024 / 1024).toFixed(0);
+    throw new BizError(`图片过大（${(buffer.length / 1024 / 1024).toFixed(1)}MB，上限 ${mb}MB），请压缩后再试`, 413);
+  }
+  if (buffer.length < config.uploads.minImageBytes) {
+    throw new BizError('图片文件损坏或内容过小，请重新选择照片', 400);
+  }
+  return { buffer, ext: hit.ext };
+}
+
 
 /** 识别提示词：约束输出结构 + 份量估算规则 + 语言要求 + 非食物处理 */
 export const FOOD_VISION_PROMPT = `你是一位专业营养师，擅长从照片估算食物份量与热量。
@@ -199,14 +250,8 @@ const num = (v, def = 0) => {
 export async function analyzeFoodImage({ userId, imageDataUrl }) {
   const start = Date.now();
 
-  // ---------- ① 校验并落盘 ----------
-  const matched = String(imageDataUrl || '').match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/i);
-  if (!matched) throw new AiError('图片格式不支持（仅支持 png / jpg / webp）');
-
-  const ext = matched[1].toLowerCase().replace('jpeg', 'jpg');
-  const buffer = Buffer.from(matched[2], 'base64');
-  if (buffer.length < 8 * 1024) throw new AiError('图片太小，请上传清晰的食物照片');
-  if (buffer.length > 6 * 1024 * 1024) throw new AiError('图片过大（请小于 6MB）');
+  // ---------- ① 校验并落盘（校验按文件头魔数，纯色图 / 大图都有明确处理）----------
+  const { buffer, ext } = decodeImagePayload(imageDataUrl);
 
   fs.mkdirSync(config.uploadDir, { recursive: true });
   const filename = `${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
@@ -214,7 +259,7 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
   const imageUrl = `${config.uploadUrlPrefix}/${filename}`;
 
   if (!config.ai.visionEnabled) {
-    throw new AiError('未配置多模态视觉模型（AI_VISION_MODEL），拍照识别功能暂不可用');
+    throw new BizError('未配置多模态视觉模型（AI_VISION_MODEL），拍照识别功能暂不可用', 503);
   }
 
   // ---------- ② 视觉模型识别 ----------

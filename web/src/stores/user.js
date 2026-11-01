@@ -9,7 +9,9 @@ import { api, tokenStore } from '@/api';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    token: tokenStore.get() || '',
+    // 注意：这里不再保存 JWT 明文。凭证在 HttpOnly Cookie 里，JS 读不到（防 XSS 窃取）；
+    // token 字段仅用于「是否登录」的兼容判断（脚本注入 token 的老方式仍然可用）。
+    token: tokenStore.has() ? 'cookie-session' : '',
     user: JSON.parse(localStorage.getItem('smartfit_user') || 'null'),
     aiStatus: null,
   }),
@@ -34,7 +36,8 @@ export const useUserStore = defineStore('user', {
     },
 
     setSession(token, user) {
-      this.token = token;
+      // token 本身不再落 localStorage（后端已写入 HttpOnly Cookie），tokenStore.set 只记登录标记
+      this.token = 'cookie-session';
       this.user = user;
       tokenStore.set(token);
       localStorage.setItem('smartfit_user', JSON.stringify(user));
@@ -55,7 +58,13 @@ export const useUserStore = defineStore('user', {
     },
 
     /** 退出登录 */
-    logout() {
+    async logout() {
+      // 通知后端清掉 HttpOnly Cookie（失败也不阻塞前端清理）
+      try {
+        await api.logout();
+      } catch {
+        /* 网络异常时忽略，本地状态照常清理 */
+      }
       this.token = '';
       this.user = null;
       tokenStore.clear();

@@ -39,10 +39,14 @@ export function aiCapability() {
 
 /**
  * 内部：发起一次 HTTP 请求（带超时）
+ * @param {string} url
+ * @param {object} body
+ * @param {{signal?: AbortSignal, timeoutMs?: number}} opts 超时可按调用场景覆盖（识图比纯文本慢，但也不能无限等）
  */
-async function requestOnce(url, body, { signal } = {}) {
+async function requestOnce(url, body, { signal, timeoutMs } = {}) {
+  const limit = timeoutMs || config.ai.timeoutMs;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), config.ai.timeoutMs);
+  const timer = setTimeout(() => controller.abort(), limit);
   // 外部 signal 与超时 signal 联动
   if (signal) signal.addEventListener('abort', () => controller.abort(), { once: true });
 
@@ -61,18 +65,42 @@ async function requestOnce(url, body, { signal } = {}) {
       const text = await res.text().catch(() => '');
       // 429/5xx 视为可重试；4xx 参数错误不重试
       const retryable = res.status === 429 || res.status >= 500;
-      throw new AiError(`大模型接口返回 ${res.status}：${text.slice(0, 200)}`, { status: res.status, retryable });
+      throw new AiError(summarizeUpstreamError(res.status, text), { status: res.status, retryable });
     }
     return res;
   } catch (err) {
     if (err.name === 'AbortError') {
-      throw new AiError(`大模型请求超时（${config.ai.timeoutMs}ms）`, { status: 408, retryable: true });
+      throw new AiError(`大模型请求超时（${limit}ms）`, { status: 408, retryable: true });
     }
     if (err instanceof AiError) throw err;
     throw new AiError(`大模型请求失败：${err.message}`, { status: 0, retryable: true });
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * 把上游的原始错误压缩成一句用户能看懂的话。
+ * 上游常见错误：图片过大 / 不支持该图片格式 / 内容审核拒绝 / 余额不足。
+ * 原来直接把整段 JSON 拼进 message（还被打成 500），前端只能看到「服务器内部错误」。
+ */
+function summarizeUpstreamError(status, rawText) {
+  const text = String(rawText || '');
+  let detail = text.slice(0, 200);
+  try {
+    const j = JSON.parse(text);
+    detail = j?.error?.message || j?.message || detail;
+  } catch {
+    /* 不是 JSON 就用原文 */
+  }
+  // 上游的英文报错翻译成用户能照做的中文（保留原因，但先给结论）
+  if (/unsupported image|invalid image|image.*format/i.test(detail)) {
+    return '这张图片无法被识别（文件可能损坏、被截断或格式不受支持），请重新选择或换一张 JPG / PNG 照片';
+  }
+  if (/image|图片|vision|image_url/i.test(detail) && status === 400) return `视觉模型拒绝了这张图片：${detail}`;
+  if (/insufficient|balance|quota|余额/i.test(detail)) return `AI 额度不足：${detail}`;
+  if (/content|policy|审核/i.test(detail)) return `图片未通过内容审核：${detail}`;
+  return `大模型接口返回 ${status}：${detail}`;
 }
 
 /**
@@ -190,10 +218,16 @@ export async function chatStream({ messages, onDelta, signal }) {
 /**
  * 多模态识图（可选能力）：传入 base64 dataURL，让视觉模型估算食物与热量
  * 未配置 AI_VISION_MODEL 时直接抛错，前端会隐藏该功能入口
+ *
+ * 稳定性要点（对应验收报告里的「偶发 >60s 挂起」）：
+ *   · 单独的超时（AI_VISION_TIMEOUT_MS，默认 30s），不再沿用文本的 60s；
+ *   · 上游 5xx / 429 / 网络错误重试 1 次（识图偶发失败率明显高于纯文本）；
+ *   · 上游 4xx（图片被拒、格式不支持）不重试——重试也没用，直接把它翻译成可读提示。
  */
 export async function visionChat({ imageDataUrl, question }) {
   if (!config.ai.visionEnabled) throw new AiError('未配置多模态模型，拍照识别功能不可用');
-  const res = await requestOnce(`${config.ai.baseUrl}/chat/completions`, {
+
+  const body = {
     model: config.ai.visionModel,
     temperature: 0.2,
     max_tokens: 1200,
@@ -206,7 +240,24 @@ export async function visionChat({ imageDataUrl, question }) {
         ],
       },
     ],
-  });
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? '';
+  };
+
+  let lastErr = null;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const res = await requestOnce(`${config.ai.baseUrl}/chat/completions`, body, {
+        timeoutMs: config.ai.visionTimeoutMs,
+      });
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content ?? '';
+      if (!content) throw new AiError('视觉模型返回内容为空', { status: 0, retryable: true });
+      return content;
+    } catch (err) {
+      lastErr = err;
+      // 4xx（图片被拒 / 参数错）不重试；超时也不重试，避免用户干等两次超时
+      if (!err.retryable || err.status === 408 || attempt === 1) break;
+      await new Promise((r) => setTimeout(r, 400));
+    }
+  }
+  throw lastErr;
 }

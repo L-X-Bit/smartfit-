@@ -1,14 +1,41 @@
 /**
- * 鉴权中间件：从 Authorization: Bearer <token> 解析登录用户
- * 通过后在 req.user 上挂载 { id, nickname }，后续路由直接使用
+ * 鉴权中间件：从 HttpOnly Cookie 或 Authorization: Bearer <token> 解析登录用户
+ * ---------------------------------------------------------------------------
+ * 为什么现在优先用 Cookie（验收报告里「token 明文存 localStorage，XSS 风险」那条）：
+ *   · Cookie 设 HttpOnly 后，页面上的任何 JS（包括被注入的第三方脚本）都读不到 token，
+ *     即使出现 XSS 也偷不走登录态；localStorage 里的 token 则是随手 `localStorage.getItem` 就能拿。
+ *   · 同时继续支持 `Authorization: Bearer`，因为命令行脚本 / 自动化测试 / 第三方调用方都用它，
+ *     两套并存、Cookie 优先，向后兼容。
+ * Cookie 名固定为 sft_token，属性：HttpOnly + SameSite=Lax（+ https 下 Secure）。
  */
 import { verifyToken } from '../utils/security.js';
 import { fail } from '../utils/response.js';
 import { get } from '../db/index.js';
 
-export function requireAuth(req, res, next) {
+export const AUTH_COOKIE = 'sft_token';
+
+/** 极简 Cookie 解析（不引入 cookie-parser，减少依赖面） */
+export function readCookie(req, name) {
+  const raw = req.headers.cookie || '';
+  for (const part of raw.split(';')) {
+    const idx = part.indexOf('=');
+    if (idx === -1) continue;
+    if (part.slice(0, idx).trim() !== name) continue;
+    return decodeURIComponent(part.slice(idx + 1).trim());
+  }
+  return '';
+}
+
+/** 取出本次请求的登录令牌：Cookie 优先，其次 Authorization 头 */
+export function extractToken(req) {
+  const fromCookie = readCookie(req, AUTH_COOKIE);
+  if (fromCookie) return fromCookie;
   const header = req.headers.authorization || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  return header.startsWith('Bearer ') ? header.slice(7) : '';
+}
+
+export function requireAuth(req, res, next) {
+  const token = extractToken(req);
   if (!token) return fail(res, '未登录或登录已过期，请重新登录', 401);
 
   const payload = verifyToken(token);
@@ -29,8 +56,7 @@ export function requireAuth(req, res, next) {
  * 但未登录也应能浏览，因此这里解析失败也不报错。
  */
 export function optionalAuth(req, res, next) {
-  const header = req.headers.authorization || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  const token = extractToken(req);
   if (token) {
     const payload = verifyToken(token);
     if (payload) {

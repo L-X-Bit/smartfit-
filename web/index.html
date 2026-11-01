@@ -9,8 +9,54 @@
       content="智练 SmartFit —— AI 驱动的个人健康与运动管理平台：运动打卡、AI 健身教练、身体数据可视化、健康饮食配比、运动社区"
     />
     <title>智练 SmartFit · AI 个人健康运动管理平台</title>
+    <!--
+      首屏插屏（内联样式，不依赖任何 JS/CSS 文件）
+      ---------------------------------------------------------------------
+      线上验收报告里的一条：部署在 Render 免费实例上，冷启动 20~30 秒，
+      这段时间页面只有一个空的 <div id="app"></div>，用户看到的是白屏 / 浏览器自带的
+      「Application loading」，完全不知道发生了什么。
+      这里先渲染一个轻量插屏：品牌 + 进度动画 + 一句「首次访问需要唤醒服务」的说明，
+      主应用挂载后由 main.js 移除（见 main.js 里的 removeSplash）。
+      注意：插屏只用纯 CSS 动画，不写内联 <script>（配合 CSP script-src 'self'）。
+    -->
+    <style>
+      html, body { margin: 0; padding: 0; background: #f7f9fc; }
+      #splash {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: radial-gradient(circle at 50% 30%, #ffffff 0%, #eef4ff 60%, #e6f0ff 100%);
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        transition: opacity .35s ease;
+      }
+      #splash.splash-hide { opacity: 0; pointer-events: none; }
+      #splash .logo { font-size: 44px; line-height: 1; margin-bottom: 14px; animation: splash-pop .8s ease-out; }
+      #splash .title { font-size: 20px; font-weight: 700; color: #1f2937; letter-spacing: .5px; }
+      #splash .subtitle { margin-top: 6px; font-size: 13px; color: #6b7280; }
+      #splash .bar { margin-top: 22px; width: 190px; height: 4px; border-radius: 999px; background: #dbeafe; overflow: hidden; }
+      #splash .bar > i { display: block; height: 100%; width: 40%; border-radius: 999px; background: linear-gradient(90deg, #22c55e, #3b82f6); animation: splash-slide 1.15s ease-in-out infinite; }
+      #splash .hint { margin-top: 14px; font-size: 12px; color: #9ca3af; text-align: center; max-width: 320px; line-height: 1.7; }
+      #splash .hint b { color: #6b7280; }
+      @keyframes splash-slide { 0% { transform: translateX(-110%); } 100% { transform: translateX(320%); } }
+      @keyframes splash-pop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+      @media (prefers-reduced-motion: reduce) { #splash .logo, #splash .bar > i { animation: none; } }
+    </style>
   </head>
   <body>
+    <div id="splash">
+      <div class="logo">💪</div>
+      <div class="title">智练 SmartFit</div>
+      <div class="subtitle">AI 驱动的个人健康运动管理平台</div>
+      <div class="bar"><i></i></div>
+      <div class="hint">
+        正在加载资源…<br />
+        若这是<span id="splash-wait">今天第一次</span>打开，免费实例需要 <b>20~30 秒</b>唤醒服务，请勿关闭页面。
+      </div>
+    </div>
+    <noscript>
+      <div style="padding: 40px; font-family: sans-serif; text-align: center; color: #374151">
+        这个页面需要 JavaScript 才能运行，请在浏览器设置里开启后刷新。
+      </div>
+    </noscript>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
