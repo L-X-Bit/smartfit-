@@ -15,7 +15,7 @@ import { today, get, run } from '../../db/index.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { rateLimit } from '../../middleware/common.js';
 import { config } from '../../config/index.js';
-import { analyzeFoodImage, listScans, getScan, removeScan, markScanLogged } from '../../ai/foodVision.js';
+import { analyzeFoodImage, listScans, getScan, removeScan, markScanLogged, degradedResult } from '../../ai/foodVision.js';
 import { adviseMeal } from '../../ai/mealAdvisor.js';
 import { buildProfile } from '../../ai/profile.js';
 
@@ -49,7 +49,8 @@ router.get(
  * 「服务器内部错误」——两个数字现在统一由 config.uploads 决定。
  */
 const analyzeSchema = z.object({
-  imageDataUrl: z.string().min(100, '请上传食物照片').max(20_000_000, '图片过大，请压缩后再试'),
+  // 下限只拦"根本没传图"（一张 1×1 的合法 GIF base64 也就 70 多个字符，不能按长度当画质判断）
+  imageDataUrl: z.string().min(40, '请上传食物照片').max(20_000_000, '图片过大，请压缩后再试'),
 });
 
 router.post(
@@ -65,26 +66,44 @@ router.post(
      * 这里再加一层 Promise.race，超过 15.5s 直接返回降级结果，绝不让请求悬着。
      */
     const timeoutMs = config.ai.visionTimeoutMs + 500;
-    const result = await Promise.race([
-      analyzeFoodImage({ userId: req.user.id, imageDataUrl }),
-      new Promise((resolve) => {
-        setTimeout(
-          () =>
-            resolve({
-              scanId: null,
-              notFood: true,
-              degraded: true,
+    const hardTimeout = new Promise((resolve) => {
+      setTimeout(
+        () =>
+          resolve(
+            degradedResult({
               reason: `AI 识别超过 ${Math.round(timeoutMs / 1000)} 秒未返回，请换一张更小的照片重试，或手动选择食物`,
-              items: [],
-              totals: { kcal: 0, protein: 0, fat: 0, carb: 0 },
-              meta: { provider: 'fallback', latencyMs: timeoutMs, cause: 'route_timeout' },
+              cause: 'route_timeout',
+              latencyMs: timeoutMs,
             }),
-          timeoutMs,
-        ).unref?.();
-      }),
-    ]);
+          ),
+        timeoutMs,
+      ).unref?.();
+    });
 
-    // 降级结果（纯色小图 / 上游超时 / 上游拒图）：仍然 code=0，把原因交给前端展示，
+    /**
+     * 最后一道防线：整条链路包 try/catch，任何未预期的异常都降级成「没识别到食物」，
+     * 绝不让 camera 识热量这个旗舰功能给用户一个 500。
+     * （报告里的建议就是「把 ai/vision-food 的兜底抄过来」——那边是 200 + 空结果 + 原因，
+     *   这里一致；区别只在于我们把原因也一并返回，前端能显示得更具体。）
+     *
+     * 只有两类错误继续往上抛（由错误中间件给出准确状态码）：
+     *   · BizError 4xx：图片过大 / 不是图片 / 没配置视觉模型 —— 这些用户能自己处理；
+     *   · 其余一律降级，并打日志留痕（含 requestId，方便排查）。
+     */
+    let result;
+    try {
+      result = await Promise.race([analyzeFoodImage({ userId: req.user.id, imageDataUrl }), hardTimeout]);
+    } catch (err) {
+      if (err?.name === 'BizError' || err?.httpStatus) throw err;
+      console.error(`[food-scan] 识别失败已降级 #${res.locals?.requestId}:`, err?.stack || err);
+      result = degradedResult({
+        reason: '识别服务刚才出了点问题，已自动降级。请重试一次，或直接在下方手动选择食物',
+        cause: err?.message || 'unexpected_error',
+        latencyMs: 0,
+      });
+    }
+
+    // 降级结果（纯色小图 / 上游超时 / 上游拒图 / 未预期异常）：仍然 code=0，把原因交给前端展示，
     // 用户可以「换一张」或手动选食物继续，不会看到刺眼的 500（验收清单第 2、3 条）
     if (result.degraded) {
       return ok(res, result, `识别未完成：${result.reason}`);

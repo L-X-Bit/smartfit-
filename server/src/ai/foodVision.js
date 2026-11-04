@@ -43,6 +43,8 @@ const MAGIC = [
   { ext: 'png', test: (b) => b.length > 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 },
   { ext: 'jpg', test: (b) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
   { ext: 'webp', test: (b) => b.length > 12 && b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP' },
+  // GIF 也认：手机相册里存的表情/动图常见，视觉模型本身支持 gif，没必要在入口拒掉
+  { ext: 'gif', test: (b) => b.length > 6 && b.toString('ascii', 0, 4) === 'GIF8' },
 ];
 
 function decodeImagePayload(imageDataUrl) {
@@ -63,8 +65,12 @@ function decodeImagePayload(imageDataUrl) {
 
   const hit = MAGIC.find((k) => k.test(buffer));
   if (!hit) {
+    // HEIC 是 iPhone 默认格式，单独给一句能照做的提示（比"格式不支持"有用得多）
+    const isHeic = buffer.length > 12 && buffer.toString('ascii', 4, 8) === 'ftyp' && /heic|heix|hevc|mif1/i.test(buffer.toString('ascii', 8, 12));
     throw new BizError(
-      `不是有效的图片文件（识别到 ${declared || '未知格式'}，仅支持 JPG / PNG / WebP）。iPhone 的 HEIC 照片请先在相册里"存储为 JPG"再上传。`,
+      isHeic
+        ? '这是 iPhone 的 HEIC 照片，浏览器和模型都读不了。请在相册里「编辑 → 存储为 JPG」后再上传'
+        : `不是有效的图片文件（识别到 ${declared || '未知格式'}，仅支持 JPG / PNG / WebP / GIF）`,
       415,
     );
   }
@@ -84,7 +90,7 @@ function decodeImagePayload(imageDataUrl) {
  * 而是给用户一个能继续操作的提示（重拍 / 手动选食物）。这里统一收口成同一种结构，
  * 前端拿到 notFood + reason 就显示「没有识别到食物 + 原因 + 换一张」的界面。
  */
-function degradedResult({ imageUrl, reason, cause, latencyMs }) {
+export function degradedResult({ imageUrl, reason, cause, latencyMs }) {
   return {
     scanId: null,
     notFood: true,
