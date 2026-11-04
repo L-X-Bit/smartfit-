@@ -22,6 +22,15 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # 监听地址显式写 0.0.0.0（不传 host 时 Node 会绑到 ::，部分容器环境 IPv4 连不上）
+      - key: HOST
+        value: 0.0.0.0
+      # 业务时区：容器默认 UTC，会让「今天」少一天（线上验收报告 BUG-3）
+      - key: APP_TZ
+        value: Asia/Shanghai
+      # 演示数据保鲜：启动时若演示数据已过期，自动整体平移到今天（BUG-5）
+      - key: DEMO_AUTO_SHIFT
+        value: "on"
       # 自动生成一个随机的 JWT 密钥，避免用默认值上线
       - key: JWT_SECRET
         generateValue: true
@@ -36,3 +45,6 @@ services:
         value: deepseek-chat
       - key: AI_TIMEOUT_MS
         value: "60000"
+      # 识图单独 15s 预算：超时走优雅降级，不再让请求悬着（BUG-1）
+      - key: AI_VISION_TIMEOUT_MS
+        value: "15000"
