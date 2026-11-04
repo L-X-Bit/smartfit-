@@ -71,8 +71,16 @@ http.interceptors.response.use(
       localStorage.removeItem(AUTHD_FLAG_KEY);
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem('smartfit_user');
-      // 避免在登录页重复跳转
-      if (!location.hash.includes('/login')) location.hash = '#/login';
+      /**
+       * 跳登录页必须用路由的 history 写法。
+       * 踩过的坑（线上体检时暴露）：原来写的是 `location.hash = '#/login'`，
+       * 而本项目路由是 history 模式（没有 #），这行等于什么都没做——
+       * 拿不到数据的页面会停在原地显示一个"空壳"，用户以为页面坏了。
+       */
+      if (!/^\/login/.test(location.pathname)) {
+        window.location.assign('/login');
+        return Promise.reject(error);
+      }
       ElMessage.warning('登录已过期，请重新登录');
     } else if (status === 504) {
       ElMessage.error(`${message}`);
