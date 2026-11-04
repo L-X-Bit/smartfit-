@@ -72,10 +72,37 @@ function decodeImagePayload(imageDataUrl) {
     const mb = (config.uploads.maxImageBytes / 1024 / 1024).toFixed(0);
     throw new BizError(`图片过大（${(buffer.length / 1024 / 1024).toFixed(1)}MB，上限 ${mb}MB），请压缩后再试`, 413);
   }
-  if (buffer.length < config.uploads.minImageBytes) {
-    throw new BizError('图片文件损坏或内容过小，请重新选择照片', 400);
-  }
-  return { buffer, ext: hit.ext };
+  // 极小的合法图片（纯色小图 / 缩略图）不报错，交给下面的「降级」分支给友好提示
+  const degenerate = buffer.length < config.uploads.minImageBytes;
+  return { buffer, ext: hit.ext, degenerate };
+}
+
+/**
+ * 构造一个「优雅降级」的识别结果
+ * ---------------------------------------------------------------------------
+ * 验收清单要求：纯色 / 极小图、上游超时或上游拒图，都**不能**落到 500，
+ * 而是给用户一个能继续操作的提示（重拍 / 手动选食物）。这里统一收口成同一种结构，
+ * 前端拿到 notFood + reason 就显示「没有识别到食物 + 原因 + 换一张」的界面。
+ */
+function degradedResult({ imageUrl, reason, cause, latencyMs }) {
+  return {
+    scanId: null,
+    notFood: true,
+    degraded: true,
+    reason,
+    imageUrl,
+    items: [],
+    totals: { kcal: 0, protein: 0, fat: 0, carb: 0 },
+    meta: {
+      provider: 'fallback',
+      model: config.ai.visionModel || null,
+      latencyMs,
+      cause: cause || null,
+      totalItems: 0,
+      matchedCount: 0,
+      libraryRatio: 0,
+    },
+  };
 }
 
 
@@ -251,24 +278,40 @@ export async function analyzeFoodImage({ userId, imageDataUrl }) {
   const start = Date.now();
 
   // ---------- ① 校验并落盘（校验按文件头魔数，纯色图 / 大图都有明确处理）----------
-  const { buffer, ext } = decodeImagePayload(imageDataUrl);
+  const { buffer, ext, degenerate } = decodeImagePayload(imageDataUrl);
+
+  if (!config.ai.visionEnabled) {
+    throw new BizError('未配置多模态视觉模型（AI_VISION_MODEL），拍照识别功能暂不可用', 503);
+  }
+
+  // 极小图（纯色缩略图之类）：不浪费一次模型调用，直接给可操作的降级提示
+  if (degenerate) {
+    return degradedResult({
+      imageUrl: null,
+      reason: '这张图片太小或基本是纯色，看不出食物。请重新拍照，并把餐盘放在光线充足的地方',
+      cause: 'degenerate_image',
+      latencyMs: Date.now() - start,
+    });
+  }
 
   fs.mkdirSync(config.uploadDir, { recursive: true });
   const filename = `${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
   fs.writeFileSync(path.join(config.uploadDir, filename), buffer);
   const imageUrl = `${config.uploadUrlPrefix}/${filename}`;
 
-  if (!config.ai.visionEnabled) {
-    throw new BizError('未配置多模态视觉模型（AI_VISION_MODEL），拍照识别功能暂不可用', 503);
-  }
-
-  // ---------- ② 视觉模型识别 ----------
+  // ---------- ② 视觉模型识别（超时 / 上游异常一律降级，不抛 500）----------
   let raw;
   try {
     raw = await visionChat({ imageDataUrl, question: FOOD_VISION_PROMPT });
   } catch (err) {
-    logAiCall({ userId, scene: 'vision', provider: 'vision', model: config.ai.visionModel, latencyMs: Date.now() - start, status: 'error', errorMsg: err.message });
-    throw err;
+    const latencyMs = Date.now() - start;
+    logAiCall({ userId, scene: 'vision', provider: 'vision', model: config.ai.visionModel, latencyMs, status: 'error', errorMsg: err.message });
+    // 上游超时 / 网络抖动 / 拒图：给用户一个能继续操作的结果，而不是 500
+    const budgetSec = Math.round(config.ai.visionTimeoutMs / 1000);
+    const reason = err.status === 408 || /超时|timeout/i.test(err.message || '')
+      ? `AI 识别超时了（${budgetSec} 秒未返回），请换一张更小的照片重试，或手动选择食物`
+      : `AI 识别没成功：${err.message}。可以重试一次，或手动选择食物`;
+    return degradedResult({ imageUrl, reason, cause: err.message, latencyMs });
   }
   const llmLatency = Date.now() - start;
 

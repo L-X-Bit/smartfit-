@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 训练计划路由
  * ---------------------------------------------------------------------------
  * POST   /api/plan/generate         AI 生成训练计划（多阶段 Agent 流水线）
@@ -21,9 +21,33 @@ import { calcCalories } from '../../utils/health.js';
 const router = Router();
 router.use(requireAuth);
 
+/**
+ * 目标枚举兼容层
+ * ---------------------------------------------------------------------------
+ * 内部枚举是 lose / gain / keep / shape，但外部联调（包括评审的接口探测）常用
+ * maintain、fat_loss、muscle_gain、中文「减脂」等写法，直接 400 会让人以为接口坏了。
+ * 这里做一次宽松归一：认识的别名映射到内部值，不认识才报错，并在错误信息里列出可选值。
+ */
+const GOAL_ALIASES = {
+  lose: 'lose', fat_loss: 'lose', cut: 'lose', 减脂: 'lose', 减肥: 'lose', 降脂: 'lose',
+  gain: 'gain', muscle_gain: 'gain', bulk: 'gain', 增肌: 'gain',
+  keep: 'keep', maintain: 'keep', maintenance: 'keep', 保持: 'keep', 维持: 'keep',
+  shape: 'shape', tone: 'shape', 塑形: 'shape', 形体: 'shape',
+};
+
+function normalizeGoal(value) {
+  if (value == null || value === '') return undefined;
+  const key = String(value).trim().toLowerCase();
+  return GOAL_ALIASES[key] || key; // 不认识的保留原值，让 zod 给出标准报错
+}
+
 /** 生成计划参数校验（宽松：多数字段可省略，省略则用用户档案默认值） */
 const genSchema = z.object({
-  goal: z.enum(['lose', 'gain', 'keep', 'shape']).optional(),
+  goal: z
+    .enum(['lose', 'gain', 'keep', 'shape'], {
+      errorMap: () => ({ message: '目标取值应为 lose / gain / keep / shape（也支持 maintain、减脂、增肌等别名）' }),
+    })
+    .optional(),
   daysPerWeek: z.number().int().min(1).max(7).optional(),
   weeks: z.number().int().min(1).max(12).optional(),
   sessionMinutes: z.number().int().min(15).max(120).optional(),
@@ -37,7 +61,8 @@ router.post(
   '/generate',
   rateLimit({ limit: 8, windowMs: 60_000 }),
   asyncHandler(async (req, res) => {
-    const params = genSchema.parse(req.body || {});
+    // 先把目标别名归一（maintain → keep 等），再走校验
+    const params = genSchema.parse({ ...(req.body || {}), goal: normalizeGoal(req.body?.goal) });
     const start = Date.now();
     const result = await generatePlan({ userId: req.user.id, req: params });
 

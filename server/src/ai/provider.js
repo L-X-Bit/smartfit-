@@ -219,14 +219,17 @@ export async function chatStream({ messages, onDelta, signal }) {
  * 多模态识图（可选能力）：传入 base64 dataURL，让视觉模型估算食物与热量
  * 未配置 AI_VISION_MODEL 时直接抛错，前端会隐藏该功能入口
  *
- * 稳定性要点（对应验收报告里的「偶发 >60s 挂起」）：
- *   · 单独的超时（AI_VISION_TIMEOUT_MS，默认 30s），不再沿用文本的 60s；
- *   · 上游 5xx / 429 / 网络错误重试 1 次（识图偶发失败率明显高于纯文本）；
- *   · 上游 4xx（图片被拒、格式不支持）不重试——重试也没用，直接把它翻译成可读提示。
+ * 稳定性要点（对应验收报告里的「偶发 >60s 挂起」与「任意输入 15s 内必须返回」）：
+ *   · 单独的超时（AI_VISION_TIMEOUT_MS，默认 15s），不再沿用文本的 45s；
+ *   · 上游 5xx / 429 / 网络错误重试 1 次，但只在剩余预算够（≥4s）时才重试，
+ *     保证总耗时始终落在 15s 预算内；
+ *   · 上游 4xx（图片被拒、格式不支持）不重试——重试也没用，直接翻译成可读提示。
  */
 export async function visionChat({ imageDataUrl, question }) {
   if (!config.ai.visionEnabled) throw new AiError('未配置多模态模型，拍照识别功能不可用');
 
+  const budget = config.ai.visionTimeoutMs;
+  const deadline = Date.now() + budget;
   const body = {
     model: config.ai.visionModel,
     temperature: 0.2,
@@ -244,9 +247,11 @@ export async function visionChat({ imageDataUrl, question }) {
 
   let lastErr = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    const remaining = deadline - Date.now();
+    if (remaining < 4000) break; // 剩余时间不够，再发一轮必然超时
     try {
       const res = await requestOnce(`${config.ai.baseUrl}/chat/completions`, body, {
-        timeoutMs: config.ai.visionTimeoutMs,
+        timeoutMs: Math.min(remaining, budget),
       });
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content ?? '';
@@ -256,8 +261,8 @@ export async function visionChat({ imageDataUrl, question }) {
       lastErr = err;
       // 4xx（图片被拒 / 参数错）不重试；超时也不重试，避免用户干等两次超时
       if (!err.retryable || err.status === 408 || attempt === 1) break;
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((r) => setTimeout(r, 300));
     }
   }
-  throw lastErr;
+  throw lastErr || new AiError(`视觉模型未在 ${budget}ms 内返回结果`, { status: 408, retryable: false });
 }

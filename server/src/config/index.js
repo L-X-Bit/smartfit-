@@ -125,9 +125,10 @@ export const config = {
     /**
      * 识图单独的超时：视觉模型一次要传几百 KB 的 base64，比纯文本慢，
      * 但不能像原来那样 60s 一起挂着——用户等 60 秒只拿到一个 500 是最差的体验。
-     * 超时后由错误处理中间件转成 504 + 可读提示，前端可以引导用户换图重试。
+     * 验收要求「该接口任意输入 15s 内必须返回」，因此默认值定为 15s；
+     * 超时后不再重试，而是走「优雅降级」（返回 notFood + 原因，前端提示重拍/手动选食物）。
      */
-    visionTimeoutMs: num(env.AI_VISION_TIMEOUT_MS, 30000),
+    visionTimeoutMs: num(env.AI_VISION_TIMEOUT_MS, 15000),
     temperature: num(env.AI_TEMPERATURE, 0.6),
     /** 是否具备真实大模型能力：没配 Key 就是 false，AI 层会自动降级 */
     get enabled() {

@@ -47,10 +47,11 @@
       <div class="title">智练 SmartFit</div>
       <div class="subtitle">AI 驱动的个人健康运动管理平台</div>
       <div class="bar"><i></i></div>
-      <div class="hint">
+      <div class="hint" id="splash-hint">
         正在加载资源…<br />
-        若这是<span id="splash-wait">今天第一次</span>打开，免费实例需要 <b>20~30 秒</b>唤醒服务，请勿关闭页面。
+        若这是<b>今天第一次</b>打开，免费实例需要 <b>20~30 秒</b>唤醒服务，请勿关闭页面。
       </div>
+      <div class="hint" id="splash-tip"></div>
     </div>
     <noscript>
       <div style="padding: 40px; font-family: sans-serif; text-align: center; color: #374151">
@@ -58,6 +59,8 @@
       </div>
     </noscript>
     <div id="app"></div>
+    <!-- 插屏兜底脚本：8s 提示「正在唤醒」、25s 给出重试按钮（独立小文件，符合 CSP script-src 'self'） -->
+    <script src="/splash.js" defer></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

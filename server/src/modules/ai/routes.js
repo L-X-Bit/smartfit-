@@ -86,8 +86,9 @@ router.post(
   '/coach',
   rateLimit({ limit: config.aiRateLimitPerMin, windowMs: 60_000 }),
   asyncHandler(async (req, res) => {
-    const question = String(req.body?.question || '').trim();
-    if (!question) throw new BizError('请输入你的问题');
+    // 兼容两种常见字段名：question（本项目的约定）/ message（OpenAI 风格，外部联调常这么写）
+    const question = String(req.body?.question ?? req.body?.message ?? '').trim();
+    if (!question) throw new BizError('请输入你的问题（字段名 question 或 message）');
     if (question.length > 500) throw new BizError('问题不要超过 500 字');
 
     // 1. 建立 SSE 通道
@@ -179,7 +180,26 @@ router.post(
       text = await visionChat({ imageDataUrl: dataUrl, question: prompt });
     } catch (err) {
       logAiCall({ userId: req.user.id, scene: 'vision', provider: 'llm', model: config.ai.visionModel, latencyMs: Date.now() - start, status: 'error', errorMsg: err.message });
-      throw new BizError(`图像识别失败：${err.message}`, 502);
+      /**
+       * 优雅降级（验收报告里「vision-food 偶发 502，建议加重试/降级」）：
+       * 上游抖动 / 超时不再把 502 丢给页面，而是返回一个空结果 + 可读原因，
+       * 前端照常渲染「未识别到食物，可重试或手动记录」，用户不会被卡住。
+       * 重试已经由 visionChat 内部做过一次（预算内），这里只负责降级。
+       */
+      return ok(
+        res,
+        {
+          items: [],
+          totalKcal: 0,
+          advice: '',
+          matched: false,
+          degraded: true,
+          reason: /超时|timeout/i.test(err.message || '')
+            ? 'AI 识别超时（15 秒未返回），请换一张更小的照片，或直接手动记录'
+            : `AI 识别暂时不可用：${err.message}`,
+        },
+        '识别未完成，已降级：可重试或手动记录',
+      );
     }
 
     // 容错解析（模型可能返回代码块或前后带解释）

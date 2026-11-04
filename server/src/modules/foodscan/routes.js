@@ -57,8 +57,38 @@ router.post(
   rateLimit({ limit: 12, windowMs: 60_000 }),
   asyncHandler(async (req, res) => {
     const { imageDataUrl } = analyzeSchema.parse(req.body);
-    const result = await analyzeFoodImage({ userId: req.user.id, imageDataUrl });
 
+    /**
+     * 硬超时兜底（验收清单第 3 条：该接口任意输入 15s 内必须返回）
+     * -------------------------------------------------------------------
+     * visionChat 内部已有 15s 预算，但网络栈偶尔会出现「取消耗时比预期久」的情况。
+     * 这里再加一层 Promise.race，超过 15.5s 直接返回降级结果，绝不让请求悬着。
+     */
+    const timeoutMs = config.ai.visionTimeoutMs + 500;
+    const result = await Promise.race([
+      analyzeFoodImage({ userId: req.user.id, imageDataUrl }),
+      new Promise((resolve) => {
+        setTimeout(
+          () =>
+            resolve({
+              scanId: null,
+              notFood: true,
+              degraded: true,
+              reason: `AI 识别超过 ${Math.round(timeoutMs / 1000)} 秒未返回，请换一张更小的照片重试，或手动选择食物`,
+              items: [],
+              totals: { kcal: 0, protein: 0, fat: 0, carb: 0 },
+              meta: { provider: 'fallback', latencyMs: timeoutMs, cause: 'route_timeout' },
+            }),
+          timeoutMs,
+        ).unref?.();
+      }),
+    ]);
+
+    // 降级结果（纯色小图 / 上游超时 / 上游拒图）：仍然 code=0，把原因交给前端展示，
+    // 用户可以「换一张」或手动选食物继续，不会看到刺眼的 500（验收清单第 2、3 条）
+    if (result.degraded) {
+      return ok(res, result, `识别未完成：${result.reason}`);
+    }
     if (result.notFood) {
       return ok(res, result, `没识别到食物：${result.reason}`);
     }

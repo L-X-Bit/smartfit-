@@ -16,11 +16,11 @@ import { calcCalories } from '../../utils/health.js';
 const router = Router();
 router.use(requireAuth);
 
-/** 打卡参数校验 */
+/** 打卡参数校验（字段名兼容：exerciseName / exercise / name 都认，方便外部联调） */
 const logSchema = z.object({
   logDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   exerciseId: z.string().max(40).optional().nullable(),
-  exerciseName: z.string().min(1, '请填写运动名称').max(40),
+  exerciseName: z.string().min(1, '请填写运动名称（字段名 exerciseName）').max(40),
   category: z.string().max(10).optional(),
   durationMin: z.number().min(1, '时长至少 1 分钟').max(600, '单次时长不要超过 10 小时'),
   intensity: z.enum(['low', 'medium', 'high']).optional(),
@@ -31,6 +31,14 @@ const logSchema = z.object({
   note: z.string().max(200).optional(),
   photo: z.string().max(500).optional(),
 });
+
+/** 把 exercise / name 之类的别名统一成 exerciseName（只在缺失时兜底，不覆盖显式传入的值） */
+function normalizeCheckinBody(body = {}) {
+  const b = { ...body };
+  if (!b.exerciseName) b.exerciseName = b.exercise || b.name || b.exercise_name;
+  if (b.durationMin == null && b.duration != null) b.durationMin = Number(b.duration);
+  return b;
+}
 
 router.get(
   '/logs',
@@ -56,7 +64,7 @@ router.get(
 router.post(
   '/logs',
   asyncHandler((req, res) => {
-    const d = logSchema.parse(req.body);
+    const d = logSchema.parse(normalizeCheckinBody(req.body));
 
     // 取动作库里的 MET（自定义运动则用默认值 6.0），再用最新体重估算热量
     const exercise = d.exerciseId ? get('SELECT * FROM exercises WHERE id = ?', [d.exerciseId]) : null;
