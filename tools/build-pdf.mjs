@@ -14,6 +14,7 @@
  */
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,6 +30,13 @@ if (!fs.existsSync(HTML)) {
 }
 
 const fileUrl = 'file:///' + HTML.replace(/\\/g, '/');
+
+/**
+ * 先删掉旧 PDF：否则 Edge 一旦失败（退出码非 0，比如 0x80000003 STATUS_BREAKPOINT），
+ * 目录里躺着的还是上一次的旧文件，脚本只判断「文件存在」就会误报成功。
+ */
+if (fs.existsSync(PDF)) fs.rmSync(PDF, { force: true });
+
 console.log('正在导出 PDF…');
 const code = await new Promise((resolve) => {
   const p = spawn(EDGE, [
@@ -36,15 +44,26 @@ const code = await new Promise((resolve) => {
     '--disable-gpu',
     '--no-pdf-header-footer',
     '--virtual-time-budget=15000',
+    // 复用已运行的 Edge 进程会直接失败，单独指定用户数据目录避免冲突
+    `--user-data-dir=${os.tmpdir()}\\smartfit-pdf-profile`,
+    '--no-first-run',
+    '--disable-crash-reporter',
     `--print-to-pdf=${PDF}`,
     fileUrl,
   ], { stdio: 'ignore' });
+  p.on('error', (err) => {
+    console.error(`✗ 启动 Edge 失败：${err.message}`);
+    resolve(-1);
+  });
   p.on('exit', resolve);
 });
-if (code !== 0) console.error(`⚠ Edge 退出码 ${code}`);
 
 if (!fs.existsSync(PDF)) {
-  console.error('✗ 没有生成 PDF');
+  console.error(`✗ 没有生成 PDF（Edge 退出码 ${code}）——请确认 msedge.exe 路径，或先关闭正在运行的 Edge`);
+  process.exit(1);
+}
+if (code !== 0) {
+  console.error(`✗ Edge 退出码 ${code}，生成的 PDF 可能不完整，请重跑一次`);
   process.exit(1);
 }
 

@@ -5,11 +5,11 @@
 <title>智练 SmartFit 技术文档</title>
 <style>
   /* ===================== 打印样式（A4 / 页边距 / 分页） ===================== */
-  @page { size: A4; margin: 13mm 12mm 12mm 12mm; }
+  @page { size: A4; margin: 12mm 11mm 11mm 11mm; }
   * { box-sizing: border-box; }
   body {
     font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-    font-size: 9.4pt; line-height: 1.47; color: #1f2937; margin: 0;
+    font-size: 9.4pt; line-height: 1.42; color: #1f2937; margin: 0;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1, h2, h3, h4 { color: #065f46; font-weight: 700; margin: 0; }
@@ -28,7 +28,7 @@
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 6pt 0; page-break-inside: avoid; }
   /* 限制图片高度并居中：11 张界面截图若都按宽度铺满，会额外吃掉 2~3 页 */
-  figure img { max-height: 64mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
+  figure img { max-height: 58mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
   .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
   .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
@@ -132,7 +132,7 @@
 <div class="box">
   <div class="kv"><b>一句话定位：</b>一个把「AI 健身教练」做成可解释、可校验、可降级工程流水线的个人健康管理平台。</div>
   <div class="kv"><b>作品规模：</b>60 个源码文件、15797 行（后端 6890 / 前端 8907），其中注释 1914 行、注释率 12.1%；统计脚本 <code>tools/count-code.mjs</code> 可复算。</div>
-  <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 76 条、训练/营养指南 25 篇，全部为本地结构化语料。</div>
+  <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 82 条、训练/营养指南 25 篇，全部为本地结构化语料。</div>
   <div class="kv"><b>可运行性：</b>零外部数据库依赖（Node 内置 SQLite），<code>npm install &amp;&amp; npm run init:db &amp;&amp; npm run dev</code> 三步即可完整运行。</div>
 </div>
 
@@ -304,7 +304,7 @@
 │   │   │   ├── cache.js          # LRU + TTL 语义缓存
 │   │   │   └── observability.js  # AI 调用日志与统计
 │   │   └── utils/                # 健康公式 / 安全工具 / 响应封装
-│   └── data/kb/                  # 知识库：动作 65 条 / 食物 76 条 / 指南 25 篇
+│   └── data/kb/                  # 知识库：动作 65 条 / 食物 82 条 / 指南 25 篇
 ├── web/                          # 前端（Vue 3 + Vite）
 │   └── src/
 │       ├── api/                  # Axios 封装 + SSE 流式客户端
@@ -1170,7 +1170,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
     <tr><td>动作库规模有限</td><td>人工整理 65 条</td><td>扩充至 300+，并补充动作演示图与视频</td></tr>
     <tr><td>未做实时姿态识别</td><td>需要摄像头推理与模型侧支持</td><td>接入姿态关键点模型，做到"动作是否标准"的实时反馈（真正的多模态）</td></tr>
     <tr><td>单机 SQLite</td><td>为降低评审运行门槛</td><td>提供 MySQL/PostgreSQL 适配层与 Docker Compose 一键编排</td></tr>
-    <tr><td>缺少可穿戴数据接入</td><td>项目周期限制</td><td>接入华为/小米健康开放平台或 Apple Health，实现心率、步数自动同步</td></tr>
+    <tr><td>可穿戴数据未接入厂商云 API</td><td>华为 / 小米 / Apple 的健康云 API 均需企业资质与 OAuth 授权审核，校园项目在赛期内拿不到授权</td><td>已用「蓝牙 GATT 直连 + 导出文件导入 + 同步令牌（快捷指令 / 脚本定时推送）」三条真实通路覆盖（详见 5.9）；后续申请开放平台授权，做到零配置的云端自动同步</td></tr>
     <tr><td>无长期效果评估</td><td>缺少真实用户数据</td><td>增加 A/B 实验与留存分析，用数据验证 AI 计划的实际依从性提升</td></tr>
   </tbody>
 </table>

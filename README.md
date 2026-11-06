@@ -358,7 +358,7 @@ AI_MODEL=deepseek-chat                    # 通义: qwen-plus ； Moonshot: moon
 │   ├── package.json
 │   ├── data/
 │   │   ├── kb/exercises.json       # 动作知识库 65 条（含 MET、禁忌）
-│   │   ├── kb/foods.json           # 食物营养库 76 条（每 100g）
+│   │   ├── kb/foods.json           # 食物营养库 82 条（每 100g）
 │   │   └── kb/guidelines.json      # 训练/营养指南 25 篇
 │   ├── scripts/smoke-test.mjs      # 接口冒烟测试脚本
 │   └── src/
