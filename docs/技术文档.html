@@ -800,6 +800,19 @@ function calcHotScore({ likeCount, commentCount, createdAt }) {
   <figcaption>图 5-7 运动社区页：发帖（图文/话题/关联打卡）+ 热门与最新排序 + 话题筛选 + 互动 + 本周排行榜</figcaption>
 </figure>
 
+<h2>5.7 鉴权与安全实现</h2>
+<table>
+  <thead><tr><th style="width: 24%;">风险</th><th style="width: 76%;">实现</th></tr></thead>
+  <tbody>
+    <tr><td>密码明文</td><td>bcrypt(cost=10) 加盐哈希，数据库只存哈希；登录失败统一提示"账号或密码错误"防账号枚举</td></tr>
+    <tr><td>越权访问</td><td>所有涉及资源的查询都带 <code>user_id = ?</code> 条件；计划动作勾选前校验归属，返回 403</td></tr>
+    <tr><td>SQL 注入</td><td>全部使用参数化查询（<code>db.prepare(sql).run(...params)</code>），无字符串拼接</td></tr>
+    <tr><td>参数攻击</td><td>Zod schema 校验类型、范围、格式；错误统一转为中文提示</td></tr>
+    <tr><td>上传滥用</td><td>仅接受 png/jpg/webp/gif 的 base64；大小 ≤5MB；文件名随机化</td></tr>
+    <tr><td>AI 滥用</td><td>按用户限流；问题长度限制；提示词注入防护</td></tr>
+  </tbody>
+</table>
+
 <h2>5.8 AI 拍照识热量（多模态独立板块）</h2>
 <p>
 这是继「文本大模型」之后的第二种模态能力：一张饭菜照片 → 结构化营养数据。入口为左侧导航的
@@ -1046,19 +1059,6 @@ if (!bpm || bpm &lt; 20 || bpm &gt; 250) return;                                
   <img src="screenshots/12-devices.png" alt="设备同步页" />
   <figcaption>图 5-10 设备同步页：蓝牙实时心率曲线与统计 + 文件导入（预览后写库）+ 演示模式 + 一周设备数据与同步历史</figcaption>
 </figure>
-
-<h2>5.7 鉴权与安全实现</h2>
-<table>
-  <thead><tr><th style="width: 24%;">风险</th><th style="width: 76%;">实现</th></tr></thead>
-  <tbody>
-    <tr><td>密码明文</td><td>bcrypt(cost=10) 加盐哈希，数据库只存哈希；登录失败统一提示"账号或密码错误"防账号枚举</td></tr>
-    <tr><td>越权访问</td><td>所有涉及资源的查询都带 <code>user_id = ?</code> 条件；计划动作勾选前校验归属，返回 403</td></tr>
-    <tr><td>SQL 注入</td><td>全部使用参数化查询（<code>db.prepare(sql).run(...params)</code>），无字符串拼接</td></tr>
-    <tr><td>参数攻击</td><td>Zod schema 校验类型、范围、格式；错误统一转为中文提示</td></tr>
-    <tr><td>上传滥用</td><td>仅接受 png/jpg/webp/gif 的 base64；大小 ≤5MB；文件名随机化</td></tr>
-    <tr><td>AI 滥用</td><td>按用户限流；问题长度限制；提示词注入防护</td></tr>
-  </tbody>
-</table>
 
 <!-- ==================================================================== 六 -->
 <h1>六、测试与部署</h1>
