@@ -23,7 +23,11 @@ import { calcCalories } from '../utils/health.js';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KB_DIR = path.resolve(HERE, '../../data/kb');
 
-const readJson = (file) => JSON.parse(fs.readFileSync(path.join(KB_DIR, file), 'utf8'));
+const readJson = (file, fallback = []) => {
+  const p = path.join(KB_DIR, file);
+  if (!fs.existsSync(p)) return fallback; // 可选的扩充语料文件缺失时不报错，老仓库也能照常初始化
+  return JSON.parse(fs.readFileSync(p, 'utf8'));
+};
 
 // ---------------------------------------------------------------- 建表
 initSchema();
@@ -56,8 +60,14 @@ if (isReset) {
 // ---------------------------------------------------------------- 1. 知识库导入
 function seedKnowledgeBase() {
   const exercises = readJson('exercises.json');
-  const foods = readJson('foods.json');
+  // 食物库分两个文件：foods.json 是首版 82 条，foods.extra.json 是省赛前扩充的常见中式/西式食物，
+  // 两文件合并后一起入库（readJson 找不到文件时返回空数组，老仓库不会因此报错）
+  const foodsBase = readJson('foods.json');
+  const foodsExtra = readJson('foods.extra.json');
+  const foods = [...foodsBase, ...foodsExtra.filter((f) => !foodsBase.some((b) => b.id === f.id))];
   const guidelines = readJson('guidelines.json');
+  // 别名表：{ 食物id: [别名…] }，由 tools/merge-food-aliases.mjs 生成（西红柿 → 番茄 这类口语映射）
+  const foodAliases = readJson('food-aliases.json', {});
 
   // 已存在则跳过（幂等）
   const exists = get('SELECT COUNT(*) AS c FROM exercises').c > 0;
@@ -77,10 +87,12 @@ function seedKnowledgeBase() {
       );
     }
     for (const f of foods) {
+      // search_text 里带上别名，BM25 才能用「西红柿」召回到「番茄」
+      const aliases = [...new Set([...(Array.isArray(f.aliases) ? f.aliases : []), ...(foodAliases[f.id] || [])])];
       run(
-        `INSERT INTO foods (id, name, category, kcal, protein, fat, carb, fiber, sodium, portion, search_text)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-        [f.id, f.name, f.category, f.kcal, f.protein, f.fat, f.carb, f.fiber, f.sodium, f.portion, `${f.name} ${f.category}`],
+        `INSERT INTO foods (id, name, category, kcal, protein, fat, carb, fiber, sodium, portion, aliases, search_text)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+        [f.id, f.name, f.category, f.kcal, f.protein, f.fat, f.carb, f.fiber, f.sodium, f.portion, JSON.stringify(aliases), `${f.name} ${f.category} ${aliases.join(' ')}`],
       );
     }
   });

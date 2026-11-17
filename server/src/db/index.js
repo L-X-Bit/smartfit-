@@ -39,6 +39,8 @@ export function initSchema() {
     // 拍照识热量：记录整图的尺度参照物与份量可信度（历史回看时也要能显示）
     'ALTER TABLE food_scans ADD COLUMN ref_object TEXT',
     'ALTER TABLE food_scans ADD COLUMN scale_confidence TEXT',
+    // 食物库别名（西红柿 / 番茄、肯德基炸鸡 / 炸鸡 …）：识图匹配与 BM25 召回都会用到
+    'ALTER TABLE foods ADD COLUMN aliases TEXT',
   ];
   for (const alter of addedColumns) {
     try {

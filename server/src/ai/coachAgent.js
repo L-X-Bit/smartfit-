@@ -16,6 +16,7 @@ import { config } from '../config/index.js';
 import { chatStream, AiError } from './provider.js';
 import { COACH_SYSTEM_PROMPT, buildCoachUserPrompt } from './prompts.js';
 import { retrieveGuidelines, retrieveExercises, buildContext } from './rag.js';
+import { expandQuery, expandQueryDetailed } from './queryExpansion.js';
 import { buildProfile } from './profile.js';
 import { logAiCall } from './observability.js';
 
@@ -87,42 +88,12 @@ function buildExtractiveAnswer({ question, guides, exercises, snapshot }) {
 }
 
 /**
- * 查询扩展（Query Expansion）
+ * 查询扩展（Query Expansion）见 ai/queryExpansion.js
  * ---------------------------------------------------------------------------
  * 用户口语提问往往与知识库用词不一致（例如「膝盖疼」vs 库里的「膝关节不适」），
  * 直接 BM25 检索容易跑偏。这里用一张「同义词 / 上下位词」映射表做轻量查询扩展，
  * 显著提升中文小知识库的召回质量，且完全可控、可解释。
  */
-const QUERY_EXPANSION = {
-  膝盖: '膝关节 关节不适 低冲击 替代动作',
-  膝: '膝关节 关节不适',
-  腰: '腰部 腰痛 核心稳定 脊柱中立',
-  肩: '肩关节 肩袖 过头推举',
-  疼: '疼痛 不适 替代动作 安全',
-  伤: '损伤 禁忌 替代动作 安全',
-  减脂: '热量缺口 有氧 燃脂 饮食 蛋白质',
-  减肥: '减脂 热量缺口 有氧',
-  增肌: '增肌 抗阻 蛋白质 渐进超负荷',
-  塑形: '塑形 体脂 力量 线条',
-  酸痛: 'DOMS 延迟性肌肉酸痛 恢复',
-  蛋白: '蛋白质 摄入 分配 训练后',
-  吃: '饮食 营养 配餐 热量',
-  睡: '睡眠 恢复 过度训练',
-  平台: '平台期 突破 代谢适应',
-  高血压: '高血压 安全 禁忌 有氧',
-  孕期: '孕期 产后 安全',
-  新手: '新手 入门 4周 进阶',
-  心率: '心率区间 Z2 强度',
-};
-
-/** 把「扩展词」拼到原始问题后面，提高检索命中率 */
-function expandQuery(question = '') {
-  const extras = [];
-  for (const [key, value] of Object.entries(QUERY_EXPANSION)) {
-    if (question.includes(key)) extras.push(value);
-  }
-  return [question, ...extras].join(' ');
-}
 
 /**
  * AI 教练回复（流式）

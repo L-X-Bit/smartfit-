@@ -1,0 +1,850 @@
+{
+  "fd_steamed_bun": [
+    "白馒头",
+    "蒸馒头",
+    "馒头"
+  ],
+  "fd_x_huajuan": [],
+  "fd_x_baozi_meat": [
+    "包子",
+    "猪肉包",
+    "肉包"
+  ],
+  "fd_x_baozi_veg": [
+    "菜包",
+    "青菜包"
+  ],
+  "fd_x_dumpling_boiled": [
+    "饺子",
+    "水饺",
+    "猪肉白菜饺子",
+    "煮饺子"
+  ],
+  "fd_x_dumpling_fried": [
+    "锅贴"
+  ],
+  "fd_x_wonton": [
+    "云吞",
+    "抄手"
+  ],
+  "fd_x_noodle_soup": [
+    "面条",
+    "煮面",
+    "汤面条"
+  ],
+  "fd_noodle_soup": [
+    "红烧牛肉面",
+    "兰州拉面",
+    "牛肉面",
+    "拉面",
+    "汤面",
+    "面条"
+  ],
+  "fd_x_ramen": [
+    "拉面",
+    "豚骨拉面"
+  ],
+  "fd_x_rice_noodle": [
+    "米粉",
+    "过桥米线",
+    "河粉"
+  ],
+  "fd_x_rice_noodle_fried": [
+    "干炒牛河",
+    "炒米粉",
+    "炒米线"
+  ],
+  "fd_x_fried_noodle": [
+    "酱油炒面",
+    "炒面条"
+  ],
+  "fd_x_fried_rice": [
+    "炒饭",
+    "鸡蛋炒饭",
+    "扬州炒饭"
+  ],
+  "fd_oats": [
+    "燕麦",
+    "纯燕麦",
+    "燕麦片"
+  ],
+  "fd_x_oatmeal_cooked": [
+    "燕麦粥",
+    "麦片粥"
+  ],
+  "fd_x_millet_congee": [
+    "小米稀饭"
+  ],
+  "fd_x_congee_pork": [
+    "瘦肉粥",
+    "皮蛋粥"
+  ],
+  "fd_x_toast": [
+    "白吐司",
+    "面包片",
+    "切片面包"
+  ],
+  "fd_x_youtiao": [
+    "炸油条"
+  ],
+  "fd_x_jianbing": [
+    "煎饼"
+  ],
+  "fd_sweet_potato": [
+    "地瓜",
+    "烤红薯",
+    "番薯",
+    "红薯"
+  ],
+  "fd_purple_potato": [
+    "紫薯"
+  ],
+  "fd_potato": [
+    "马铃薯",
+    "洋芋",
+    "水煮土豆",
+    "土豆"
+  ],
+  "fd_x_mashed_potato": [
+    "土豆沙拉"
+  ],
+  "fd_x_fries": [
+    "炸薯条",
+    "薯条（油炸）"
+  ],
+  "fd_x_yam": [
+    "淮山"
+  ],
+  "fd_quinoa": [
+    "藜麦饭",
+    "藜麦"
+  ],
+  "fd_buckwheat": [
+    "荞麦面条",
+    "荞麦面"
+  ],
+  "fd_x_rice_cake": [
+    "炒年糕",
+    "韩式年糕"
+  ],
+  "fd_chicken_breast": [
+    "鸡胸",
+    "水煮鸡胸肉",
+    "煎鸡胸",
+    "鸡胸肉",
+    "水煮鸡胸"
+  ],
+  "fd_chicken_thigh": [
+    "鸡腿",
+    "去骨鸡腿肉",
+    "鸡腿肉块",
+    "鸡腿肉"
+  ],
+  "fd_fried_chicken": [
+    "肯德基炸鸡",
+    "炸鸡块",
+    "fried chicken",
+    "鸡米花",
+    "鸡翅（炸）",
+    "炸鸡"
+  ],
+  "fd_x_chicken_wing": [
+    "鸡翅",
+    "奥尔良鸡翅",
+    "可乐鸡翅"
+  ],
+  "fd_x_boiled_egg": [
+    "水煮鸡蛋",
+    "煮鸡蛋",
+    "白煮蛋"
+  ],
+  "fd_egg_white": [
+    "蛋白",
+    "蛋白液",
+    "蛋清"
+  ],
+  "fd_x_egg_custard": [
+    "鸡蛋羹",
+    "水蒸蛋"
+  ],
+  "fd_beef_lean": [
+    "牛肉块",
+    "熟牛肉",
+    "牛肉片",
+    "酱牛肉",
+    "牛肉"
+  ],
+  "fd_x_steak": [
+    "西冷牛排",
+    "黑椒牛排",
+    "煎牛排"
+  ],
+  "fd_x_braised_beef": [
+    "土豆烧牛肉",
+    "炖牛肉"
+  ],
+  "fd_x_beef_mince": [
+    "牛肉馅",
+    "碎牛肉",
+    "minced beef"
+  ],
+  "fd_x_pork_lean": [
+    "瘦猪肉",
+    "猪里脊",
+    "里脊肉"
+  ],
+  "fd_x_pork_belly": [
+    "五花肉片",
+    "带皮五花"
+  ],
+  "fd_x_braised_pork": [
+    "东坡肉",
+    "红烧五花肉"
+  ],
+  "fd_x_ribs": [
+    "猪排骨",
+    "红烧排骨",
+    "糖醋排骨",
+    "猪肋排"
+  ],
+  "fd_x_bacon": [
+    "烟肉",
+    "bacon"
+  ],
+  "fd_x_ham": [
+    "火腿片",
+    "ham"
+  ],
+  "fd_x_sausage": [
+    "腊肠",
+    "肉肠",
+    "烤肠",
+    "sausage"
+  ],
+  "fd_x_lamb": [
+    "羊肉片",
+    "烤羊肉",
+    "羊肉串"
+  ],
+  "fd_salmon": [
+    "鲑鱼",
+    "挪威三文鱼",
+    "烟熏三文鱼",
+    "三文鱼"
+  ],
+  "fd_x_cod": [
+    "鳕鱼块",
+    "银鳕鱼"
+  ],
+  "fd_x_hairtail": [
+    "煎带鱼",
+    "红烧带鱼"
+  ],
+  "fd_x_steamed_fish": [
+    "蒸鱼",
+    "清蒸鲈鱼"
+  ],
+  "fd_shrimp": [
+    "虾仁",
+    "大虾",
+    "白灼虾",
+    "基围虾",
+    "shrimp",
+    "prawn",
+    "虾"
+  ],
+  "fd_x_crab": [
+    "蟹肉",
+    "大闸蟹",
+    "crab"
+  ],
+  "fd_x_squid": [
+    "鱿鱼须",
+    "鱿鱼圈",
+    "squid",
+    "calamari"
+  ],
+  "fd_tofu": [
+    "豆腐",
+    "老豆腐",
+    "北豆腐",
+    "豆腐块"
+  ],
+  "fd_x_tofu_silken": [
+    "内酯豆腐",
+    "南豆腐",
+    "日本豆腐"
+  ],
+  "fd_x_tofu_dried": [
+    "豆腐干",
+    "香干"
+  ],
+  "fd_soy_milk": [
+    "豆浆",
+    "豆奶"
+  ],
+  "fd_x_yuba": [
+    "腐竹",
+    "豆皮"
+  ],
+  "fd_edamame": [
+    "毛豆仁",
+    "毛豆"
+  ],
+  "fd_chickpea": [
+    "鹰嘴豆",
+    "chickpeas"
+  ],
+  "fd_broccoli": [
+    "青花菜",
+    "绿花菜",
+    "蒜蓉西兰花",
+    "西兰花"
+  ],
+  "fd_spinach": [
+    "炒菠菜",
+    "菠菜叶",
+    "菠菜"
+  ],
+  "fd_lettuce": [
+    "油麦菜",
+    "罗马生菜",
+    "沙拉菜",
+    "生菜"
+  ],
+  "fd_x_bokchoy": [
+    "青菜",
+    "上海青",
+    "油菜"
+  ],
+  "fd_cabbage": [
+    "白菜",
+    "圆白菜",
+    "卷心菜",
+    "包菜",
+    "大白菜"
+  ],
+  "fd_x_celery": [
+    "西芹",
+    "芹菜段"
+  ],
+  "fd_cucumber": [
+    "青瓜",
+    "凉拌黄瓜",
+    "拍黄瓜",
+    "黄瓜"
+  ],
+  "fd_tomato": [
+    "西红柿",
+    "番茄块",
+    "tomato",
+    "番茄"
+  ],
+  "fd_cherry_tomato": [
+    "小番茄",
+    "樱桃番茄",
+    "圣女果"
+  ],
+  "fd_x_onion": [
+    "洋葱丝",
+    "紫洋葱",
+    "onion"
+  ],
+  "fd_x_garlic": [
+    "蒜",
+    "蒜瓣",
+    "蒜末",
+    "蒜蓉"
+  ],
+  "fd_x_ginger": [
+    "姜",
+    "姜片",
+    "姜末"
+  ],
+  "fd_x_eggplant": [
+    "紫茄子",
+    "烤茄子",
+    "蒜泥茄子"
+  ],
+  "fd_pepper": [
+    "青椒丝",
+    "柿子椒",
+    "彩椒",
+    "甜椒",
+    "青椒"
+  ],
+  "fd_carrot": [
+    "红萝卜",
+    "胡萝卜丝",
+    "carrot",
+    "胡萝卜"
+  ],
+  "fd_x_radish": [
+    "萝卜",
+    "萝卜块"
+  ],
+  "fd_mushroom": [
+    "冬菇",
+    "香菇片",
+    "mushroom",
+    "香菇",
+    "蘑菇"
+  ],
+  "fd_x_enoki": [
+    "金针蘑"
+  ],
+  "fd_x_oyster_mushroom": [
+    "秀珍菇",
+    "蘑菇"
+  ],
+  "fd_x_fungus": [
+    "黑木耳",
+    "木耳丝"
+  ],
+  "fd_kelp": [
+    "海带丝",
+    "裙带菜",
+    "海带"
+  ],
+  "fd_x_bean_sprouts": [
+    "绿豆芽",
+    "黄豆芽"
+  ],
+  "fd_x_snow_pea": [
+    "甜豆",
+    "豌豆荚"
+  ],
+  "fd_x_green_bean": [
+    "豆角",
+    "芸豆角",
+    "干煸四季豆"
+  ],
+  "fd_x_pumpkin": [
+    "倭瓜",
+    "南瓜块",
+    "pumpkin"
+  ],
+  "fd_x_wax_gourd": [
+    "冬瓜块"
+  ],
+  "fd_x_bitter_gourd": [
+    "凉瓜"
+  ],
+  "fd_x_lotus_root": [
+    "藕",
+    "藕片",
+    "莲藕片"
+  ],
+  "fd_corn": [
+    "甜玉米",
+    "玉米棒",
+    "玉米粒",
+    "corn",
+    "玉米"
+  ],
+  "fd_x_pea": [
+    "青豌豆",
+    "豌豆粒",
+    "青豆"
+  ],
+  "fd_asparagus": [
+    "芦笋段",
+    "asparagus",
+    "芦笋"
+  ],
+  "fd_okra": [
+    "黄秋葵",
+    "秋葵"
+  ],
+  "fd_x_chives": [
+    "韭菜段",
+    "韭菜炒蛋"
+  ],
+  "fd_x_garlic_sprout": [
+    "蒜薹",
+    "蒜台"
+  ],
+  "fd_x_salad_veg": [
+    "沙拉",
+    "草沙拉",
+    "salad"
+  ],
+  "fd_apple": [
+    "富士苹果",
+    "青苹果",
+    "apple",
+    "苹果"
+  ],
+  "fd_banana": [
+    "banana",
+    "香蕉"
+  ],
+  "fd_orange": [
+    "甜橙",
+    "脐橙",
+    "orange",
+    "橙子"
+  ],
+  "fd_x_mandarin": [
+    "橘子",
+    "砂糖橘",
+    "柑橘"
+  ],
+  "fd_grape": [
+    "提子",
+    "葡萄粒",
+    "grape",
+    "葡萄"
+  ],
+  "fd_watermelon": [
+    "西瓜块",
+    "西瓜"
+  ],
+  "fd_strawberry": [
+    "strawberry",
+    "草莓"
+  ],
+  "fd_blueberry": [
+    "blueberry",
+    "蓝莓"
+  ],
+  "fd_kiwi": [
+    "奇异果",
+    "猕猴桃"
+  ],
+  "fd_x_pear": [
+    "雪梨",
+    "皇冠梨"
+  ],
+  "fd_x_peach": [
+    "桃子",
+    "水蜜桃"
+  ],
+  "fd_x_mango": [
+    "大芒果",
+    "mango"
+  ],
+  "fd_x_pineapple": [
+    "凤梨"
+  ],
+  "fd_x_dragon_fruit": [
+    "红心火龙果"
+  ],
+  "fd_avocado": [
+    "鳄梨",
+    "avocado",
+    "牛油果"
+  ],
+  "fd_x_durian": [
+    "榴莲肉"
+  ],
+  "fd_x_cherry": [
+    "车厘子"
+  ],
+  "fd_x_hami_melon": [
+    "甜瓜",
+    "香瓜"
+  ],
+  "fd_x_pomelo": [
+    "西柚",
+    "蜜柚"
+  ],
+  "fd_milk": [
+    "牛奶",
+    "纯牛奶",
+    "milk",
+    "全脂牛奶"
+  ],
+  "fd_skim_milk": [
+    "脱脂牛奶",
+    "低脂牛奶",
+    "牛奶"
+  ],
+  "fd_yogurt_drink": [
+    "酸奶",
+    "风味酸奶",
+    "yogurt",
+    "含糖酸奶"
+  ],
+  "fd_greek_yogurt": [
+    "希腊酸奶"
+  ],
+  "fd_x_cheese": [
+    "芝士",
+    "切达奶酪",
+    "cheese",
+    "马苏里拉奶酪"
+  ],
+  "fd_x_cream_cheese": [
+    "cream cheese"
+  ],
+  "fd_x_butter": [
+    "牛油",
+    "butter"
+  ],
+  "fd_peanut": [
+    "花生米",
+    "炸花生",
+    "peanut",
+    "花生"
+  ],
+  "fd_walnut": [
+    "核桃仁",
+    "walnut",
+    "核桃"
+  ],
+  "fd_almond": [
+    "巴旦木",
+    "almond",
+    "杏仁"
+  ],
+  "fd_x_cashew": [
+    "腰果仁",
+    "cashew"
+  ],
+  "fd_x_pistachio": [
+    "pistachio"
+  ],
+  "fd_x_sesame": [
+    "白芝麻",
+    "黑芝麻",
+    "sesame"
+  ],
+  "fd_cola": [
+    "可口可乐",
+    "汽水",
+    "可乐饮料",
+    "coke",
+    "可乐"
+  ],
+  "fd_x_orange_juice": [
+    "果汁",
+    "鲜橙汁",
+    "juice"
+  ],
+  "fd_coffee": [
+    "黑咖啡",
+    "美式",
+    "咖啡",
+    "coffee",
+    "美式咖啡"
+  ],
+  "fd_x_latte": [
+    "拿铁咖啡",
+    "latte",
+    "咖啡拿铁"
+  ],
+  "fd_milk_tea": [
+    "珍珠奶茶",
+    "红茶拿铁",
+    "奶茶"
+  ],
+  "fd_beer": [
+    "beer",
+    "生啤",
+    "啤酒"
+  ],
+  "fd_honey": [
+    "蜜糖",
+    "honey",
+    "蜂蜜"
+  ],
+  "fd_chocolate": [
+    "黑巧克力",
+    "牛奶巧克力",
+    "chocolate",
+    "巧克力"
+  ],
+  "fd_chips": [
+    "土豆片",
+    "薯条片",
+    "chips",
+    "薯片"
+  ],
+  "fd_x_biscuit": [
+    "苏打饼干",
+    "曲奇",
+    "biscuit"
+  ],
+  "fd_cake": [
+    "奶油蛋糕",
+    "海绵蛋糕",
+    "cake",
+    "蛋糕"
+  ],
+  "fd_ice_cream": [
+    "雪糕",
+    "冰激凌",
+    "ice cream",
+    "冰淇淋"
+  ],
+  "fd_x_mayonnaise": [
+    "沙拉酱",
+    "美乃滋",
+    "mayonnaise",
+    "mayo"
+  ],
+  "fd_olive_oil": [
+    "初榨橄榄油",
+    "olive oil",
+    "橄榄油"
+  ],
+  "fd_peanut_butter": [
+    "peanut butter",
+    "花生酱"
+  ],
+  "fd_x_tomato_egg": [
+    "西红柿炒鸡蛋",
+    "西红柿炒蛋",
+    "番茄鸡蛋"
+  ],
+  "fd_x_kungpao": [
+    "宫爆鸡丁",
+    "花生鸡丁"
+  ],
+  "fd_x_yuxiang": [
+    "鱼香猪肉丝"
+  ],
+  "fd_x_mapo_tofu": [
+    "麻辣豆腐"
+  ],
+  "fd_x_sweet_sour_pork": [
+    "糖醋肉",
+    "锅包肉"
+  ],
+  "fd_x_shredded_potato": [
+    "土豆丝",
+    "炒土豆丝"
+  ],
+  "fd_x_stir_fry_greens": [
+    "清炒时蔬",
+    "炒小白菜",
+    "炒空心菜",
+    "蒜蓉青菜"
+  ],
+  "fd_x_small_fried_pork": [
+    "小炒肉",
+    "青椒炒肉"
+  ],
+  "fd_x_water_boiled_beef": [
+    "水煮肉片"
+  ],
+  "fd_x_coke_wings": [
+    "可乐鸡翼"
+  ],
+  "fd_x_curry_chicken": [
+    "咖喱鸡肉",
+    "curry chicken"
+  ],
+  "fd_x_steamed_chicken": [
+    "白斩鸡",
+    "清远鸡"
+  ],
+  "fd_x_cold_cucumber": [
+    "拍黄瓜",
+    "凉拌青瓜"
+  ],
+  "fd_x_pidan_tofu": [
+    "皮蛋拌豆腐"
+  ],
+  "fd_x_sandwich": [
+    "sandwich",
+    "火腿三明治",
+    "吐司三明治"
+  ],
+  "fd_x_burger": [
+    "牛肉汉堡",
+    "汉堡包",
+    "burger",
+    "cheeseburger",
+    "芝士汉堡"
+  ],
+  "fd_x_pizza": [
+    "比萨",
+    "pizza"
+  ],
+  "fd_x_pasta_tomato": [
+    "意大利面",
+    "意面",
+    "spaghetti",
+    "pasta",
+    "番茄意大利面"
+  ],
+  "fd_x_lasagne": [
+    "lasagne",
+    "lasagna",
+    "烤宽面"
+  ],
+  "fd_x_sushi": [
+    "寿司卷",
+    "紫菜包饭",
+    "sushi"
+  ],
+  "fd_x_hotpot_meat": [
+    "涮羊肉",
+    "火锅",
+    "涮肉"
+  ],
+  "fd_x_malatang": [
+    "冒菜",
+    "麻辣拌"
+  ],
+  "fd_x_bbq_skewer": [
+    "羊肉串",
+    "烧烤",
+    "烤串",
+    "撸串"
+  ],
+  "fd_x_bibimbap": [
+    "拌饭",
+    "韩式拌饭",
+    "bibimbap"
+  ],
+  "fd_x_tempura": [
+    "炸虾天妇罗",
+    "tempura",
+    "炸物"
+  ],
+  "fd_x_spring_roll": [
+    "炸春卷",
+    "spring roll"
+  ],
+  "fd_x_congee_side": [
+    "榨菜",
+    "咸菜",
+    "酸菜"
+  ],
+  "fd_rice": [
+    "白米饭",
+    "大米饭",
+    "米饭"
+  ],
+  "fd_pasta": [
+    "意大利面",
+    "意面",
+    "pasta",
+    "spaghetti"
+  ],
+  "fd_egg": [
+    "鸡蛋",
+    "水煮蛋",
+    "煮鸡蛋",
+    "煎蛋",
+    "egg"
+  ],
+  "fd_pork_loin": [
+    "猪里脊",
+    "里脊肉",
+    "瘦猪肉",
+    "猪肉"
+  ],
+  "fd_rice_noodle": [
+    "米粉",
+    "米线",
+    "河粉"
+  ],
+  "fd_whole_bread": [
+    "全麦面包",
+    "全麦吐司"
+  ]
+}

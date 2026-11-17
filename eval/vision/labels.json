@@ -1,0 +1,2235 @@
+{
+  "source": "TheMealDB (https://www.themealdb.com/api.php)",
+  "generatedAt": "2026-11-17T11:29:28.074Z",
+  "note": "标准答案来自 TheMealDB 的人工标注字段（菜名 / 菜系 / 食材 + 用量），不是本项目模型生成",
+  "ingredientMapSize": 229,
+  "meals": [
+    {
+      "id": "52945",
+      "file": "images/meal-52945.jpg",
+      "meal": "Kung Pao Chicken",
+      "category": "Chicken",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "sake",
+          "nameZh": null,
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "食用油",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "corn flour",
+          "nameZh": "玉米淀粉",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "chicken",
+          "nameZh": "鸡肉",
+          "measure": "500g",
+          "grams": 500,
+          "unit": "g"
+        },
+        {
+          "name": "chilli powder",
+          "nameZh": "辣椒粉",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "rice vinegar",
+          "nameZh": "米醋",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "brown sugar",
+          "nameZh": "红糖",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "4 Chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic clove",
+          "nameZh": "大蒜",
+          "measure": "6 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "water chestnut",
+          "nameZh": null,
+          "measure": "220g",
+          "grams": 220,
+          "unit": "g"
+        },
+        {
+          "name": "peanuts",
+          "nameZh": "花生",
+          "measure": "100g",
+          "grams": 100,
+          "unit": "g"
+        }
+      ],
+      "raw": {
+        "strMeal": "Kung Pao Chicken",
+        "strCategory": "Chicken",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52774",
+      "file": "images/meal-52774.jpg",
+      "meal": "Pad See Ew",
+      "category": "Chicken",
+      "area": "Thai",
+      "ingredients": [
+        {
+          "name": "rice stick noodles",
+          "nameZh": "面条",
+          "measure": "6oz/180g",
+          "grams": 6,
+          "unit": "g"
+        },
+        {
+          "name": "dark soy sauce",
+          "nameZh": null,
+          "measure": "2 tbsp",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "oyster sauce",
+          "nameZh": "蚝油",
+          "measure": "2 tbsp",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "white vinegar",
+          "nameZh": "醋",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "2 tbsp",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "peanut oil",
+          "nameZh": "食用油",
+          "measure": "2 tbsp",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "chicken",
+          "nameZh": "鸡肉",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "chinese broccoli",
+          "nameZh": "西兰花",
+          "measure": "4 cups",
+          "grams": 800,
+          "unit": "cup"
+        }
+      ],
+      "raw": {
+        "strMeal": "Pad See Ew",
+        "strCategory": "Chicken",
+        "strArea": "Thai"
+      }
+    },
+    {
+      "id": "52813",
+      "file": "images/meal-52813.jpg",
+      "meal": "Kentucky Fried Chicken",
+      "category": "Chicken",
+      "area": "United States",
+      "ingredients": [
+        {
+          "name": "chicken",
+          "nameZh": "鸡肉",
+          "measure": "1 whole",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "oil",
+          "nameZh": "食用油",
+          "measure": "2 quarts neutral frying",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "egg white",
+          "nameZh": null,
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "flour",
+          "nameZh": "面粉",
+          "measure": "1 1/2 cups",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "brown sugar",
+          "nameZh": "红糖",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "paprika",
+          "nameZh": "红椒粉",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "onion salt",
+          "nameZh": "盐",
+          "measure": "2 teaspoons",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "chili powder",
+          "nameZh": null,
+          "measure": "1 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "1 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "celery salt",
+          "nameZh": "盐",
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sage",
+          "nameZh": null,
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "garlic powder",
+          "nameZh": null,
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "allspice",
+          "nameZh": null,
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "oregano",
+          "nameZh": "牛至",
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "basil",
+          "nameZh": "罗勒",
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "marjoram",
+          "nameZh": null,
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Kentucky Fried Chicken",
+        "strCategory": "Chicken",
+        "strArea": "United States"
+      }
+    },
+    {
+      "id": "53520",
+      "file": "images/meal-53520.jpg",
+      "meal": "Pastel de Choclo",
+      "category": "Chicken",
+      "area": null,
+      "ingredients": [
+        {
+          "name": "eggs",
+          "nameZh": "鸡蛋",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "onions",
+          "nameZh": null,
+          "measure": "2 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves minced",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "paprika",
+          "nameZh": "红椒粉",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "To taste",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "ground beef",
+          "nameZh": "牛肉",
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "chicken",
+          "nameZh": "鸡肉",
+          "measure": "1/2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "raisins",
+          "nameZh": "葡萄干",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "green olives",
+          "nameZh": "橄榄",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "sweetcorn",
+          "nameZh": "玉米粒",
+          "measure": "3 cans",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "basil",
+          "nameZh": "罗勒",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "milk",
+          "nameZh": "牛奶",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "To taste",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Pastel de Choclo",
+        "strCategory": "Chicken",
+        "strArea": null
+      }
+    },
+    {
+      "id": "52780",
+      "file": "images/meal-52780.jpg",
+      "meal": "Potato Gratin with Chicken",
+      "category": "Chicken",
+      "area": "Italian",
+      "ingredients": [
+        {
+          "name": "potatoes",
+          "nameZh": "土豆",
+          "measure": "800g",
+          "grams": 800,
+          "unit": "g"
+        },
+        {
+          "name": "onions",
+          "nameZh": null,
+          "measure": "3",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "2 tblsp",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "100ml",
+          "grams": 100,
+          "unit": "ml"
+        },
+        {
+          "name": "creme fraiche",
+          "nameZh": null,
+          "measure": "1 pot",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "parmesan",
+          "nameZh": "帕玛森奶酪",
+          "measure": "Topping",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "chicken breasts",
+          "nameZh": "鸡胸肉",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "bacon",
+          "nameZh": "培根",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "spinach",
+          "nameZh": "菠菜",
+          "measure": "Topping",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "peas",
+          "nameZh": "豌豆",
+          "measure": "Topping",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Potato Gratin with Chicken",
+        "strCategory": "Chicken",
+        "strArea": "Italian"
+      }
+    },
+    {
+      "id": "53105",
+      "file": "images/meal-53105.jpg",
+      "meal": "Spiced smoky barbecued chicken",
+      "category": "Chicken",
+      "area": "Australian",
+      "ingredients": [
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "lemon",
+          "nameZh": "柠檬",
+          "measure": "Juice/zest of one",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "curry powder",
+          "nameZh": "咖喱粉",
+          "measure": "2 tblsp",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "chilli flakes",
+          "nameZh": null,
+          "measure": "Pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "3  tablespoons",
+          "grams": 45,
+          "unit": "tbsp"
+        },
+        {
+          "name": "chicken thighs",
+          "nameZh": "鸡腿肉",
+          "measure": "12",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "rosemary",
+          "nameZh": "迷迭香",
+          "measure": "Bunch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "rosemary",
+          "nameZh": "迷迭香",
+          "measure": "Bunch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "thyme",
+          "nameZh": "百里香",
+          "measure": "Bunch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "thyme",
+          "nameZh": "百里香",
+          "measure": "Bunch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "bay leaves",
+          "nameZh": "香叶",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        }
+      ],
+      "raw": {
+        "strMeal": "Spiced smoky barbecued chicken",
+        "strCategory": "Chicken",
+        "strArea": "Australian"
+      }
+    },
+    {
+      "id": "52824",
+      "file": "images/meal-52824.jpg",
+      "meal": "Beef Sunday Roast",
+      "category": "Beef",
+      "area": "British",
+      "ingredients": [
+        {
+          "name": "beef",
+          "nameZh": "牛肉",
+          "measure": "8 slices",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "broccoli",
+          "nameZh": "西兰花",
+          "measure": "12 florets",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "potatoes",
+          "nameZh": "土豆",
+          "measure": "1 Packet",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "1 Packet",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "plain flour",
+          "nameZh": "面粉",
+          "measure": "140g",
+          "grams": 140,
+          "unit": "g"
+        },
+        {
+          "name": "eggs",
+          "nameZh": "鸡蛋",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "milk",
+          "nameZh": "牛奶",
+          "measure": "200ml",
+          "grams": 200,
+          "unit": "ml"
+        },
+        {
+          "name": "sunflower oil",
+          "nameZh": "葵花籽油",
+          "measure": "drizzle (for cooking)",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Beef Sunday Roast",
+        "strCategory": "Beef",
+        "strArea": "British"
+      }
+    },
+    {
+      "id": "53058",
+      "file": "images/meal-53058.jpg",
+      "meal": "Croatian Bean Stew",
+      "category": "Beef",
+      "area": "Croatian",
+      "ingredients": [
+        {
+          "name": "cannellini beans",
+          "nameZh": "豆类",
+          "measure": "2 cans",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "vegetable oil",
+          "nameZh": "植物油",
+          "measure": "3 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "tomatoes",
+          "nameZh": "番茄",
+          "measure": "2 cups",
+          "grams": 400,
+          "unit": "cup"
+        },
+        {
+          "name": "challots",
+          "nameZh": "红葱头",
+          "measure": "5",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "parsley",
+          "nameZh": "欧芹",
+          "measure": "Pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "chorizo",
+          "nameZh": "西班牙香肠",
+          "measure": "1/2 kg chopped",
+          "grams": 1000,
+          "unit": "kg"
+        }
+      ],
+      "raw": {
+        "strMeal": "Croatian Bean Stew",
+        "strCategory": "Beef",
+        "strArea": "Croatian"
+      }
+    },
+    {
+      "id": "52873",
+      "file": "images/meal-52873.jpg",
+      "meal": "Beef Dumpling Stew",
+      "category": "Beef",
+      "area": "British",
+      "ingredients": [
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "25g",
+          "grams": 25,
+          "unit": "g"
+        },
+        {
+          "name": "beef",
+          "nameZh": "牛肉",
+          "measure": "750g",
+          "grams": 750,
+          "unit": "g"
+        },
+        {
+          "name": "plain flour",
+          "nameZh": "面粉",
+          "measure": "2 tblsp",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves minced",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "onions",
+          "nameZh": null,
+          "measure": "175g",
+          "grams": 175,
+          "unit": "g"
+        },
+        {
+          "name": "celery",
+          "nameZh": "芹菜",
+          "measure": "150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "leek",
+          "nameZh": "大葱",
+          "measure": "2 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "swede",
+          "nameZh": null,
+          "measure": "200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "red wine",
+          "nameZh": "红葡萄酒",
+          "measure": "150ml",
+          "grams": 150,
+          "unit": "ml"
+        },
+        {
+          "name": "beef stock",
+          "nameZh": "牛肉高汤",
+          "measure": "500g",
+          "grams": 500,
+          "unit": "g"
+        },
+        {
+          "name": "bay leaf",
+          "nameZh": "香叶",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "thyme",
+          "nameZh": "百里香",
+          "measure": "3 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "parsley",
+          "nameZh": "欧芹",
+          "measure": "3 tblsp chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "plain flour",
+          "nameZh": "面粉",
+          "measure": "125g",
+          "grams": 125,
+          "unit": "g"
+        },
+        {
+          "name": "baking powder",
+          "nameZh": "泡打粉",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "suet",
+          "nameZh": null,
+          "measure": "60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "Splash",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Beef Dumpling Stew",
+        "strCategory": "Beef",
+        "strArea": "British"
+      }
+    },
+    {
+      "id": "53300",
+      "file": "images/meal-53300.jpg",
+      "meal": "Bigos (Polish hunter's stew)",
+      "category": "Beef",
+      "area": "Polish",
+      "ingredients": [
+        {
+          "name": "white cabbage",
+          "nameZh": "卷心菜",
+          "measure": "1 sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "beef stock",
+          "nameZh": "牛肉高汤",
+          "measure": "250ml",
+          "grams": 250,
+          "unit": "ml"
+        },
+        {
+          "name": "mushrooms",
+          "nameZh": "蘑菇",
+          "measure": "100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "lard",
+          "nameZh": null,
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "german sausages",
+          "nameZh": "香肠",
+          "measure": "400g",
+          "grams": 400,
+          "unit": "g"
+        },
+        {
+          "name": "bacon",
+          "nameZh": "培根",
+          "measure": "250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "2 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "beef",
+          "nameZh": "牛肉",
+          "measure": "750g",
+          "grams": 750,
+          "unit": "g"
+        },
+        {
+          "name": "prunes",
+          "nameZh": null,
+          "measure": "200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "bay leaf",
+          "nameZh": "香叶",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "cloves",
+          "nameZh": "丁香",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "peppercorns",
+          "nameZh": null,
+          "measure": "12",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "juniper berries",
+          "nameZh": null,
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "allspice berries",
+          "nameZh": null,
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "red wine",
+          "nameZh": "红葡萄酒",
+          "measure": "90 ml",
+          "grams": 90,
+          "unit": "ml"
+        },
+        {
+          "name": "tomato puree",
+          "nameZh": "番茄酱",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Bigos (Polish hunter's stew)",
+        "strCategory": "Beef",
+        "strArea": "Polish"
+      }
+    },
+    {
+      "id": "53133",
+      "file": "images/meal-53133.jpg",
+      "meal": "Asado",
+      "category": "Beef",
+      "area": "Argentina",
+      "ingredients": [
+        {
+          "name": "mixed beef cuts",
+          "nameZh": null,
+          "measure": "2kg",
+          "grams": 2000,
+          "unit": "kg"
+        },
+        {
+          "name": "chorizo",
+          "nameZh": "西班牙香肠",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "morcilla",
+          "nameZh": null,
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "To taste",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Asado",
+        "strCategory": "Beef",
+        "strArea": "Argentina"
+      }
+    },
+    {
+      "id": "52834",
+      "file": "images/meal-52834.jpg",
+      "meal": "Beef stroganoff",
+      "category": "Beef",
+      "area": "Russian",
+      "ingredients": [
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "1 tbls",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "onions",
+          "nameZh": null,
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "1 clove",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "1 tbsp",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "mushrooms",
+          "nameZh": "蘑菇",
+          "measure": "250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "beef fillet",
+          "nameZh": null,
+          "measure": "500g",
+          "grams": 500,
+          "unit": "g"
+        },
+        {
+          "name": "plain flour",
+          "nameZh": "面粉",
+          "measure": "1tbsp",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "creme fraiche",
+          "nameZh": null,
+          "measure": "150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "english mustard",
+          "nameZh": "芥末",
+          "measure": "1 tbsp",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "beef stock",
+          "nameZh": "牛肉高汤",
+          "measure": "100ml",
+          "grams": 100,
+          "unit": "ml"
+        },
+        {
+          "name": "parsley",
+          "nameZh": "欧芹",
+          "measure": "Topping",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Beef stroganoff",
+        "strCategory": "Beef",
+        "strArea": "Russian"
+      }
+    },
+    {
+      "id": "52821",
+      "file": "images/meal-52821.jpg",
+      "meal": "Laksa King Prawn Noodles",
+      "category": "Seafood",
+      "area": "Malaysian",
+      "ingredients": [
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "1 tbsp",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "red chilli",
+          "nameZh": "辣椒",
+          "measure": "1 finely sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "thai red curry paste",
+          "nameZh": null,
+          "measure": "2 ½ tbsp",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "vegetable stock cube",
+          "nameZh": null,
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "coconut milk",
+          "nameZh": "椰奶",
+          "measure": "400ml can",
+          "grams": 400,
+          "unit": "ml"
+        },
+        {
+          "name": "fish sauce",
+          "nameZh": "鱼露",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "rice noodles",
+          "nameZh": "米粉",
+          "measure": "100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "lime",
+          "nameZh": "青柠",
+          "measure": "2 juice of 1, the other halved",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "king prawns",
+          "nameZh": "虾仁",
+          "measure": "150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "coriander",
+          "nameZh": "香菜",
+          "measure": "½ small pack",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Laksa King Prawn Noodles",
+        "strCategory": "Seafood",
+        "strArea": "Malaysian"
+      }
+    },
+    {
+      "id": "53152",
+      "file": "images/meal-53152.jpg",
+      "meal": "Pan-fried hake, white bean & chorizo broth",
+      "category": "Seafood",
+      "area": "Spanish",
+      "ingredients": [
+        {
+          "name": "dried white beans",
+          "nameZh": "豆类",
+          "measure": "450g",
+          "grams": 450,
+          "unit": "g"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "4 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "bay leaves",
+          "nameZh": "香叶",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "thyme",
+          "nameZh": "百里香",
+          "measure": "1 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "6 tablespoons",
+          "grams": 90,
+          "unit": "tbsp"
+        },
+        {
+          "name": "bread",
+          "nameZh": "面包",
+          "measure": "100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "chorizo",
+          "nameZh": "西班牙香肠",
+          "measure": "100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "paprika",
+          "nameZh": "红椒粉",
+          "measure": "3 tsp",
+          "grams": 15,
+          "unit": "tsp"
+        },
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "1 L",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "parsley",
+          "nameZh": "欧芹",
+          "measure": "Handful",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "hake",
+          "nameZh": null,
+          "measure": "6",
+          "grams": null,
+          "unit": "other"
+        }
+      ],
+      "raw": {
+        "strMeal": "Pan-fried hake, white bean & chorizo broth",
+        "strCategory": "Seafood",
+        "strArea": "Spanish"
+      }
+    },
+    {
+      "id": "53561",
+      "file": "images/meal-53561.jpg",
+      "meal": "Codfish deviled eggs",
+      "category": "Seafood",
+      "area": null,
+      "ingredients": [
+        {
+          "name": "eggs",
+          "nameZh": "鸡蛋",
+          "measure": "12",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "mayonnaise",
+          "nameZh": "蛋黄酱",
+          "measure": "7 tablespoons",
+          "grams": 105,
+          "unit": "tbsp"
+        },
+        {
+          "name": "mustard",
+          "nameZh": "芥末",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "To taste",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "To taste",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "paprika",
+          "nameZh": "红椒粉",
+          "measure": "Pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "chives",
+          "nameZh": null,
+          "measure": "Garnish",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "Garnish",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "codfish bulljaw",
+          "nameZh": null,
+          "measure": "Topping",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Codfish deviled eggs",
+        "strCategory": "Seafood",
+        "strArea": null
+      }
+    },
+    {
+      "id": "53191",
+      "file": "images/meal-53191.jpg",
+      "meal": "Pad Thai",
+      "category": "Seafood",
+      "area": "Thai",
+      "ingredients": [
+        {
+          "name": "rice noodles",
+          "nameZh": "米粉",
+          "measure": "125g",
+          "grams": 125,
+          "unit": "g"
+        },
+        {
+          "name": "lime",
+          "nameZh": "青柠",
+          "measure": "Juice of 3",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "cayenne pepper",
+          "nameZh": "胡椒",
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "muscovado sugar",
+          "nameZh": "糖",
+          "measure": "2 teaspoons",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "fish sauce",
+          "nameZh": "鱼露",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "vegetable oil",
+          "nameZh": "植物油",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "tiger prawns",
+          "nameZh": "虾仁",
+          "measure": "200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "4 finely sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "bean sprouts",
+          "nameZh": "豆芽",
+          "measure": "140g",
+          "grams": 140,
+          "unit": "g"
+        },
+        {
+          "name": "peanuts",
+          "nameZh": "花生",
+          "measure": "25g",
+          "grams": 25,
+          "unit": "g"
+        },
+        {
+          "name": "coriander",
+          "nameZh": "香菜",
+          "measure": "Handful",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "lime",
+          "nameZh": "青柠",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sweet chilli sauce",
+          "nameZh": null,
+          "measure": "To serve",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Pad Thai",
+        "strCategory": "Seafood",
+        "strArea": "Thai"
+      }
+    },
+    {
+      "id": "53108",
+      "file": "images/meal-53108.jpg",
+      "meal": "Quick salt & pepper squid",
+      "category": "Seafood",
+      "area": "Australian",
+      "ingredients": [
+        {
+          "name": "squid",
+          "nameZh": "鱿鱼",
+          "measure": "400g",
+          "grams": 400,
+          "unit": "g"
+        },
+        {
+          "name": "oil",
+          "nameZh": "食用油",
+          "measure": "3  tablespoons",
+          "grams": 45,
+          "unit": "tbsp"
+        },
+        {
+          "name": "chinese five spice powder",
+          "nameZh": null,
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "食用油",
+          "measure": "Dash",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "coriander",
+          "nameZh": "香菜",
+          "measure": "Sprigs of fresh",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "sweet chilli sauce",
+          "nameZh": null,
+          "measure": "Drizzle",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Quick salt & pepper squid",
+        "strCategory": "Seafood",
+        "strArea": "Australian"
+      }
+    },
+    {
+      "id": "53509",
+      "file": "images/meal-53509.jpg",
+      "meal": "Fried Crab",
+      "category": "Seafood",
+      "area": null,
+      "ingredients": [
+        {
+          "name": "crab meay",
+          "nameZh": null,
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "onions",
+          "nameZh": null,
+          "measure": "2 medium",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "scotch bonnet",
+          "nameZh": null,
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "To taste",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "oil",
+          "nameZh": "食用油",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        }
+      ],
+      "raw": {
+        "strMeal": "Fried Crab",
+        "strCategory": "Seafood",
+        "strArea": null
+      }
+    },
+    {
+      "id": "52829",
+      "file": "images/meal-52829.jpg",
+      "meal": "Grilled Mac and Cheese Sandwich",
+      "category": "Pasta",
+      "area": "United States",
+      "ingredients": [
+        {
+          "name": "macaroni",
+          "nameZh": null,
+          "measure": "8 ounces (230 grams)",
+          "grams": 8,
+          "unit": "g"
+        },
+        {
+          "name": "plain flour",
+          "nameZh": "面粉",
+          "measure": "1/3 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "mustard powder",
+          "nameZh": null,
+          "measure": "3/4 teaspoon",
+          "grams": 15,
+          "unit": "tsp"
+        },
+        {
+          "name": "garlic powder",
+          "nameZh": null,
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "kosher salt",
+          "nameZh": "盐",
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "1/2 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "cayenne pepper",
+          "nameZh": "胡椒",
+          "measure": "1/8 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "6 tablespoons (85 grams)",
+          "grams": 6,
+          "unit": "g"
+        },
+        {
+          "name": "whole milk",
+          "nameZh": "牛奶",
+          "measure": "1 1/2 cups (360 milliliters)",
+          "grams": 1,
+          "unit": "ml"
+        },
+        {
+          "name": "heavy cream",
+          "nameZh": "奶油",
+          "measure": "1 cup (240 milliliters)",
+          "grams": 1,
+          "unit": "ml"
+        },
+        {
+          "name": "monterey jack cheese",
+          "nameZh": "奶酪",
+          "measure": "1 pound (455 grams)",
+          "grams": 1,
+          "unit": "g"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "4 tablespoons (55 grams)",
+          "grams": 4,
+          "unit": "g"
+        },
+        {
+          "name": "garlic powder",
+          "nameZh": null,
+          "measure": "1 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "bread",
+          "nameZh": "面包",
+          "measure": "16 slices square",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "cheddar cheese",
+          "nameZh": "奶酪",
+          "measure": "8 slices mild",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "colby jack cheese",
+          "nameZh": "奶酪",
+          "measure": "8 slices",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "4 tablespoons (55 grams)",
+          "grams": 4,
+          "unit": "g"
+        }
+      ],
+      "raw": {
+        "strMeal": "Grilled Mac and Cheese Sandwich",
+        "strCategory": "Pasta",
+        "strArea": "United States"
+      }
+    },
+    {
+      "id": "52987",
+      "file": "images/meal-52987.jpg",
+      "meal": "Lasagna Sandwiches",
+      "category": "Pasta",
+      "area": "United States",
+      "ingredients": [
+        {
+          "name": "sour cream",
+          "nameZh": "酸奶油",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "dried oregano",
+          "nameZh": "牛至",
+          "measure": "1/2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "bread",
+          "nameZh": "面包",
+          "measure": "8 slices",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "bacon",
+          "nameZh": "培根",
+          "measure": "8 slices",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "tomato",
+          "nameZh": "番茄",
+          "measure": "8 slices",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "mozzarella",
+          "nameZh": "马苏里拉奶酪",
+          "measure": "4 slices",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "2 1/2 Tbs",
+          "grams": null,
+          "unit": "other"
+        }
+      ],
+      "raw": {
+        "strMeal": "Lasagna Sandwiches",
+        "strCategory": "Pasta",
+        "strArea": "United States"
+      }
+    },
+    {
+      "id": "53093",
+      "file": "images/meal-53093.jpg",
+      "meal": "Syrian Spaghetti",
+      "category": "Pasta",
+      "area": "Syrian",
+      "ingredients": [
+        {
+          "name": "spaghetti",
+          "nameZh": "意面",
+          "measure": "16 ounces",
+          "grams": 454,
+          "unit": "oz"
+        },
+        {
+          "name": "tomato sauce",
+          "nameZh": "番茄酱",
+          "measure": "8 ounces",
+          "grams": 227,
+          "unit": "oz"
+        },
+        {
+          "name": "tomato puree",
+          "nameZh": "番茄酱",
+          "measure": "6 oz",
+          "grams": 170,
+          "unit": "oz"
+        },
+        {
+          "name": "cinnamon",
+          "nameZh": "肉桂",
+          "measure": "1 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "vegetable oil",
+          "nameZh": "植物油",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "Dash",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "Dash",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Syrian Spaghetti",
+        "strCategory": "Pasta",
+        "strArea": "Syrian"
+      }
+    },
+    {
+      "id": "52837",
+      "file": "images/meal-52837.jpg",
+      "meal": "Pilchard puttanesca",
+      "category": "Pasta",
+      "area": "Italian",
+      "ingredients": [
+        {
+          "name": "spaghetti",
+          "nameZh": "意面",
+          "measure": "300g",
+          "grams": 300,
+          "unit": "g"
+        },
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "1 tbls",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "1 finely chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves minced",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "red chilli",
+          "nameZh": "辣椒",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "tomato puree",
+          "nameZh": "番茄酱",
+          "measure": "1 tbls",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "pilchards",
+          "nameZh": null,
+          "measure": "425g",
+          "grams": 425,
+          "unit": "g"
+        },
+        {
+          "name": "black olives",
+          "nameZh": "橄榄",
+          "measure": "70g",
+          "grams": 70,
+          "unit": "g"
+        },
+        {
+          "name": "parmesan",
+          "nameZh": "帕玛森奶酪",
+          "measure": "Shaved",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Pilchard puttanesca",
+        "strCategory": "Pasta",
+        "strArea": "Italian"
+      }
+    },
+    {
+      "id": "52844",
+      "file": "images/meal-52844.jpg",
+      "meal": "Lasagne",
+      "category": "Pasta",
+      "area": "Italian",
+      "ingredients": [
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "1 tblsp",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "bacon",
+          "nameZh": "培根",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "1 finely chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "celery",
+          "nameZh": "芹菜",
+          "measure": "1 Stick",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "1 medium",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves chopped",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "beef",
+          "nameZh": "牛肉",
+          "measure": "500g",
+          "grams": 500,
+          "unit": "g"
+        },
+        {
+          "name": "tomato puree",
+          "nameZh": "番茄酱",
+          "measure": "1 tbls",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "tomatoes",
+          "nameZh": "番茄",
+          "measure": "800g",
+          "grams": 800,
+          "unit": "g"
+        },
+        {
+          "name": "honey",
+          "nameZh": "蜂蜜",
+          "measure": "1 tblsp",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "lasagne sheets",
+          "nameZh": null,
+          "measure": "500g",
+          "grams": 500,
+          "unit": "g"
+        },
+        {
+          "name": "creme fraiche",
+          "nameZh": null,
+          "measure": "400ml",
+          "grams": 400,
+          "unit": "ml"
+        },
+        {
+          "name": "mozzarella balls",
+          "nameZh": null,
+          "measure": "125g",
+          "grams": 125,
+          "unit": "g"
+        },
+        {
+          "name": "parmesan cheese",
+          "nameZh": "帕玛森奶酪",
+          "measure": "50g",
+          "grams": 50,
+          "unit": "g"
+        },
+        {
+          "name": "basil leaves",
+          "nameZh": null,
+          "measure": "Topping",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Lasagne",
+        "strCategory": "Pasta",
+        "strArea": "Italian"
+      }
+    },
+    {
+      "id": "53504",
+      "file": "images/meal-53504.jpg",
+      "meal": "Macaroni Pudding",
+      "category": "Pasta",
+      "area": null,
+      "ingredients": [
+        {
+          "name": "macaroni",
+          "nameZh": null,
+          "measure": "4 cups",
+          "grams": 800,
+          "unit": "cup"
+        },
+        {
+          "name": "evaporated milk",
+          "nameZh": "牛奶",
+          "measure": "4 cups",
+          "grams": 800,
+          "unit": "cup"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "3 Cups",
+          "grams": 600,
+          "unit": "cup"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "eggs",
+          "nameZh": "鸡蛋",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "butter",
+          "nameZh": "黄油",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "raisins",
+          "nameZh": "葡萄干",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "nutmeg",
+          "nameZh": null,
+          "measure": "2 1/2 Tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "vanilla",
+          "nameZh": "香草",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Macaroni Pudding",
+        "strCategory": "Pasta",
+        "strArea": null
+      }
+    }
+  ],
+  "nonFood": [
+    {
+      "file": "nonfood/01-dashboard.png",
+      "expectNotFood": true,
+      "note": "产品界面截图，不含食物"
+    },
+    {
+      "file": "nonfood/03-plan.png",
+      "expectNotFood": true,
+      "note": "产品界面截图，不含食物"
+    },
+    {
+      "file": "nonfood/06-coach.png",
+      "expectNotFood": true,
+      "note": "产品界面截图，不含食物"
+    },
+    {
+      "file": "nonfood/solid-gray.png",
+      "expectNotFood": true,
+      "note": "纯灰图，无食物内容"
+    }
+  ]
+}

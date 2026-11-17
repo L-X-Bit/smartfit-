@@ -17,8 +17,8 @@ const CASES = [
   // —— 应当拒绝（曾出现过误配）——
   { name: '迷你碗仔面（海鲜风味）', expect: null, why: '只与"风味酸奶"共享泛化词"风味"' },
   { name: '面汤', expect: null, why: '曾错配到"意面（熟）"，导致 300g 算出 474kcal' },
-  { name: '青豆', expect: null, why: '曾错配到"青椒"' },
-  { name: '葱花', expect: null, why: '曾错配到"西兰花"' },
+  { name: '青豆', expect: '豌豆', why: '中文里"青豆"主要指豌豆；曾错配到"青椒"' },
+  { name: '葱花', expect: null, why: '曾错配到"西兰花"；加别名后也不能被"花卷"抢走' },
   { name: '麻辣香锅', expect: null, why: '库中无对应条目' },
 
   // —— 应当命中 ——
@@ -28,8 +28,19 @@ const CASES = [
   { name: '鸡蛋', expect: '鸡蛋', why: '完全一致' },
   { name: '西兰花', expect: '西兰花', why: '完全一致' },
   { name: '全麦面包', expect: '全麦面包', why: '完全一致' },
-  { name: '牛油果', expect: '牛油果', why: '完全一致' },
+  { name: '牛油果', expect: '牛油果', why: '完全一致（不能被别名"牛油"抢到黄油）' },
   { name: '三文鱼', expect: '三文鱼', why: '完全一致' },
+
+  // —— 应当命中：别名（口语 → 库内标准名），省赛前扩充食物库时新增 ——
+  { name: '西红柿', expect: '番茄', why: '别名映射' },
+  { name: '肯德基炸鸡', expect: '炸鸡', why: '别名映射' },
+  { name: '芝士', expect: '奶酪', why: '别名映射' },
+  { name: '提子', expect: '葡萄', why: '别名映射' },
+  { name: '珍珠奶茶', expect: '全糖奶茶', why: '别名映射' },
+  { name: '虾仁', expect: '基围虾', why: '别名映射' },
+  { name: '土豆', expect: '土豆（蒸）', why: '完全一致（不能被"薯片"的别名抢走）' },
+  { name: '炒饭', expect: '蛋炒饭', why: '别名映射' },
+  { name: '意大利面', expect: '意面（熟）', why: '别名映射' },
 ];
 
 let pass = 0;

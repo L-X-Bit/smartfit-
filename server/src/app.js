@@ -24,6 +24,7 @@ import dietRoutes from './modules/diet/routes.js';
 import communityRoutes from './modules/community/routes.js';
 import dashboardRoutes from './modules/dashboard/routes.js';
 import aiRoutes from './modules/ai/routes.js';
+import ragRoutes from './modules/rag/routes.js';
 import foodScanRoutes from './modules/foodscan/routes.js';
 import deviceRoutes from './modules/devices/routes.js';
 import syncRoutes from './modules/sync/routes.js';
@@ -108,6 +109,8 @@ export function createApp() {
   app.use('/api/community', communityRoutes);
   app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/ai', aiRoutes);
+  // 检索可解释（索引体检 / 逐词打分还原 / 基准评测 / RAG 消融对照）
+  app.use('/api/rag', ragRoutes);
   app.use('/api/food-scan', foodScanRoutes);
   // 可穿戴设备同步（蓝牙心率 / 文件导入 / 演示模式）
   app.use('/api/devices', deviceRoutes);

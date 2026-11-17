@@ -9,7 +9,7 @@
   * { box-sizing: border-box; }
   body {
     font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-    font-size: 9.4pt; line-height: 1.42; color: #1f2937; margin: 0;
+    font-size: 9.2pt; line-height: 1.38; color: #1f2937; margin: 0;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   h1, h2, h3, h4 { color: #065f46; font-weight: 700; margin: 0; }
@@ -24,11 +24,11 @@
   pre { font-family: Consolas, monospace; font-size: 8pt; line-height: 1.45; background: #0f172a; color: #d1fae5; padding: 8pt 10pt; border-radius: 6pt; overflow: hidden; white-space: pre-wrap; margin: 6pt 0; }
   table { width: 100%; border-collapse: collapse; font-size: 8.9pt; margin: 7pt 0; page-break-inside: avoid; }
   th { background: #ecfdf5; color: #065f46; font-weight: 700; text-align: left; }
-  th, td { border: 0.6pt solid #cbd5e1; padding: 2.6pt 5pt; font-size: 8.2pt; vertical-align: top; }
+  th, td { border: 0.6pt solid #cbd5e1; padding: 2.2pt 4.5pt; font-size: 8pt; vertical-align: top; }
   tbody tr:nth-child(even) { background: #f8fafc; }
   figure { margin: 6pt 0; page-break-inside: avoid; }
   /* 限制图片高度并居中：11 张界面截图若都按宽度铺满，会额外吃掉 2~3 页 */
-  figure img { max-height: 58mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
+  figure img { max-height: 53mm; width: auto; max-width: 100%; margin: 0 auto; border: 0.6pt solid #d1d5db; border-radius: 5pt; display: block; }
   figcaption { font-size: 8.6pt; color: #64748b; text-align: center; margin-top: 3pt; }
   .tip { background: #f0fdf4; border-left: 3.5pt solid #10b981; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
   .warn { background: #fffbeb; border-left: 3.5pt solid #f59e0b; padding: 6pt 9pt; margin: 7pt 0; font-size: 9.2pt; border-radius: 0 5pt 5pt 0; page-break-inside: avoid; }
@@ -105,12 +105,14 @@
     <li>四、AI 技术方案 <span class="small">选型理由 / Agent 编排 / RAG / 提示词工程 / 校验与安全 / 优化策略</span></li>
     <li>五、核心功能实现 <span class="small">打卡计量 / 计划闭环 / 饮食配比 / 拍照识热量 / 设备同步 / 社区算法</span></li>
     <li>六、测试与部署 <span class="small">测试策略 / 用例与结果 / 部署方案 / 环境配置</span></li>
-    <li>七、总结与展望 <span class="small">技术创新点 / 应用创新点 / 不足与迭代方向</span></li>
+    <li>七、评测与可信度验证 <span class="small">图像识别准确率（24 道菜实测）/ 知识库检索五条证据 / 消融实验 / 一键复现</span></li>
+    <li>八、总结与展望 <span class="small">技术创新点 / 应用创新点 / 不足与迭代方向</span></li>
     <li>附录 <span class="small">目录结构 / 依赖清单 / 接口清单</span></li>
   </ol>
   <div class="tip" style="margin-top: 18pt;">
-    <b>阅读指引：</b>若时间有限，建议优先阅读 <b>第四章（AI 技术方案）</b> 与 <b>第七章（创新点）</b>，
-    这两章集中体现了本作品区别于同类作品的核心竞争力：把大模型从「对话框」变成「可校验、可降级、可观测的业务流水线」。
+    <b>阅读指引：</b>若时间有限，建议优先阅读 <b>第四章（AI 技术方案）</b>、<b>第七章（评测与可信度验证）</b> 与 <b>第八章（创新点）</b>，
+    这三章集中体现本作品区别于同类作品的核心竞争力：把大模型从「对话框」变成「可校验、可降级、可观测的业务流水线」，
+    并且每一条能力都有可复算的指标支撑，而不是主观描述。
   </div>
 </section>
 
@@ -132,7 +134,7 @@
 <div class="box">
   <div class="kv"><b>一句话定位：</b>一个把「AI 健身教练」做成可解释、可校验、可降级工程流水线的个人健康管理平台。</div>
   <div class="kv"><b>作品规模：</b>60 个源码文件、15797 行（后端 6890 / 前端 8907），其中注释 1914 行、注释率 12.1%；统计脚本 <code>tools/count-code.mjs</code> 可复算。</div>
-  <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 82 条、训练/营养指南 25 篇，全部为本地结构化语料。</div>
+  <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 <b>194 条</b>（基础 82 条 + 省赛扩充 112 条，另附 494 个口语别名）、训练/营养指南 25 篇，全部为本地结构化语料。</div>
   <div class="kv"><b>可运行性：</b>零外部数据库依赖（Node 内置 SQLite），<code>npm install &amp;&amp; npm run init:db &amp;&amp; npm run dev</code> 三步即可完整运行。</div>
 </div>
 
@@ -304,7 +306,7 @@
 │   │   │   ├── cache.js          # LRU + TTL 语义缓存
 │   │   │   └── observability.js  # AI 调用日志与统计
 │   │   └── utils/                # 健康公式 / 安全工具 / 响应封装
-│   └── data/kb/                  # 知识库：动作 65 条 / 食物 82 条 / 指南 25 篇
+│   └── data/kb/                  # 知识库：动作 65 条 / 食物 194 条（含别名）/ 指南 25 篇
 ├── web/                          # 前端（Vue 3 + Vite）
 │   └── src/
 │       ├── api/                  # Axios 封装 + SSE 流式客户端
@@ -1132,9 +1134,127 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
 </ul>
 
 <!-- ==================================================================== 七 -->
-<h1>七、总结与展望</h1>
+<h1>七、评测与可信度验证</h1>
 
-<h2>7.1 技术创新点</h2>
+<div class="tip">
+<b>为什么单列一章：</b>校赛评语提出两个「待核」——<b>图像识别准确率到底多少</b>、<b>知识库是真检索还是话术模板</b>。
+这两件事都不是功能缺失，而是缺少<b>可复算的证据</b>。本章把两者变成公开数据集 + 明确口径 + 量化指标 + 消融对照，
+数据、脚本、报告全部在仓库内，评审可自行重跑得到同样数字。
+</div>
+
+<h2>7.1 图像识别准确率：公开数据集 + 分层口径</h2>
+<p>
+<b>数据集：</b>从公开食物数据库 TheMealDB 随机抽取 <b>24 道菜</b>（Chicken / Beef / Seafood / Rice / Pasta / Vegetarian / Pork / Dessert 八类），
+每道菜的<b>食材清单与用量由数据库作者人工标注</b>，不是本项目模型生成，因此可作为独立标准答案；
+另配 <b>4 张非食物图</b>（3 张产品界面截图 + 1 张纯色图）专测拒识能力。
+</p>
+<p>
+<b>为什么口径要分层：</b>标注里的「盐 / 橄榄油 / 孜然 / 香叶 / 高汤」等 <b>132 项调料在成菜照片里根本看不见</b>，
+若计入召回分母，任何看图模型的召回都会被压到 10% —— 那是指标错，不是能力差。因此主口径只统计
+<b>主食材（可见项）87 项</b>，并给出多个层级的指标：
+</p>
+<table>
+  <thead><tr><th style="width: 22%;">口径</th><th style="width: 40%;">定义</th><th style="width: 38%;">作用</th></tr></thead>
+  <tbody>
+    <tr><td><b>严格口径</b></td><td>模型说出的名字与标注食材名严格对上（允许互相包含 / 二元组重叠 ≥ 50%）</td><td>最保守，作为能力<b>下界</b></td></tr>
+    <tr><td><b>类别口径</b></td><td>「炸鸡 / 鸡腿肉 / 鸡胸肉」视为同一食材</td><td>贴近用户对"认对没认对"的感受</td></tr>
+    <tr><td><b>核心主食材命中率</b></td><td>按标注克数取前 3 的主食材是否被认出</td><td>最贴近「这盘菜是什么」</td></tr>
+    <tr><td><b>非食物拒识率</b></td><td>非食物图被判为"不含食物"的比例</td><td>防误报，体验最相关</td></tr>
+    <tr><td><b>库内命中率</b></td><td>识别项能对上本地食物库的比例</td><td>决定热量用「库值精算」还是「模型估算」</td></tr>
+  </tbody>
+</table>
+<p><b>实测结果（24 道菜 + 4 张非食物，2026-11-17 全量跑）：</b></p>
+<table>
+  <thead><tr><th style="width: 50%;">指标</th><th style="width: 26%;">结果</th><th style="width: 24%;">说明</th></tr></thead>
+  <tbody>
+    <tr><td>核心主食材命中率</td><td><b>62.5%</b></td><td>盘中主要三样认出几样</td></tr>
+    <tr><td>食材级 类别 P / R / F1（宏平均）</td><td><b>46.9% / 59.5% / 52.5%</b></td><td>同物不同名也算对</td></tr>
+    <tr><td>食材级 严格 P / R / F1（微平均）</td><td>39.3% / 50.6% / 44.2%</td><td>按条数加权</td></tr>
+    <tr><td>非食物拒识准确率</td><td><b>100%（4/4）</b></td><td>截图 / 纯色图全部拒绝</td></tr>
+    <tr><td>真实菜品误拒率</td><td><b>0%</b></td><td>没有把真菜当非食物</td></tr>
+    <tr><td>识别项库内命中率</td><td><b>75.2%</b></td><td>扩库前为 51.4%</td></tr>
+    <tr><td>份量区间自洽率 / 常识合规率</td><td><b>100% / 100%</b></td><td>min ≤ 估计 ≤ max；5~800g</td></tr>
+    <tr><td>端到端延迟</td><td>P50 <b>2.81 s</b> / P95 3.66 s</td><td>含一次多模态模型调用</td></tr>
+  </tbody>
+</table>
+
+<h3>7.1.1 指标是怎么被改上去的（前后对比，可复算）</h3>
+<table>
+  <thead><tr><th style="width: 44%;">改动</th><th style="width: 26%;">指标变化</th><th style="width: 30%;">对应证据</th></tr></thead>
+  <tbody>
+    <tr><td>食物库 <b>82 → 194 条</b>（补中式家常菜与常见食材），并引入<b>别名表 494 个别名</b>（西红柿→番茄、肯德基炸鸡→炸鸡、青豆→豌豆）</td><td>库内命中率 <b>51.4% → 75.2%</b>（+23.8pt）</td><td><code>tools/merge-food-aliases.mjs</code>、<code>kb/food-aliases.json</code></td></tr>
+    <tr><td>识图提示词加入「分层拆解清单」：主食 → 蛋白 → 蔬菜配菜 → 可见配料，目标 4~8 项，<b>但不得编造看不见的盐油香料</b></td><td>严格召回 <b>25.5% → 37.4%</b>，核心命中率 <b>47.2% → 62.5%</b></td><td><code>ai/foodVision.js</code> 的 <code>FOOD_VISION_PROMPT</code></td></tr>
+    <tr><td>匹配器支持别名参与打分（正式名 1.0、别名 0.9），保留「泛化词剔除 + 字符重叠率」双闸门防误配</td><td>回归用例 <b>22/22 通过</b></td><td><code>tools/test-food-match.mjs</code></td></tr>
+  </tbody>
+</table>
+
+<h3>7.1.2 份量误差的口径说明（主动交代）</h3>
+<p>
+公开数据库的用量是<b>整份食谱用量</b>（如 Chicken 500g 供 4 人），模型估的是<b>盘子里这一份</b>，
+两者口径天然不同，因此本报告<b>不比 MAE</b>，只比量级：同量级对齐率 23.1%、中位比 0.33×（模型系统性偏小，与"单份 vs 整份"一致）。
+真正有产品意义的是另外两个指标：<b>区间自洽率 100%</b> 与 <b>常识范围合规率 100%</b>。
+更关键的是架构上<b>不依赖模型估重</b>：用户可拖动克数，或称重后输入整餐总重一步校准，热量一律按本地库值重算（见 5.8）。
+</p>
+<p class="small">
+局限（主动说明）：标注为公开数据库单一来源、未做多人复核；数据集以欧美菜为主，与中式家常菜存在分布差异；
+主食材清单中仍有个别被酱汁覆盖、肉眼难辨的项，故严格召回为<b>下界</b>。下一步将补充真实手机拍摄的中式菜品样本与多人复核标注。
+</p>
+
+<h2>7.2 知识库是真实检索：五条可验证证据</h2>
+<p>
+<b>证据一 · 索引是真的：</b><code>GET /api/rag/stats</code> 返回运行时从 <code>kb/*.json</code> 与 SQLite 真实建索引的结果——
+动作 65 条（平均文档长度 98.72 字、词表 <b>2012</b>）、指南 25 条、食物 194 条，BM25 参数 <code>k1=1.5 / b=0.75</code>，
+分词为「中文单字 + 二元组」，并列出高频词 DF（手 53、力 46、徒手 36…）。这些不是写死的常量。
+</p>
+<p>
+<b>证据二 · 打分可逐词还原：</b><code>POST /api/rag/explain</code> 以「我膝盖疼，怎么安排减脂训练」为例，返回查询扩展命中的规则
+（膝盖→膝关节/关节不适/低冲击/替代动作 等）、每条指南的 BM25 逐词贡献（《关节不适人群的替代动作》得分 60.56，
+其中 <code>节不</code> tf=3/idf=2.85/+4.52、<code>不适</code> tf=5/idf=2.34/+4.35…）、
+动作检索四段流水线（结构化过滤淘汰了谁、标签加权 +0.35/+0.25/−0.15、MMR 去冗余顺序），
+以及最终注入提示词的上下文全文与引用列表。任一引用都能倒推回「哪个词 × 哪个文档 × 多少分」。
+</p>
+<p>
+<b>证据三 · 检索质量有 golden 标注：</b>27 个人工编写的「口语提问 → 应命中哪条指南」，
+指标与<b>关闭查询扩展的消融对照</b>如下（<code>GET /api/rag/bench</code>、<code>tools/eval-rag.mjs</code>）：
+</p>
+<table>
+  <thead><tr><th style="width: 28%;">指标</th><th style="width: 22%;">启用查询扩展</th><th style="width: 24%;">关闭扩展（消融）</th><th style="width: 26%;">结论</th></tr></thead>
+  <tbody>
+    <tr><td>Recall@1</td><td><b>81.5%</b></td><td>77.8%</td><td>扩展有效（+3.7pt）</td></tr>
+    <tr><td>Recall@3</td><td><b>92.6%</b></td><td>92.6%</td><td>持平</td></tr>
+    <tr><td>Recall@5</td><td><b>100%</b></td><td>100%</td><td>全部命中前 5</td></tr>
+    <tr><td>MRR</td><td><b>0.887</b></td><td>0.8562</td><td>排名更靠前</td></tr>
+    <tr><td>单次检索耗时</td><td><b>0.82 ms</b></td><td>0.13 ms</td><td>扩展开销可忽略</td></tr>
+  </tbody>
+</table>
+<p>
+<b>证据四 · 现场可跑的 RAG 消融实验：</b><code>POST /api/rag/ablation</code> 对同一问题分别「给 / 不给」知识库上下文各生成一份答案。
+实测「我膝盖不舒服，还想减脂，该怎么练」：有 RAG 的一侧给出「BMI 23.7 属正常范围，不必照搬大体重方案」，
+并点名引用《关节不适人群的替代动作》《减脂热量缺口设置》，动作仅从库内选取（骑行/动感单车、太极、靠墙静蹲、臀桥）；
+无 RAG 的一侧更笼统，且出现库里根本没有的动作（椭圆机、划船机、罗马尼亚硬拉），也没有引用。
+<b>如果知识库只是话术装饰，去掉它答案不会变化。</b>
+</p>
+<p>
+<b>证据五 · 输出随输入变：</b>同一教练接口，问「膝盖疼怎么练」与「增肌蛋白质吃多少」，命中的指南、引用条目、
+注入上下文长度与条数全部不同；扩展规则 19 条、golden 集 27 条、别名表 494 个全部在仓库内可查可改，
+改动后 Recall 指标会立刻变化——这套指标是可被证伪的。
+</p>
+
+<h2>7.3 一键复现</h2>
+<pre># 检索评测（无需启动服务）：Recall@K / MRR / 消融对照 → docs/评测报告-检索.md
+node tools/eval-rag.mjs
+
+# 图像识别评测：24 道菜 + 4 张非食物 → docs/评测报告-图像识别.md
+node tools/fetch-eval-dataset.mjs   # 固定沿用同一批菜品，保证指标可比
+node tools/eval-vision.mjs          # 需要本地服务与 AI_API_KEY
+
+# 食物名匹配回归：22 个用例（含别名映射与"必须拒绝"的负例）
+node tools/test-food-match.mjs</pre>
+
+<!-- ==================================================================== 八 -->
+<h1>八、总结与展望</h1>
+
+<h2>8.1 技术创新点</h2>
 <table>
   <thead><tr><th style="width: 8%;">编号</th><th style="width: 26%;">创新点</th><th style="width: 66%;">具体内容与差异化价值</th></tr></thead>
   <tbody>
@@ -1149,7 +1269,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
   </tbody>
 </table>
 
-<h2>7.2 应用创新点</h2>
+<h2>8.2 应用创新点</h2>
 <table>
   <thead><tr><th style="width: 8%;">编号</th><th style="width: 26%;">创新点</th><th style="width: 66%;">业务价值</th></tr></thead>
   <tbody>
@@ -1162,7 +1282,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
   </tbody>
 </table>
 
-<h2>7.3 不足与迭代方向</h2>
+<h2>8.3 不足与迭代方向</h2>
 <table>
   <thead><tr><th style="width: 26%;">当前不足</th><th style="width: 38%;">原因</th><th style="width: 36%;">下一步计划</th></tr></thead>
   <tbody>
@@ -1175,7 +1295,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
   </tbody>
 </table>
 
-<h2>7.4 参赛收获</h2>
+<h2>8.4 参赛收获</h2>
 <p>
 本项目最大的收获不在于"用上了大模型"，而在于理解了<b>如何把不确定的模型能力放进确定的工程框架里</b>：
 把算术交给代码、把知识交给检索、把格式交给校验、把安全交给规则、把可观测交给日志、把可用性交给降级。

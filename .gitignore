@@ -53,3 +53,5 @@ tools/.health-sync-state.json
 
 # ---------- 文档导出中间产物（PDF / docx 成品入库，HTML 排版稿不入库） ----------
 docs/*.print.html
+# 评测运行日志（结果 JSON 与标注保留，日志不入库）
+eval/**/*.log

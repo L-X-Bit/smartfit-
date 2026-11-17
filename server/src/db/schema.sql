@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS foods (
   fiber     REAL NOT NULL DEFAULT 0,              -- 膳食纤维 g
   sodium    REAL NOT NULL DEFAULT 0,              -- 钠 mg
   portion   TEXT,                                 -- 常见份量描述，如「1 个约 50g」
+  aliases   TEXT,                                 -- 别名 JSON 数组，如 ["西红柿","番茄块"]，用于识图匹配与检索召回
   search_text TEXT
 );
 

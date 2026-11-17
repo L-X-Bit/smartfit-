@@ -117,6 +117,65 @@ export class BM25Index {
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, topK);
   }
+
+  /**
+   * 可解释检索：除分数外，还给出「哪些查询词命中了、每个词贡献多少分、被过滤掉了哪些」
+   * ---------------------------------------------------------------------------
+   * 为什么需要它：评委/用户都问过同一个问题——「你的知识库检索是真的吗，还是把模板文案
+   * 换个说法？」只展示「引用了 3 条指南」无法自证。把 BM25 的逐词打分、IDF 权重、
+   * 结构化过滤的淘汰原因全部暴露出来，任何一条引用都能倒推回「哪个词 × 哪个文档 × 多少分」，
+   * 这是可复算的证据，而不是话术。
+   */
+  searchDetailed(query, topK = 6, filter) {
+    const qTokens = [...new Set(tokenize(query))];
+    const hits = [];
+    const filteredOut = [];
+    for (const doc of this.docs) {
+      const terms = [];
+      let s = 0;
+      for (const term of qTokens) {
+        const f = doc.tf.get(term);
+        if (!f) continue;
+        const idf = this.idf(term);
+        const denom = f + K1 * (1 - B + (B * doc.len) / (this.avgdl || 1));
+        const contrib = idf * ((f * (K1 + 1)) / denom);
+        s += contrib;
+        terms.push({ term, tf: f, idf: Number(idf.toFixed(4)), contrib: Number(contrib.toFixed(4)) });
+      }
+      if (s <= 0) continue;
+      const record = {
+        id: doc.id,
+        title: doc.meta?.name || doc.meta?.title || doc.meta?.name || doc.id,
+        score: Number(s.toFixed(4)),
+        len: doc.len,
+        matchedTermCount: terms.length,
+        terms: terms.sort((a, b) => b.contrib - a.contrib).slice(0, 8),
+      };
+      if (filter && !filter(doc)) {
+        filteredOut.push({ ...record, reason: '被结构化过滤淘汰（器械 / 难度不满足）' });
+        continue;
+      }
+      hits.push({ doc, ...record });
+    }
+    hits.sort((a, b) => b.score - a.score);
+    return {
+      queryTokens: qTokens,
+      candidateCount: hits.length + filteredOut.length,
+      matchedDocs: hits.length,
+      filteredOut,
+      hits: hits.slice(0, topK),
+    };
+  }
+
+  /** 索引自身的体检数据（词表大小、平均文档长度等），用于证明这是真实的倒排索引 */
+  stats() {
+    return {
+      docs: this.N,
+      avgDocLength: Number((this.avgdl || 0).toFixed(2)),
+      vocabulary: this.df.size,
+      sampleTerms: [...this.df.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([t, df]) => ({ term: t, df })),
+    };
+  }
 }
 
 // ---------------------------------------------------------------- 知识库加载（懒加载 + 单例）
@@ -317,4 +376,154 @@ export function buildContext({ exercises = [], guidelines = [], foods = [] }) {
   }
 
   return { text: parts.join('\n'), refs };
+}
+
+// ---------------------------------------------------------------- 可解释检索（对外）
+/**
+ * 索引体检数据：证明「知识库」是本地的、结构化的、被真正建成倒排索引的语料，
+ * 而不是提示词里写死的一段话术。
+ */
+export function indexStats() {
+  ensureIndexes();
+  return {
+    exercises: exerciseIndex.stats(),
+    foods: foodIndex.stats(),
+    guidelines: guidelineIndex.stats(),
+    params: { k1: K1, b: B, tokenizer: '中文单字 + 二元组(bigram)，英文数字整词' },
+    kbFiles: ['server/data/kb/exercises.json', 'server/data/kb/foods.json', 'server/data/kb/guidelines.json'],
+  };
+}
+
+/**
+ * 完整还原一次「动作检索」的全过程：分词 → 结构化过滤 → BM25 打分 → 标签加权 → MMR 去冗余
+ * 每一阶段都返回中间结果，前端可以逐段展示「AI 到底检索到了什么」。
+ */
+export function explainExerciseRetrieval({ query = '', equipment = [], maxDifficulty = 3, preferGroups = [], topK = 10 } = {}) {
+  ensureIndexes();
+  const eqSet = new Set(equipment);
+  const filterFn = (doc) => {
+    const m = doc.meta;
+    if (m.difficulty > maxDifficulty) return false;
+    if (eqSet.size && !eqSet.has(m.equipment)) return false;
+    return true;
+  };
+
+  const strict = exerciseIndex.searchDetailed(query, topK * 3, filterFn);
+  let pool = strict.hits;
+  let relaxedUsed = false;
+  let relaxed = null;
+
+  if (pool.length < topK) {
+    relaxedUsed = true;
+    const r = exerciseIndex.searchDetailed(query, topK * 3, (doc) => doc.meta.difficulty <= maxDifficulty);
+    const exist = new Set(pool.map((h) => h.id));
+    relaxed = r;
+    pool = pool.concat(r.hits.filter((h) => !exist.has(h.id)));
+  }
+
+  const boost = (m) => {
+    const detail = [];
+    let s = 0;
+    if (preferGroups.includes(m.muscleGroup)) { s += 0.35; detail.push('优先肌群 +0.35'); }
+    for (const tag of m.tags || []) {
+      if (query.includes(tag)) { s += 0.25; detail.push(`标签「${tag}」命中查询 +0.25`); }
+    }
+    if (m.category === '柔韧') { s -= 0.15; detail.push('柔韧类不作主训练 −0.15'); }
+    return { delta: Number(s.toFixed(4)), detail };
+  };
+
+  const boosted = pool.map((h) => {
+    const b = boost(h.doc.meta);
+    return { ...h, bm25: h.score, score: Number((h.score + b.delta).toFixed(4)), boost: b };
+  }).sort((a, b) => b.score - a.score);
+
+  const selected = mmrSelect(boosted.slice(0, topK * 2), topK);
+  const selectedIds = new Set(selected.map((h) => h.id));
+
+  return {
+    kind: 'exercise',
+    query,
+    stage1_tokens: strict.queryTokens,
+    stage2_filter: {
+      rule: `难度 ≤ ${maxDifficulty}${equipment.length ? `，器械 ∈ {${equipment.join('、')}}` : '，器械不限'}`,
+      keptCandidates: strict.hits.length,
+      droppedByFilter: strict.filteredOut.length,
+      droppedExamples: strict.filteredOut.slice(0, 5).map((d) => ({ title: d.title, score: d.score, reason: d.reason })),
+      relaxedUsed,
+      relaxedNote: relaxedUsed ? '严格过滤后候选不足，已放宽器械限制补检索（保证方案可执行）' : null,
+    },
+    stage3_bm25: {
+      candidates: boosted.slice(0, topK * 3).map((h) => ({
+        id: h.id,
+        title: h.title,
+        bm25: h.bm25,
+        finalScore: h.score,
+        boost: h.boost,
+        matchedTermCount: h.matchedTermCount,
+        topTerms: h.terms,
+        selected: selectedIds.has(h.id),
+      })),
+    },
+    stage4_mmr: {
+      note: 'MMR(λ=0.7) 在相关性与多样性之间取平衡，避免结果全是同类动作',
+      order: selected.map((h, i) => ({ rank: i + 1, id: h.id, title: h.title, score: h.score })),
+    },
+    final: selected.map((h) => ({ ...h.doc.meta, score: h.score })),
+  };
+}
+
+/** 完整还原一次「指南检索」：BM25 + 标签加权 */
+export function explainGuidelineRetrieval({ query = '', tags = [], topK = 4 } = {}) {
+  ensureIndexes();
+  const search = guidelineIndex.searchDetailed(`${query} ${tags.join(' ')}`, topK * 2);
+  const boosted = search.hits.map((h) => {
+    const hitTags = (h.doc.meta.tags || []).filter((t) => tags.includes(t));
+    const delta = Number((hitTags.length * 0.4).toFixed(2));
+    return { ...h, score: Number((h.score + delta).toFixed(4)), boost: { delta, detail: hitTags.length ? [`标签「${hitTags.join('、')}」+${delta}`] : [] } };
+  }).sort((a, b) => b.score - a.score);
+
+  return {
+    kind: 'guide',
+    query,
+    stage1_tokens: search.queryTokens,
+    stage2_bm25: {
+      matchedDocs: search.matchedDocs,
+      candidates: boosted.map((h) => ({ id: h.id, title: h.title, bm25: h.score - h.boost.delta, finalScore: h.score, boost: h.boost, topTerms: h.terms })),
+    },
+    final: boosted.slice(0, topK).map((h) => h.doc.meta),
+  };
+}
+
+/** 完整还原一次「食物检索」：纯 BM25（拍照识别的候选匹配也走这里） */
+export function explainFoodRetrieval({ query = '', topK = 8 } = {}) {
+  ensureIndexes();
+  const search = foodIndex.searchDetailed(query, topK);
+  return {
+    kind: 'food',
+    query,
+    stage1_tokens: search.queryTokens,
+    stage2_bm25: {
+      matchedDocs: search.matchedDocs,
+      candidates: search.hits.map((h) => ({ id: h.id, title: h.doc.meta.name, bm25: h.score, topTerms: h.terms })),
+    },
+    final: search.hits.map((h) => ({ ...h.doc.meta, score: h.score })),
+  };
+}
+
+/**
+ * 一次把「动作 + 指南」都跑一遍，并按教练对话的真实方式拼出提示词上下文。
+ * 返回 diagnostics（可解释）+ context（真正喂给模型的那段文字）+ refs（引用）。
+ */
+export function explainCoachRetrieval({ question = '', expandedQuery = '', topK = 3 } = {}) {
+  const q = expandedQuery || question;
+  const guideExplain = explainGuidelineRetrieval({ query: q, topK });
+  const exerciseExplain = explainExerciseRetrieval({ query: q, topK });
+  const { text, refs } = buildContext({ exercises: exerciseExplain.final, guidelines: guideExplain.final });
+  return {
+    question,
+    expandedQuery: q,
+    guidelines: guideExplain,
+    exercises: exerciseExplain,
+    context: { text, refs, chars: text.length },
+  };
 }

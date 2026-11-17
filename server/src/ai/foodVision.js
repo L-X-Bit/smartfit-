@@ -141,10 +141,23 @@ export const FOOD_VISION_PROMPT = `你是一位专业营养师，擅长从照片
   · reference 写"无参照物，按常见餐盘尺寸保守估算"，confidence 必须为 low
   · 不要为了显得自信而虚报 confidence
 
+【食材拆解清单（第二重要：漏项会让整餐热量偏低）】
+1. 先按层次扫一遍再输出，不要只写主菜：
+   · 主食（米饭 / 面条 / 面包 / 土豆 / 玉米…）
+   · 蛋白（鸡胸肉 / 牛肉 / 猪里脊 / 鱼 / 虾 / 鸡蛋 / 豆腐 / 奶酪…）
+   · 蔬菜配菜（洋葱 / 番茄 / 西兰花 / 胡萝卜 / 蘑菇 / 青椒…）
+   · 明显可见的配料（花生碎、坚果、培根丁、葡萄干、酱汁里能看见的奶油/芝士）
+2. 目标输出 4~8 项：照片里**看得见的**食材都要列，哪怕分量很小（一小把配菜也要列，克数给小值）；
+3. 但**不要编造看不见的东西**：盐、油、酱油、香料、高汤这类不单独列（它们的贡献已包含在菜品本体里）；
+4. 名称用常见食材标准名，不要用整道菜名代替食材：
+   · 正确：鸡胸肉、米饭、番茄、洋葱、土豆、意面、奶酪
+   · 错误：把一锅咖喱写成"咖喱鸡"一项就结束（应拆成 咖喱鸡 + 米饭 + 洋葱 + 胡萝卜）
+   · 例外：披萨、汉堡、三明治、寿司、汤面这类**单一成品**可以整项列出，但同时列出能看见的主要配料（如汉堡里的奶酪、生菜）。
+
 【其它规则】
 1. 分别列出每一种可辨认的食物（例如米饭、红烧肉、西兰花），不要合并成一整餐；
 2. 中餐菜品若含明显油脂，按同类家常做法估算（如红烧肉按每 100g 约 450 kcal）；
-3. 份量必须符合常识（一碗米饭 150~250g、一份炒菜 150~300g、一块肉 80~150g）。
+3. 份量必须符合常识（一碗米饭 150~250g、一份炒菜 150~300g、一块肉 80~150g、一小把配菜 20~60g）。
 
 【输出格式】只输出一个 JSON 对象，不要任何解释文字、不要用 markdown 代码块包裹：
 {
@@ -157,6 +170,11 @@ export const FOOD_VISION_PROMPT = `你是一位专业营养师，擅长从照片
       "name": "米饭", "amountG": 200, "amountMin": 150, "amountMax": 250,
       "kcal": 232, "protein": 5.2, "fat": 0.6, "carb": 51.8,
       "reference": "以筷子长度推算碗口约 12cm、米饭七分满", "confidence": "high"
+    },
+    {
+      "name": "番茄", "amountG": 60, "amountMin": 40, "amountMax": 90,
+      "kcal": 12, "protein": 0.5, "fat": 0.1, "carb": 2.4,
+      "reference": "可见 3 块番茄角，按每块约 20g", "confidence": "medium"
     }
   ],
   "totalKcal": 232,
@@ -234,24 +252,37 @@ export function matchLibraryFood(name, foods) {
   //    完全一致 > 识别名更具体（raw 包含库名）> 库名更具体（库名包含 raw，要惩罚）
   //    踩过的坑：以前取"库名最长"，导致「米饭」被匹配成「糙米饭（熟）」——
   //    库名比识别名更具体时理应排后，否则所有带前缀的变体（糙米饭/紫薯饭…）都会抢走通用条目。
+  //    别名（西红柿 → 番茄、肯德基炸鸡 → 炸鸡）与正式名同等参与打分，但略降权重，
+  //    保证「番茄」不会输给「番茄炒蛋」的别名。
   let best = null;
   let bestScore = -Infinity;
   for (const f of foods) {
-    const base = f.name.replace(/[（(].*?[）)]/g, '').trim(); // 去掉「（熟）」「（干）」等说明
-    if (base.length < 2) continue;
+    const candidates = [{ text: f.name, weight: 1 }];
+    if (f.aliases) {
+      try {
+        const list = typeof f.aliases === 'string' ? JSON.parse(f.aliases) : f.aliases;
+        if (Array.isArray(list)) list.forEach((a) => candidates.push({ text: String(a), weight: 0.9 }));
+      } catch { /* 别名格式异常则只用正式名 */ }
+    }
+    for (const cand of candidates) {
+      const base = String(cand.text).replace(/[（(].*?[）)]/g, '').trim(); // 去掉「（熟）」「（干）」等说明
+      if (base.length < 2) continue;
 
-    let score;
-    if (base === raw) score = 1000 + base.length; // 完全相同
-    else if (raw.includes(base)) score = 500 + base.length; // 识别名更具体
-    else if (base.includes(raw)) score = 100 - (base.length - raw.length); // 库名更具体，越长越靠后
-    else continue;
+      let score;
+      if (base === raw) score = 1000 + base.length; // 完全相同
+      else if (raw.includes(base)) score = 500 + base.length; // 识别名更具体
+      else if (base.includes(raw)) score = 100 - (base.length - raw.length); // 库名更具体，越长越靠后
+      else continue;
+      score *= cand.weight;
 
-    if (score > bestScore) {
-      best = f;
-      bestScore = score;
+      if (score > bestScore) {
+        best = f;
+        bestScore = score;
+        best.shared = cand.text;
+      }
     }
   }
-  if (best) return { food: best, how: 'name', score: bestScore, shared: best.name };
+  if (best) return { food: best, how: 'name', score: bestScore, shared: best.shared || best.name };
 
   // ② BM25 兜底（严格模式：高分 + 有意义的二元组重叠 + 字符重叠率达标）
   // 三道门槛缺一不可，避免「迷你碗仔面」被「风味酸奶」这种只沾口味词的名字骗过去。

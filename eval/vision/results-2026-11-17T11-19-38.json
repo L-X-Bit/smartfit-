@@ -1,0 +1,1315 @@
+{
+  "summary": {
+    "generatedAt": "2026-11-17T11:19:38.984Z",
+    "api": "http://127.0.0.1:3000",
+    "dataset": {
+      "source": "TheMealDB (https://www.themealdb.com/api.php)",
+      "meals": 12,
+      "nonFood": 0,
+      "groundTruthIngredients": 46,
+      "seasoningExcluded": 72
+    },
+    "food": {
+      "avgPrecision": 38.9,
+      "avgRecall": 27.9,
+      "avgF1": 32.5,
+      "microPrecision": 41.9,
+      "microRecall": 28.3,
+      "microF1": 33.8,
+      "categoryPrecision": 72.2,
+      "categoryRecall": 60.1,
+      "categoryF1": 65.6,
+      "coreIngredientHitRate": 61.1,
+      "falseRejectionRate": 0
+    },
+    "portion": {
+      "pairs": 5,
+      "maeGrams": 173,
+      "mapePct": 50.8,
+      "within50Pct": 40
+    },
+    "rejection": {
+      "accuracy": null,
+      "samples": 0
+    },
+    "libraryHitRate": 51.4,
+    "latency": {
+      "p50": 2501,
+      "p95": 3139,
+      "samples": 12
+    }
+  },
+  "rows": [
+    {
+      "meal": "Kung Pao Chicken",
+      "category": "Chicken",
+      "area": "Chinese",
+      "file": "images/meal-52945.jpg",
+      "latencyMs": 2564,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 2,
+      "seasoningCount": 9,
+      "unmatchedGroundTruth": 2,
+      "precision": 0.667,
+      "recall": 0.5,
+      "precisionCat": 0.333,
+      "recallCat": 0.5,
+      "coreHit": 0.5,
+      "tp": 2,
+      "totalKcal": 614,
+      "libraryHit": 1,
+      "libraryRate": 0.333,
+      "gramPairs": [
+        {
+          "item": "花生",
+          "gt": 100,
+          "pred": 25,
+          "errPct": 0.75
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "酱炒鸡块",
+          "g": 220,
+          "kcal": 440,
+          "source": "model",
+          "confidence": "low"
+        },
+        {
+          "name": "花生米",
+          "g": 25,
+          "kcal": 144,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "洋葱与红辣椒",
+          "g": 60,
+          "kcal": 30,
+          "source": "model",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "鸡肉",
+          "raw": "chicken",
+          "measure": "500g",
+          "grams": 500,
+          "hit": false
+        },
+        {
+          "name": "花生",
+          "raw": "peanuts",
+          "measure": "100g",
+          "grams": 100,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "酱油",
+          "raw": "soy sauce",
+          "measure": "2 tbs"
+        },
+        {
+          "name": "食用油",
+          "raw": "sesame seed oil",
+          "measure": "2 tbs"
+        },
+        {
+          "name": "玉米淀粉",
+          "raw": "corn flour",
+          "measure": "2 tbs"
+        },
+        {
+          "name": "水",
+          "raw": "water",
+          "measure": "2 tbs"
+        },
+        {
+          "name": "辣椒粉",
+          "raw": "chilli powder",
+          "measure": "1 tbs"
+        },
+        {
+          "name": "米醋",
+          "raw": "rice vinegar",
+          "measure": "1 tsp"
+        },
+        {
+          "name": "红糖",
+          "raw": "brown sugar",
+          "measure": "1 tbs"
+        },
+        {
+          "name": "小葱",
+          "raw": "spring onions",
+          "measure": "4 Chopped"
+        },
+        {
+          "name": "大蒜",
+          "raw": "garlic clove",
+          "measure": "6 cloves"
+        }
+      ]
+    },
+    {
+      "meal": "Pad See Ew",
+      "category": "Chicken",
+      "area": "Thai",
+      "file": "images/meal-52774.jpg",
+      "latencyMs": 3121,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 4,
+      "seasoningCount": 7,
+      "unmatchedGroundTruth": 1,
+      "precision": 0.333,
+      "recall": 0.25,
+      "precisionCat": 0.333,
+      "recallCat": 0.25,
+      "coreHit": 0.333,
+      "tp": 1,
+      "totalKcal": 590,
+      "libraryHit": 0,
+      "libraryRate": 0,
+      "gramPairs": [
+        {
+          "item": "鸡肉",
+          "gt": 200,
+          "pred": 60,
+          "errPct": 0.7
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "炒河粉",
+          "g": 250,
+          "kcal": 450,
+          "source": "model",
+          "confidence": "high"
+        },
+        {
+          "name": "肉片",
+          "g": 60,
+          "kcal": 120,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "青菜",
+          "g": 80,
+          "kcal": 20,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "面条",
+          "raw": "rice stick noodles",
+          "measure": "6oz/180g",
+          "grams": 6,
+          "hit": false
+        },
+        {
+          "name": "鸡肉",
+          "raw": "chicken",
+          "measure": "1 cup",
+          "grams": 200,
+          "hit": true
+        },
+        {
+          "name": "鸡蛋",
+          "raw": "egg",
+          "measure": "1",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "西兰花",
+          "raw": "chinese broccoli",
+          "measure": "4 cups",
+          "grams": 800,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "蚝油",
+          "raw": "oyster sauce",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "酱油",
+          "raw": "soy sauce",
+          "measure": "2 tsp"
+        },
+        {
+          "name": "醋",
+          "raw": "white vinegar",
+          "measure": "2 tsp"
+        },
+        {
+          "name": "糖",
+          "raw": "sugar",
+          "measure": "2 tsp"
+        },
+        {
+          "name": "水",
+          "raw": "water",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "食用油",
+          "raw": "peanut oil",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "大蒜",
+          "raw": "garlic",
+          "measure": "2 cloves"
+        }
+      ]
+    },
+    {
+      "meal": "Kentucky Fried Chicken",
+      "category": "Chicken",
+      "area": "United States",
+      "file": "images/meal-52813.jpg",
+      "latencyMs": 2501,
+      "notFood": false,
+      "itemsPredicted": 2,
+      "itemsGroundTruth": 2,
+      "seasoningCount": 9,
+      "unmatchedGroundTruth": 6,
+      "precision": 0,
+      "recall": 0,
+      "precisionCat": 1,
+      "recallCat": 0.5,
+      "coreHit": 0.5,
+      "tp": 0,
+      "totalKcal": 614,
+      "libraryHit": 2,
+      "libraryRate": 1,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "炸鸡腿（带骨）",
+          "g": 120,
+          "kcal": 335,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "炸鸡块（无骨/鸡胸部位）",
+          "g": 100,
+          "kcal": 279,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "鸡肉",
+          "raw": "chicken",
+          "measure": "1 whole",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "面粉",
+          "raw": "flour",
+          "measure": "1 1/2 cups",
+          "grams": 200,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "食用油",
+          "raw": "oil",
+          "measure": "2 quarts neutral frying"
+        },
+        {
+          "name": "红糖",
+          "raw": "brown sugar",
+          "measure": "1 tablespoon"
+        },
+        {
+          "name": "盐",
+          "raw": "salt",
+          "measure": "1 tablespoon"
+        },
+        {
+          "name": "红椒粉",
+          "raw": "paprika",
+          "measure": "1 tablespoon"
+        },
+        {
+          "name": "盐",
+          "raw": "onion salt",
+          "measure": "2 teaspoons"
+        },
+        {
+          "name": "黑胡椒",
+          "raw": "black pepper",
+          "measure": "1 teaspoon"
+        },
+        {
+          "name": "盐",
+          "raw": "celery salt",
+          "measure": "1/2 teaspoon"
+        },
+        {
+          "name": "牛至",
+          "raw": "oregano",
+          "measure": "1/2 teaspoon"
+        },
+        {
+          "name": "罗勒",
+          "raw": "basil",
+          "measure": "1/2 teaspoon"
+        }
+      ]
+    },
+    {
+      "meal": "Pastel de Choclo",
+      "category": "Chicken",
+      "area": null,
+      "file": "images/meal-53520.jpg",
+      "latencyMs": 1425,
+      "notFood": false,
+      "itemsPredicted": 1,
+      "itemsGroundTruth": 7,
+      "seasoningCount": 8,
+      "unmatchedGroundTruth": 1,
+      "precision": 0,
+      "recall": 0,
+      "precisionCat": 1,
+      "recallCat": 0.286,
+      "coreHit": 0.333,
+      "tp": 0,
+      "totalKcal": 550,
+      "libraryHit": 0,
+      "libraryRate": 0,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "肉末芝士焗烤",
+          "g": 250,
+          "kcal": 550,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "鸡蛋",
+          "raw": "eggs",
+          "measure": "2",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "牛肉",
+          "raw": "ground beef",
+          "measure": "1 lb",
+          "grams": 454,
+          "hit": false
+        },
+        {
+          "name": "鸡肉",
+          "raw": "chicken",
+          "measure": "1/2",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "葡萄干",
+          "raw": "raisins",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "hit": false
+        },
+        {
+          "name": "橄榄",
+          "raw": "green olives",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "hit": false
+        },
+        {
+          "name": "玉米粒",
+          "raw": "sweetcorn",
+          "measure": "3 cans",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "牛奶",
+          "raw": "milk",
+          "measure": "1 cup",
+          "grams": 200,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "大蒜",
+          "raw": "garlic",
+          "measure": "2 cloves minced"
+        },
+        {
+          "name": "盐",
+          "raw": "salt",
+          "measure": "1 tsp"
+        },
+        {
+          "name": "红椒粉",
+          "raw": "paprika",
+          "measure": "1/2 tsp"
+        },
+        {
+          "name": "黑胡椒",
+          "raw": "black pepper",
+          "measure": "To taste"
+        },
+        {
+          "name": "罗勒",
+          "raw": "basil",
+          "measure": "2 tsp"
+        },
+        {
+          "name": "黄油",
+          "raw": "butter",
+          "measure": "1 tablespoon"
+        },
+        {
+          "name": "糖",
+          "raw": "sugar",
+          "measure": "2 tsp"
+        },
+        {
+          "name": "盐",
+          "raw": "salt",
+          "measure": "To taste"
+        }
+      ]
+    },
+    {
+      "meal": "Potato Gratin with Chicken",
+      "category": "Chicken",
+      "area": "Italian",
+      "file": "images/meal-52780.jpg",
+      "latencyMs": 2686,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 6,
+      "seasoningCount": 2,
+      "unmatchedGroundTruth": 2,
+      "precision": 0.667,
+      "recall": 0.333,
+      "precisionCat": 1,
+      "recallCat": 0.667,
+      "coreHit": 0.667,
+      "tp": 2,
+      "totalKcal": 588,
+      "libraryHit": 1,
+      "libraryRate": 0.333,
+      "gramPairs": [
+        {
+          "item": "土豆",
+          "gt": 800,
+          "pred": 250,
+          "errPct": 0.6875
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "烤土豆片",
+          "g": 250,
+          "kcal": 193,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "培根肉卷",
+          "g": 120,
+          "kcal": 330,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "青豆",
+          "g": 80,
+          "kcal": 65,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "土豆",
+          "raw": "potatoes",
+          "measure": "800g",
+          "grams": 800,
+          "hit": true
+        },
+        {
+          "name": "帕玛森奶酪",
+          "raw": "parmesan",
+          "measure": "Topping",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "鸡胸肉",
+          "raw": "chicken breasts",
+          "measure": "4",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "培根",
+          "raw": "bacon",
+          "measure": "4",
+          "grams": null,
+          "hit": true
+        },
+        {
+          "name": "菠菜",
+          "raw": "spinach",
+          "measure": "Topping",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "豌豆",
+          "raw": "peas",
+          "measure": "Topping",
+          "grams": null,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "橄榄油",
+          "raw": "olive oil",
+          "measure": "2 tblsp"
+        },
+        {
+          "name": "鸡汤",
+          "raw": "chicken stock",
+          "measure": "100ml"
+        }
+      ]
+    },
+    {
+      "meal": "Spiced smoky barbecued chicken",
+      "category": "Chicken",
+      "area": "Australian",
+      "file": "images/meal-53105.jpg",
+      "latencyMs": 1953,
+      "notFood": false,
+      "itemsPredicted": 1,
+      "itemsGroundTruth": 1,
+      "seasoningCount": 9,
+      "unmatchedGroundTruth": 1,
+      "precision": 0,
+      "recall": 0,
+      "precisionCat": 1,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 0,
+      "totalKcal": 239,
+      "libraryHit": 1,
+      "libraryRate": 1,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "烤鸡胸肉",
+          "g": 180,
+          "kcal": 239,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "鸡腿肉",
+          "raw": "chicken thighs",
+          "measure": "12",
+          "grams": null,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "大蒜",
+          "raw": "garlic",
+          "measure": "2 cloves"
+        },
+        {
+          "name": "柠檬",
+          "raw": "lemon",
+          "measure": "Juice/zest of one"
+        },
+        {
+          "name": "咖喱粉",
+          "raw": "curry powder",
+          "measure": "2 tblsp"
+        },
+        {
+          "name": "橄榄油",
+          "raw": "olive oil",
+          "measure": "3  tablespoons"
+        },
+        {
+          "name": "迷迭香",
+          "raw": "rosemary",
+          "measure": "Bunch"
+        },
+        {
+          "name": "迷迭香",
+          "raw": "rosemary",
+          "measure": "Bunch"
+        },
+        {
+          "name": "百里香",
+          "raw": "thyme",
+          "measure": "Bunch"
+        },
+        {
+          "name": "百里香",
+          "raw": "thyme",
+          "measure": "Bunch"
+        },
+        {
+          "name": "香叶",
+          "raw": "bay leaves",
+          "measure": "2"
+        }
+      ]
+    },
+    {
+      "meal": "Beef Sunday Roast",
+      "category": "Beef",
+      "area": "British",
+      "file": "images/meal-52824.jpg",
+      "latencyMs": 3139,
+      "notFood": false,
+      "itemsPredicted": 6,
+      "itemsGroundTruth": 7,
+      "seasoningCount": 1,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.5,
+      "recall": 0.429,
+      "precisionCat": 0.833,
+      "recallCat": 0.571,
+      "coreHit": 0.667,
+      "tp": 3,
+      "totalKcal": 565,
+      "libraryHit": 3,
+      "libraryRate": 0.5,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "烤牛肉",
+          "g": 150,
+          "kcal": 285,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "烤胡萝卜",
+          "g": 80,
+          "kcal": 33,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "煮四季豆",
+          "g": 60,
+          "kcal": 20,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "烤土豆块",
+          "g": 100,
+          "kcal": 77,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "约克郡布丁",
+          "g": 50,
+          "kcal": 120,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "肉汁",
+          "g": 30,
+          "kcal": 30,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "牛肉",
+          "raw": "beef",
+          "measure": "8 slices",
+          "grams": null,
+          "hit": true
+        },
+        {
+          "name": "西兰花",
+          "raw": "broccoli",
+          "measure": "12 florets",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "土豆",
+          "raw": "potatoes",
+          "measure": "1 Packet",
+          "grams": null,
+          "hit": true
+        },
+        {
+          "name": "胡萝卜",
+          "raw": "carrots",
+          "measure": "1 Packet",
+          "grams": null,
+          "hit": true
+        },
+        {
+          "name": "面粉",
+          "raw": "plain flour",
+          "measure": "140g",
+          "grams": 140,
+          "hit": false
+        },
+        {
+          "name": "鸡蛋",
+          "raw": "eggs",
+          "measure": "4",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "牛奶",
+          "raw": "milk",
+          "measure": "200ml",
+          "grams": 200,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "葵花籽油",
+          "raw": "sunflower oil",
+          "measure": "drizzle (for cooking)"
+        }
+      ]
+    },
+    {
+      "meal": "Croatian Bean Stew",
+      "category": "Beef",
+      "area": "Croatian",
+      "file": "images/meal-53058.jpg",
+      "latencyMs": 1733,
+      "notFood": false,
+      "itemsPredicted": 1,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 4,
+      "unmatchedGroundTruth": 0,
+      "precision": 1,
+      "recall": 0.333,
+      "precisionCat": 1,
+      "recallCat": 0.667,
+      "coreHit": 0.667,
+      "tp": 1,
+      "totalKcal": 656,
+      "libraryHit": 1,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "番茄",
+          "gt": 400,
+          "pred": 400,
+          "errPct": 0
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "番茄鹰嘴豆炖牛肉",
+          "g": 400,
+          "kcal": 656,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "豆类",
+          "raw": "cannellini beans",
+          "measure": "2 cans",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "番茄",
+          "raw": "tomatoes",
+          "measure": "2 cups",
+          "grams": 400,
+          "hit": true
+        },
+        {
+          "name": "西班牙香肠",
+          "raw": "chorizo",
+          "measure": "1/2 kg chopped",
+          "grams": 1000,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "植物油",
+          "raw": "vegetable oil",
+          "measure": "3 tbs"
+        },
+        {
+          "name": "红葱头",
+          "raw": "challots",
+          "measure": "5"
+        },
+        {
+          "name": "大蒜",
+          "raw": "garlic",
+          "measure": "2 cloves"
+        },
+        {
+          "name": "欧芹",
+          "raw": "parsley",
+          "measure": "Pinch"
+        }
+      ]
+    },
+    {
+      "meal": "Beef Dumpling Stew",
+      "category": "Beef",
+      "area": "British",
+      "file": "images/meal-52873.jpg",
+      "latencyMs": 2811,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 5,
+      "seasoningCount": 11,
+      "unmatchedGroundTruth": 3,
+      "precision": 0.333,
+      "recall": 0,
+      "precisionCat": 0.667,
+      "recallCat": 0.6,
+      "coreHit": 0.333,
+      "tp": 1,
+      "totalKcal": 1362,
+      "libraryHit": 0,
+      "libraryRate": 0,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "炖肉（牛肉/羊肉配胡萝卜）",
+          "g": 450,
+          "kcal": 810,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "面疙瘩/饺子（碳水主食）",
+          "g": 250,
+          "kcal": 550,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "欧芹（装饰）",
+          "g": 5,
+          "kcal": 2,
+          "source": "model",
+          "confidence": "high"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "牛肉",
+          "raw": "beef",
+          "measure": "750g",
+          "grams": 750,
+          "hit": false
+        },
+        {
+          "name": "面粉",
+          "raw": "plain flour",
+          "measure": "2 tblsp",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "芹菜",
+          "raw": "celery",
+          "measure": "150g",
+          "grams": 150,
+          "hit": false
+        },
+        {
+          "name": "胡萝卜",
+          "raw": "carrots",
+          "measure": "150g",
+          "grams": 150,
+          "hit": false
+        },
+        {
+          "name": "面粉",
+          "raw": "plain flour",
+          "measure": "125g",
+          "grams": 125,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "橄榄油",
+          "raw": "olive oil",
+          "measure": "2 tbs"
+        },
+        {
+          "name": "黄油",
+          "raw": "butter",
+          "measure": "25g"
+        },
+        {
+          "name": "大蒜",
+          "raw": "garlic",
+          "measure": "2 cloves minced"
+        },
+        {
+          "name": "大葱",
+          "raw": "leek",
+          "measure": "2 chopped"
+        },
+        {
+          "name": "红葡萄酒",
+          "raw": "red wine",
+          "measure": "150ml"
+        },
+        {
+          "name": "牛肉高汤",
+          "raw": "beef stock",
+          "measure": "500g"
+        },
+        {
+          "name": "香叶",
+          "raw": "bay leaf",
+          "measure": "2"
+        },
+        {
+          "name": "百里香",
+          "raw": "thyme",
+          "measure": "3 tbs"
+        },
+        {
+          "name": "欧芹",
+          "raw": "parsley",
+          "measure": "3 tblsp chopped"
+        },
+        {
+          "name": "泡打粉",
+          "raw": "baking powder",
+          "measure": "1 tsp"
+        },
+        {
+          "name": "水",
+          "raw": "water",
+          "measure": "Splash"
+        }
+      ]
+    },
+    {
+      "meal": "Bigos (Polish hunter's stew)",
+      "category": "Beef",
+      "area": "Polish",
+      "file": "images/meal-53300.jpg",
+      "latencyMs": 2590,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 6,
+      "seasoningCount": 5,
+      "unmatchedGroundTruth": 5,
+      "precision": 0.333,
+      "recall": 0,
+      "precisionCat": 0.333,
+      "recallCat": 0.167,
+      "coreHit": 0.333,
+      "tp": 1,
+      "totalKcal": 467,
+      "libraryHit": 3,
+      "libraryRate": 1,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "炖肉块（猪肉/牛肉）",
+          "g": 200,
+          "kcal": 380,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "土豆块",
+          "g": 100,
+          "kcal": 77,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "番茄块",
+          "g": 50,
+          "kcal": 10,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "卷心菜",
+          "raw": "white cabbage",
+          "measure": "1 sliced",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "蘑菇",
+          "raw": "mushrooms",
+          "measure": "100g",
+          "grams": 100,
+          "hit": false
+        },
+        {
+          "name": "香肠",
+          "raw": "german sausages",
+          "measure": "400g",
+          "grams": 400,
+          "hit": false
+        },
+        {
+          "name": "培根",
+          "raw": "bacon",
+          "measure": "250g",
+          "grams": 250,
+          "hit": false
+        },
+        {
+          "name": "洋葱",
+          "raw": "onion",
+          "measure": "2 chopped",
+          "grams": null,
+          "hit": false
+        },
+        {
+          "name": "牛肉",
+          "raw": "beef",
+          "measure": "750g",
+          "grams": 750,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "牛肉高汤",
+          "raw": "beef stock",
+          "measure": "250ml"
+        },
+        {
+          "name": "香叶",
+          "raw": "bay leaf",
+          "measure": "1"
+        },
+        {
+          "name": "丁香",
+          "raw": "cloves",
+          "measure": "2"
+        },
+        {
+          "name": "红葡萄酒",
+          "raw": "red wine",
+          "measure": "90 ml"
+        },
+        {
+          "name": "番茄酱",
+          "raw": "tomato puree",
+          "measure": "2 tablespoons"
+        }
+      ]
+    },
+    {
+      "meal": "Asado",
+      "category": "Beef",
+      "area": "Argentina",
+      "file": "images/meal-53133.jpg",
+      "latencyMs": 2205,
+      "notFood": false,
+      "itemsPredicted": 2,
+      "itemsGroundTruth": 1,
+      "seasoningCount": 1,
+      "unmatchedGroundTruth": 2,
+      "precision": 0.5,
+      "recall": 1,
+      "precisionCat": 0.5,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 1,
+      "totalKcal": 1320,
+      "libraryHit": 0,
+      "libraryRate": 0,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "烤排骨",
+          "g": 300,
+          "kcal": 840,
+          "source": "model",
+          "confidence": "low"
+        },
+        {
+          "name": "烤香肠",
+          "g": 150,
+          "kcal": 480,
+          "source": "model",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "西班牙香肠",
+          "raw": "chorizo",
+          "measure": "4",
+          "grams": null,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "盐",
+          "raw": "salt",
+          "measure": "To taste"
+        }
+      ]
+    },
+    {
+      "meal": "Beef stroganoff",
+      "category": "Beef",
+      "area": "Russian",
+      "file": "images/meal-52834.jpg",
+      "latencyMs": 2391,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 2,
+      "seasoningCount": 6,
+      "unmatchedGroundTruth": 3,
+      "precision": 0.333,
+      "recall": 0.5,
+      "precisionCat": 0.667,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 1,
+      "totalKcal": 818,
+      "libraryHit": 3,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "蘑菇",
+          "gt": 250,
+          "pred": 150,
+          "errPct": 0.4
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "奶油蘑菇酱汁",
+          "g": 150,
+          "kcal": 521,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "宽面条（意面）",
+          "g": 180,
+          "kcal": 284,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "芦笋",
+          "g": 60,
+          "kcal": 13,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "蘑菇",
+          "raw": "mushrooms",
+          "measure": "250g",
+          "grams": 250,
+          "hit": true
+        },
+        {
+          "name": "面粉",
+          "raw": "plain flour",
+          "measure": "1tbsp",
+          "grams": 15,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "橄榄油",
+          "raw": "olive oil",
+          "measure": "1 tbls"
+        },
+        {
+          "name": "大蒜",
+          "raw": "garlic",
+          "measure": "1 clove"
+        },
+        {
+          "name": "黄油",
+          "raw": "butter",
+          "measure": "1 tbsp"
+        },
+        {
+          "name": "芥末",
+          "raw": "english mustard",
+          "measure": "1 tbsp"
+        },
+        {
+          "name": "牛肉高汤",
+          "raw": "beef stock",
+          "measure": "100ml"
+        },
+        {
+          "name": "欧芹",
+          "raw": "parsley",
+          "measure": "Topping"
+        }
+      ]
+    }
+  ],
+  "nonFoodRows": []
+}
