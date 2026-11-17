@@ -18,7 +18,7 @@ const CASES = [
   { name: '迷你碗仔面（海鲜风味）', expect: null, why: '只与"风味酸奶"共享泛化词"风味"' },
   { name: '面汤', expect: null, why: '曾错配到"意面（熟）"，导致 300g 算出 474kcal' },
   { name: '青豆', expect: '豌豆', why: '中文里"青豆"主要指豌豆；曾错配到"青椒"' },
-  { name: '葱花', expect: null, why: '曾错配到"西兰花"；加别名后也不能被"花卷"抢走' },
+  { name: '葱花', expect: '小葱', why: '曾错配到"西兰花"；补了小葱条目后应命中同义项，而不是任意含"葱/花"的词' },
   { name: '麻辣香锅', expect: null, why: '库中无对应条目' },
 
   // —— 应当命中 ——
@@ -41,6 +41,9 @@ const CASES = [
   { name: '土豆', expect: '土豆（蒸）', why: '完全一致（不能被"薯片"的别名抢走）' },
   { name: '炒饭', expect: '蛋炒饭', why: '别名映射' },
   { name: '意大利面', expect: '意面（熟）', why: '别名映射' },
+  { name: '皮皮虾', expect: '皮皮虾', why: '真实一餐里出现过，已单独建条目（不能落到"虾"以外的项）' },
+  { name: '红米肠', expect: '红米肠', why: '早茶点心，别名含肠粉' },
+  { name: '鸭胗', expect: '卤鸭胗', why: '内脏类条目' },
 ];
 
 let pass = 0;

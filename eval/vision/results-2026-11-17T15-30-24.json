@@ -1,0 +1,2114 @@
+{
+  "summary": {
+    "generatedAt": "2026-11-17T15:30:24.436Z",
+    "api": "http://127.0.0.1:3000",
+    "dataset": {
+      "source": "团队自摄（学生手机拍摄，非摆拍素材库）",
+      "meals": 21,
+      "nonFood": 0,
+      "groundTruthIngredients": 73,
+      "seasoningExcluded": 2
+    },
+    "food": {
+      "avgPrecision": 52.7,
+      "avgRecall": 62.3,
+      "avgF1": 57.1,
+      "microPrecision": 51,
+      "microRecall": 67.1,
+      "microF1": 58,
+      "categoryPrecision": 68.2,
+      "categoryRecall": 81.4,
+      "categoryF1": 74.3,
+      "coreIngredientHitRate": 82.5,
+      "falseRejectionRate": 0
+    },
+    "portion": {
+      "pairs": 42,
+      "sameOrderPct": 97.6,
+      "medianRatio": 1,
+      "intervalConsistencyPct": 100,
+      "saneRangePct": 99
+    },
+    "rejection": {
+      "accuracy": null,
+      "samples": 0
+    },
+    "libraryHitRate": 67.7,
+    "subsets": {
+      "chinese": null,
+      "other": {
+        "meals": 21,
+        "strictP": 52.7,
+        "strictR": 62.3,
+        "strictF1": 57.1,
+        "categoryP": 68.2,
+        "categoryR": 81.4,
+        "categoryF1": 74.3,
+        "coreHit": 82.5,
+        "libraryHit": 67.7
+      }
+    },
+    "latency": {
+      "p50": 3254,
+      "p95": 4376,
+      "samples": 20
+    }
+  },
+  "rows": [
+    {
+      "meal": "蒜蓉烤茄子",
+      "area": "烧烤店",
+      "file": "images/e514dabb7afa015fcbe784dc6e57683e.jpg",
+      "latencyMs": 2689,
+      "notFood": false,
+      "itemsPredicted": 5,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 1,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.8,
+      "recall": 1,
+      "precisionCat": 0.6,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 4,
+      "intervalOk": 5,
+      "saneOk": 5,
+      "totalKcal": 365,
+      "libraryHit": 4,
+      "libraryRate": 0.8,
+      "gramPairs": [
+        {
+          "item": "茄子",
+          "gt": 250,
+          "pred": 250,
+          "ratio": 1
+        },
+        {
+          "item": "猪肉末",
+          "gt": 40,
+          "pred": 60,
+          "ratio": 1.5
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "茄子",
+          "g": 250,
+          "kcal": 58,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "猪肉末",
+          "g": 60,
+          "kcal": 86,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "大蒜",
+          "g": 30,
+          "kcal": 38,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "食用油",
+          "g": 20,
+          "kcal": 180,
+          "source": "library",
+          "confidence": "low"
+        },
+        {
+          "name": "红辣椒",
+          "g": 10,
+          "kcal": 3,
+          "source": "model",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "茄子",
+          "raw": "茄子",
+          "measure": "目测约 250g",
+          "grams": 250,
+          "hit": true
+        },
+        {
+          "name": "猪肉末",
+          "raw": "肉末",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "hit": true
+        },
+        {
+          "name": "辣椒",
+          "raw": "辣椒碎",
+          "measure": "目测约 5g",
+          "grams": 5,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "大蒜",
+          "raw": "蒜蓉",
+          "measure": "目测约 15g"
+        }
+      ]
+    },
+    {
+      "meal": "烤串（肉串 + 烤秋葵）",
+      "area": "烧烤店",
+      "file": "images/b04db51f66e87aee26517ff25cb40cc7.jpg",
+      "latencyMs": 2624,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.25,
+      "recall": 0.333,
+      "precisionCat": 0.25,
+      "recallCat": 0.333,
+      "coreHit": 0.333,
+      "tp": 1,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 604,
+      "libraryHit": 3,
+      "libraryRate": 0.75,
+      "gramPairs": [
+        {
+          "item": "羊肉串",
+          "gt": 120,
+          "pred": 120,
+          "ratio": 1
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "烤羊肉串",
+          "g": 120,
+          "kcal": 244,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "烤鸡翅",
+          "g": 70,
+          "kcal": 158,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "烤青椒",
+          "g": 100,
+          "kcal": 22,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "葵花籽",
+          "g": 30,
+          "kcal": 180,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "羊肉串",
+          "raw": "肉串",
+          "measure": "目测 8~10 串约 120g",
+          "grams": 120,
+          "hit": true
+        },
+        {
+          "name": "秋葵",
+          "raw": "烤秋葵",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "hit": false
+        },
+        {
+          "name": "茶",
+          "raw": "茶水",
+          "measure": "1 壶",
+          "grams": null,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "干锅鱼（青红椒番茄）",
+      "area": "餐厅",
+      "file": "images/9af3bb61ef123bba5b11bdcc26e712ed.jpg",
+      "latencyMs": 3260,
+      "notFood": false,
+      "itemsPredicted": 5,
+      "itemsGroundTruth": 4,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.8,
+      "recall": 1,
+      "precisionCat": 1,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 4,
+      "intervalOk": 5,
+      "saneOk": 5,
+      "totalKcal": 477,
+      "libraryHit": 3,
+      "libraryRate": 0.6,
+      "gramPairs": [
+        {
+          "item": "鱼",
+          "gt": 400,
+          "pred": 350,
+          "ratio": 0.88
+        },
+        {
+          "item": "青椒",
+          "gt": 60,
+          "pred": 60,
+          "ratio": 1
+        },
+        {
+          "item": "番茄",
+          "gt": 60,
+          "pred": 80,
+          "ratio": 1.33
+        },
+        {
+          "item": "洋葱",
+          "gt": 50,
+          "pred": 40,
+          "ratio": 0.8
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "鱼肉",
+          "g": 350,
+          "kcal": 420,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "青椒",
+          "g": 60,
+          "kcal": 13,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "红椒",
+          "g": 40,
+          "kcal": 12,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "番茄",
+          "g": 80,
+          "kcal": 16,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "洋葱",
+          "g": 40,
+          "kcal": 16,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "鱼",
+          "raw": "鱼",
+          "measure": "整条约 400g",
+          "grams": 400,
+          "hit": true
+        },
+        {
+          "name": "青椒",
+          "raw": "青椒",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        },
+        {
+          "name": "番茄",
+          "raw": "番茄/红椒",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        },
+        {
+          "name": "洋葱",
+          "raw": "洋葱",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "炒米粉（肉片青椒）",
+      "area": "食堂",
+      "file": "images/69c72d5390a9dcd413eba4f0832a3618.jpg",
+      "latencyMs": 3284,
+      "notFood": false,
+      "itemsPredicted": 5,
+      "itemsGroundTruth": 4,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.4,
+      "recall": 0.5,
+      "precisionCat": 0.6,
+      "recallCat": 0.5,
+      "coreHit": 0.667,
+      "tp": 2,
+      "intervalOk": 5,
+      "saneOk": 5,
+      "totalKcal": 387,
+      "libraryHit": 4,
+      "libraryRate": 0.8,
+      "gramPairs": [
+        {
+          "item": "猪肉",
+          "gt": 60,
+          "pred": 70,
+          "ratio": 1.17
+        },
+        {
+          "item": "青椒",
+          "gt": 30,
+          "pred": 20,
+          "ratio": 0.67
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "面条",
+          "g": 220,
+          "kcal": 260,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "猪肉块",
+          "g": 70,
+          "kcal": 100,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "笋条",
+          "g": 30,
+          "kcal": 8,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "青椒",
+          "g": 20,
+          "kcal": 4,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "干辣椒碎",
+          "g": 5,
+          "kcal": 15,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "米粉",
+          "raw": "米粉",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "hit": false
+        },
+        {
+          "name": "猪肉",
+          "raw": "猪肉",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        },
+        {
+          "name": "青椒",
+          "raw": "青椒",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "hit": true
+        },
+        {
+          "name": "酸菜",
+          "raw": "酸菜",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "炸鸡（3 块，撒辣椒粉）",
+      "area": "外卖",
+      "file": "images/1063168286d4c0e4a55b4ba664d4e72d.jpg",
+      "latencyMs": 3868,
+      "notFood": false,
+      "itemsPredicted": 3,
+      "itemsGroundTruth": 1,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 1,
+      "recall": 1,
+      "precisionCat": 1,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 3,
+      "intervalOk": 3,
+      "saneOk": 3,
+      "totalKcal": 1257,
+      "libraryHit": 3,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "炸鸡",
+          "gt": 220,
+          "pred": 150,
+          "ratio": 0.68
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "炸鸡腿（带骨）",
+          "g": 150,
+          "kcal": 419,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "炸鸡腿（带骨）",
+          "g": 150,
+          "kcal": 419,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "炸鸡腿（带骨）",
+          "g": 150,
+          "kcal": 419,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "炸鸡",
+          "raw": "炸鸡腿",
+          "measure": "3 块约 220g",
+          "grams": 220,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "卤味两盒（腐竹海带藕片 + 卤鸡心）",
+      "area": "外卖打包",
+      "file": "images/edd2a05801b07c00c841f323abeda59d.jpg",
+      "latencyMs": 2706,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 4,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.75,
+      "recall": 0.75,
+      "precisionCat": 0.75,
+      "recallCat": 0.75,
+      "coreHit": 0.667,
+      "tp": 3,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 445,
+      "libraryHit": 3,
+      "libraryRate": 0.75,
+      "gramPairs": [
+        {
+          "item": "腐竹",
+          "gt": 80,
+          "pred": 60,
+          "ratio": 0.75
+        },
+        {
+          "item": "海带",
+          "gt": 50,
+          "pred": 50,
+          "ratio": 1
+        },
+        {
+          "item": "莲藕",
+          "gt": 50,
+          "pred": 70,
+          "ratio": 1.4
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "腐竹",
+          "g": 60,
+          "kcal": 277,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "海带",
+          "g": 50,
+          "kcal": 7,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "莲藕",
+          "g": 70,
+          "kcal": 51,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "卤鸭胗",
+          "g": 120,
+          "kcal": 110,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "腐竹",
+          "raw": "腐竹",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "hit": true
+        },
+        {
+          "name": "海带",
+          "raw": "海带结",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "hit": true
+        },
+        {
+          "name": "莲藕",
+          "raw": "莲藕片",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "hit": true
+        },
+        {
+          "name": "鸡心",
+          "raw": "卤鸡心",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "早茶点心四碟（虾饺 / 肉丸 / 红米肠 / 卤牛肚）",
+      "area": "餐厅早茶",
+      "file": "images/643111c838392b939286f850298e1ab4.jpg",
+      "latencyMs": 3254,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 5,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.5,
+      "recall": 0.4,
+      "precisionCat": 0.75,
+      "recallCat": 0.8,
+      "coreHit": 1,
+      "tp": 2,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 1028,
+      "libraryHit": 1,
+      "libraryRate": 0.25,
+      "gramPairs": [
+        {
+          "item": "虾饺",
+          "gt": 80,
+          "pred": 90,
+          "ratio": 1.13
+        },
+        {
+          "item": "牛肉丸",
+          "gt": 90,
+          "pred": 120,
+          "ratio": 1.33
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "虾饺",
+          "g": 90,
+          "kcal": 180,
+          "source": "model",
+          "confidence": "high"
+        },
+        {
+          "name": "牛肉丸",
+          "g": 120,
+          "kcal": 228,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "红米肠",
+          "g": 150,
+          "kcal": 330,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "卤味拼盘（含猪肚、大肠、青椒）",
+          "g": 180,
+          "kcal": 290,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "虾饺",
+          "raw": "虾饺",
+          "measure": "4 只约 80g",
+          "grams": 80,
+          "hit": true
+        },
+        {
+          "name": "牛肉丸",
+          "raw": "肉丸",
+          "measure": "3 个约 90g",
+          "grams": 90,
+          "hit": true
+        },
+        {
+          "name": "肠粉",
+          "raw": "红米肠",
+          "measure": "3 段约 120g",
+          "grams": 120,
+          "hit": false
+        },
+        {
+          "name": "牛肚",
+          "raw": "卤牛肚",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "hit": false
+        },
+        {
+          "name": "木耳",
+          "raw": "木耳/菌菇",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "家常拼盆（白灼虾 / 卤肉 / 花生 / 蒸蛋 / 青菜）",
+      "area": "家常",
+      "file": "images/a4d170cd397214f1c5142c8bba2bb7a9.jpg",
+      "latencyMs": 3950,
+      "notFood": false,
+      "itemsPredicted": 6,
+      "itemsGroundTruth": 5,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.667,
+      "recall": 0.8,
+      "precisionCat": 0.667,
+      "recallCat": 0.8,
+      "coreHit": 0.667,
+      "tp": 4,
+      "intervalOk": 6,
+      "saneOk": 6,
+      "totalKcal": 862,
+      "libraryHit": 6,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "虾",
+          "gt": 120,
+          "pred": 100,
+          "ratio": 0.83
+        },
+        {
+          "item": "花生",
+          "gt": 40,
+          "pred": 50,
+          "ratio": 1.25
+        },
+        {
+          "item": "鸡蛋羹",
+          "gt": 80,
+          "pred": 100,
+          "ratio": 1.25
+        },
+        {
+          "item": "青菜",
+          "gt": 80,
+          "pred": 80,
+          "ratio": 1
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "基围虾",
+          "g": 100,
+          "kcal": 101,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "清蒸排骨",
+          "g": 120,
+          "kcal": 334,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "卤花生",
+          "g": 50,
+          "kcal": 287,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "蒸蛋",
+          "g": 100,
+          "kcal": 76,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "炒青菜",
+          "g": 80,
+          "kcal": 56,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "卤香菇",
+          "g": 30,
+          "kcal": 8,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "虾",
+          "raw": "白灼虾",
+          "measure": "7 只约 120g（带壳）",
+          "grams": 120,
+          "hit": true
+        },
+        {
+          "name": "猪肉",
+          "raw": "卤肉块",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "hit": false
+        },
+        {
+          "name": "花生",
+          "raw": "花生",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "hit": true
+        },
+        {
+          "name": "鸡蛋羹",
+          "raw": "蒸蛋",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "hit": true
+        },
+        {
+          "name": "青菜",
+          "raw": "炒青菜",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "榴莲（4 块果肉）",
+      "area": "外卖/自购",
+      "file": "images/230bd045b22d99f6ce8fd433f98ff9af.jpg",
+      "latencyMs": 1886,
+      "notFood": false,
+      "itemsPredicted": 1,
+      "itemsGroundTruth": 1,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 1,
+      "recall": 1,
+      "precisionCat": 1,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 1,
+      "intervalOk": 1,
+      "saneOk": 1,
+      "totalKcal": 450,
+      "libraryHit": 1,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "榴莲",
+          "gt": 350,
+          "pred": 300,
+          "ratio": 0.86
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "榴莲果肉",
+          "g": 300,
+          "kcal": 450,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "榴莲",
+          "raw": "榴莲肉",
+          "measure": "4 块约 350g",
+          "grams": 350,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "牛肉盖饭套餐（含沙拉与汤）",
+      "area": "餐厅",
+      "file": "images/3847076e8ac930bc90e05ce9f7658c72.jpg",
+      "latencyMs": 4251,
+      "notFood": false,
+      "itemsPredicted": 7,
+      "itemsGroundTruth": 5,
+      "seasoningCount": 1,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.571,
+      "recall": 0.8,
+      "precisionCat": 0.714,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 4,
+      "intervalOk": 7,
+      "saneOk": 7,
+      "totalKcal": 779,
+      "libraryHit": 4,
+      "libraryRate": 0.571,
+      "gramPairs": [
+        {
+          "item": "洋葱",
+          "gt": 40,
+          "pred": 50,
+          "ratio": 1.25
+        },
+        {
+          "item": "米饭",
+          "gt": 180,
+          "pred": 200,
+          "ratio": 1.11
+        },
+        {
+          "item": "生菜",
+          "gt": 100,
+          "pred": 80,
+          "ratio": 0.8
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "米饭",
+          "g": 200,
+          "kcal": 232,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "肥牛卷",
+          "g": 120,
+          "kcal": 300,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "洋葱",
+          "g": 50,
+          "kcal": 20,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "海苔丝",
+          "g": 5,
+          "kcal": 10,
+          "source": "model",
+          "confidence": "high"
+        },
+        {
+          "name": "生菜沙拉",
+          "g": 80,
+          "kcal": 12,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "沙拉酱",
+          "g": 25,
+          "kcal": 170,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "味噌汤",
+          "g": 180,
+          "kcal": 35,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "牛肉",
+          "raw": "肥牛",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "hit": false
+        },
+        {
+          "name": "洋葱",
+          "raw": "洋葱",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "hit": true
+        },
+        {
+          "name": "米饭",
+          "raw": "米饭",
+          "measure": "目测约 180g",
+          "grams": 180,
+          "hit": true
+        },
+        {
+          "name": "生菜",
+          "raw": "生菜沙拉",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "hit": true
+        },
+        {
+          "name": "海苔",
+          "raw": "海苔",
+          "measure": "少量",
+          "grams": null,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": [
+        {
+          "name": "蛋黄酱",
+          "raw": "沙拉酱",
+          "measure": "目测约 20g"
+        }
+      ]
+    },
+    {
+      "meal": "麻辣拉面（溏心蛋 + 肉片）",
+      "area": "餐厅",
+      "file": "images/c98060a0f61fd3aa806ebea93775c5f9.jpg",
+      "latencyMs": 4376,
+      "notFood": false,
+      "itemsPredicted": 6,
+      "itemsGroundTruth": 4,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.333,
+      "recall": 0.5,
+      "precisionCat": 0.667,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 2,
+      "intervalOk": 6,
+      "saneOk": 6,
+      "totalKcal": 821,
+      "libraryHit": 3,
+      "libraryRate": 0.5,
+      "gramPairs": [
+        {
+          "item": "拉面",
+          "gt": 180,
+          "pred": 200,
+          "ratio": 1.11
+        },
+        {
+          "item": "豆芽",
+          "gt": 50,
+          "pred": 30,
+          "ratio": 0.6
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "拉面",
+          "g": 200,
+          "kcal": 236,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "叉烧肉",
+          "g": 80,
+          "kcal": 292,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "溏心蛋",
+          "g": 50,
+          "kcal": 75,
+          "source": "model",
+          "confidence": "high"
+        },
+        {
+          "name": "黄豆芽",
+          "g": 30,
+          "kcal": 5,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "葱花",
+          "g": 10,
+          "kcal": 3,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "辣味豚骨汤底",
+          "g": 300,
+          "kcal": 210,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "拉面",
+          "raw": "拉面",
+          "measure": "1 碗约 180g",
+          "grams": 180,
+          "hit": true
+        },
+        {
+          "name": "鸡蛋",
+          "raw": "溏心蛋",
+          "measure": "半个约 25g",
+          "grams": 25,
+          "hit": false
+        },
+        {
+          "name": "猪肉",
+          "raw": "肉片",
+          "measure": "2~3 片约 80g",
+          "grams": 80,
+          "hit": false
+        },
+        {
+          "name": "豆芽",
+          "raw": "豆芽青菜",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "家常一锅煮（乌冬面 + 虾 + 猪肉 + 油豆腐）",
+      "area": "家常自制",
+      "file": "images/92ed6c1dbe90dca8c918b69632862b01.jpg",
+      "latencyMs": 4578,
+      "notFood": false,
+      "itemsPredicted": 7,
+      "itemsGroundTruth": 6,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.714,
+      "recall": 0.833,
+      "precisionCat": 0.857,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 5,
+      "intervalOk": 7,
+      "saneOk": 7,
+      "totalKcal": 610,
+      "libraryHit": 5,
+      "libraryRate": 0.714,
+      "gramPairs": [
+        {
+          "item": "豆腐",
+          "gt": 60,
+          "pred": 120,
+          "ratio": 2
+        },
+        {
+          "item": "虾",
+          "gt": 20,
+          "pred": 30,
+          "ratio": 1.5
+        },
+        {
+          "item": "猪肉",
+          "gt": 60,
+          "pred": 50,
+          "ratio": 0.83
+        },
+        {
+          "item": "青菜",
+          "gt": 60,
+          "pred": 80,
+          "ratio": 1.33
+        },
+        {
+          "item": "莲藕",
+          "gt": 20,
+          "pred": 40,
+          "ratio": 2
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "乌冬面",
+          "g": 200,
+          "kcal": 260,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "鸡蛋豆腐",
+          "g": 120,
+          "kcal": 172,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "猪肉片",
+          "g": 50,
+          "kcal": 72,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "虾仁",
+          "g": 30,
+          "kcal": 30,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "莲藕片",
+          "g": 40,
+          "kcal": 29,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "青菜",
+          "g": 80,
+          "kcal": 12,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "鱼丸",
+          "g": 30,
+          "kcal": 35,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "面条",
+          "raw": "乌冬面",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "hit": false
+        },
+        {
+          "name": "豆腐",
+          "raw": "油豆腐",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        },
+        {
+          "name": "虾",
+          "raw": "虾",
+          "measure": "2 只约 20g",
+          "grams": 20,
+          "hit": true
+        },
+        {
+          "name": "猪肉",
+          "raw": "猪肉片",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        },
+        {
+          "name": "青菜",
+          "raw": "青菜",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        },
+        {
+          "name": "莲藕",
+          "raw": "藕片",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "清蒸大闸蟹 + 皮皮虾",
+      "area": "家常",
+      "file": "images/9c570823ec0c7fae3f1a928038cec39b.jpg",
+      "latencyMs": 2395,
+      "notFood": false,
+      "itemsPredicted": 2,
+      "itemsGroundTruth": 2,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.5,
+      "recall": 0.5,
+      "precisionCat": 1,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 1,
+      "intervalOk": 2,
+      "saneOk": 2,
+      "totalKcal": 978,
+      "libraryHit": 1,
+      "libraryRate": 0.5,
+      "gramPairs": [
+        {
+          "item": "虾",
+          "gt": 80,
+          "pred": 400,
+          "ratio": 5
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "大闸蟹（带壳）",
+          "g": 600,
+          "kcal": 618,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "皮皮虾（带壳）",
+          "g": 400,
+          "kcal": 360,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "螃蟹",
+          "raw": "大闸蟹",
+          "measure": "4 只约 500g（可食约 150g）",
+          "grams": 150,
+          "hit": false
+        },
+        {
+          "name": "虾",
+          "raw": "皮皮虾",
+          "measure": "8 只约 200g（可食约 80g）",
+          "grams": 80,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "锅包肉 / 糖醋里脊",
+      "area": "餐厅",
+      "file": "images/2f0f1b36940a893a75b17c00246ada78.jpg",
+      "latencyMs": 3744,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 2,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.25,
+      "recall": 0.5,
+      "precisionCat": 0.25,
+      "recallCat": 0.5,
+      "coreHit": 0.5,
+      "tp": 1,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 367,
+      "libraryHit": 2,
+      "libraryRate": 0.5,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "炸肉段（猪里脊裹面糊）",
+          "g": 180,
+          "kcal": 279,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "胡萝卜丝",
+          "g": 15,
+          "kcal": 6,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "香菜",
+          "g": 10,
+          "kcal": 2,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "糖醋酱汁（含糖、醋、酱油、淀粉）",
+          "g": 40,
+          "kcal": 80,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "糖醋里脊",
+          "raw": "锅包肉",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "hit": false
+        },
+        {
+          "name": "胡萝卜",
+          "raw": "胡萝卜丝",
+          "measure": "少量约 10g",
+          "grams": 10,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "铁锅炖（贴玉米饼 + 土豆炖肉）",
+      "area": "餐厅",
+      "file": "images/e55d22deb771c38ec60142556a4f52af.jpg",
+      "latencyMs": 2760,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.25,
+      "recall": 0.333,
+      "precisionCat": 0.75,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 1,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 628,
+      "libraryHit": 2,
+      "libraryRate": 0.5,
+      "gramPairs": [
+        {
+          "item": "土豆",
+          "gt": 150,
+          "pred": 150,
+          "ratio": 1
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "贴饼子（玉米面饼）",
+          "g": 150,
+          "kcal": 129,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "带骨鸡肉",
+          "g": 200,
+          "kcal": 380,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "土豆",
+          "g": 150,
+          "kcal": 116,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "香菜",
+          "g": 10,
+          "kcal": 3,
+          "source": "model",
+          "confidence": "high"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "玉米饼",
+          "raw": "玉米饼",
+          "measure": "8 块约 300g",
+          "grams": 300,
+          "hit": false
+        },
+        {
+          "name": "土豆",
+          "raw": "土豆片",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "hit": true
+        },
+        {
+          "name": "猪肉",
+          "raw": "炖肉",
+          "measure": "目测约 250g",
+          "grams": 250,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "家庭火锅备菜（番茄锅底 + 毛肚 + 肉片 + 花蛤 + 鱼丸）",
+      "area": "家常火锅",
+      "file": "images/f8b282bf2bb231249e2798f81f965526.jpg",
+      "latencyMs": 17094,
+      "notFood": false,
+      "itemsPredicted": 8,
+      "itemsGroundTruth": 6,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.375,
+      "recall": 0.333,
+      "precisionCat": 0.625,
+      "recallCat": 0.5,
+      "coreHit": 0.667,
+      "tp": 3,
+      "intervalOk": 8,
+      "saneOk": 7,
+      "totalKcal": 2252,
+      "libraryHit": 3,
+      "libraryRate": 0.375,
+      "gramPairs": [
+        {
+          "item": "牛肉",
+          "gt": 150,
+          "pred": 150,
+          "ratio": 1
+        },
+        {
+          "item": "鱼丸",
+          "gt": 200,
+          "pred": 200,
+          "ratio": 1
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "火锅汤底",
+          "g": 1500,
+          "kcal": 600,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "牛肉片",
+          "g": 150,
+          "kcal": 285,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "猪肉片",
+          "g": 150,
+          "kcal": 215,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "鱼片",
+          "g": 200,
+          "kcal": 180,
+          "source": "model",
+          "confidence": "high"
+        },
+        {
+          "name": "大虾",
+          "g": 200,
+          "kcal": 202,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "花蛤",
+          "g": 250,
+          "kcal": 155,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "鱼丸",
+          "g": 150,
+          "kcal": 165,
+          "source": "model",
+          "confidence": "high"
+        },
+        {
+          "name": "炸腐皮/响铃卷",
+          "g": 100,
+          "kcal": 450,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "毛肚",
+          "raw": "毛肚",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "hit": false
+        },
+        {
+          "name": "牛肉",
+          "raw": "肉片",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "hit": true
+        },
+        {
+          "name": "蛤蜊",
+          "raw": "花蛤",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "hit": false
+        },
+        {
+          "name": "鱼丸",
+          "raw": "鱼丸",
+          "measure": "1 袋约 200g",
+          "grams": 200,
+          "hit": true
+        },
+        {
+          "name": "腐竹",
+          "raw": "炸豆皮",
+          "measure": "1 盘约 100g",
+          "grams": 100,
+          "hit": false
+        },
+        {
+          "name": "番茄",
+          "raw": "番茄锅底",
+          "measure": "1 锅",
+          "grams": null,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "卤味锅（鸡爪 + 油豆腐 + 生菜）",
+      "area": "连锁小吃店",
+      "file": "images/002f1348a1ce6af9cf02833adbeb9088.jpg",
+      "latencyMs": 3226,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.75,
+      "recall": 1,
+      "precisionCat": 0.75,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 3,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 483,
+      "libraryHit": 2,
+      "libraryRate": 0.5,
+      "gramPairs": [
+        {
+          "item": "鸡爪",
+          "gt": 150,
+          "pred": 120,
+          "ratio": 0.8
+        },
+        {
+          "item": "豆腐",
+          "gt": 80,
+          "pred": 60,
+          "ratio": 0.75
+        },
+        {
+          "item": "生菜",
+          "gt": 120,
+          "pred": 150,
+          "ratio": 1.25
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "卤鸡爪",
+          "g": 120,
+          "kcal": 300,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "油豆腐",
+          "g": 60,
+          "kcal": 70,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "芋头块",
+          "g": 80,
+          "kcal": 90,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "生菜",
+          "g": 150,
+          "kcal": 23,
+          "source": "library",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "鸡爪",
+          "raw": "卤鸡爪",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "hit": true
+        },
+        {
+          "name": "豆腐",
+          "raw": "油豆腐",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "hit": true
+        },
+        {
+          "name": "生菜",
+          "raw": "生菜",
+          "measure": "1 盘约 120g",
+          "grams": 120,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "蘑菇木耳炒肉盖饭",
+      "area": "餐厅",
+      "file": "images/56349a96fc385e35cd24bc78f95cc744.jpg",
+      "latencyMs": 3031,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.5,
+      "recall": 0.667,
+      "precisionCat": 0.75,
+      "recallCat": 1,
+      "coreHit": 1,
+      "tp": 2,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 345,
+      "libraryHit": 4,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "米饭",
+          "gt": 200,
+          "pred": 200,
+          "ratio": 1
+        },
+        {
+          "item": "蘑菇",
+          "gt": 60,
+          "pred": 120,
+          "ratio": 2
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "米饭",
+          "g": 200,
+          "kcal": 232,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "猪瘦肉",
+          "g": 100,
+          "kcal": 70,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "蘑菇",
+          "g": 120,
+          "kcal": 31,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "洋葱",
+          "g": 30,
+          "kcal": 12,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "米饭",
+          "raw": "米饭",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "hit": true
+        },
+        {
+          "name": "猪肉",
+          "raw": "炒肉片",
+          "measure": "目测约 90g",
+          "grams": 90,
+          "hit": false
+        },
+        {
+          "name": "蘑菇",
+          "raw": "蘑菇",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "hit": true
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "苦瓜炒肉盖饭",
+      "area": "餐厅",
+      "file": "images/c3d32cede8b60a5fc46d108ddd237594.jpg",
+      "latencyMs": 4052,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 3,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.25,
+      "recall": 0.333,
+      "precisionCat": 0.5,
+      "recallCat": 0.667,
+      "coreHit": 0.667,
+      "tp": 1,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 332,
+      "libraryHit": 4,
+      "libraryRate": 1,
+      "gramPairs": [
+        {
+          "item": "米饭",
+          "gt": 200,
+          "pred": 200,
+          "ratio": 1
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "米饭",
+          "g": 200,
+          "kcal": 232,
+          "source": "library",
+          "confidence": "high"
+        },
+        {
+          "name": "猪瘦肉",
+          "g": 100,
+          "kcal": 70,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "青椒",
+          "g": 80,
+          "kcal": 18,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "洋葱",
+          "g": 30,
+          "kcal": 12,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "米饭",
+          "raw": "米饭",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "hit": true
+        },
+        {
+          "name": "猪肉",
+          "raw": "炒肉片",
+          "measure": "目测约 90g",
+          "grams": 90,
+          "hit": false
+        },
+        {
+          "name": "苦瓜",
+          "raw": "苦瓜",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "螺蛳粉 / 红油汤粉",
+      "area": "小吃店",
+      "file": "images/e5d3773f6f7dfbfbd886288a76ff6c2c.jpg",
+      "latencyMs": 3845,
+      "notFood": false,
+      "itemsPredicted": 5,
+      "itemsGroundTruth": 4,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0.4,
+      "recall": 0.5,
+      "precisionCat": 0.6,
+      "recallCat": 0.75,
+      "coreHit": 0.667,
+      "tp": 2,
+      "intervalOk": 5,
+      "saneOk": 5,
+      "totalKcal": 286,
+      "libraryHit": 3,
+      "libraryRate": 0.6,
+      "gramPairs": [
+        {
+          "item": "米粉",
+          "gt": 200,
+          "pred": 120,
+          "ratio": 0.6
+        },
+        {
+          "item": "白萝卜",
+          "gt": 40,
+          "pred": 50,
+          "ratio": 1.25
+        }
+      ],
+      "predDetail": [
+        {
+          "name": "炸脆皮（炸猪皮/炸云吞皮）",
+          "g": 40,
+          "kcal": 76,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "白萝卜丝",
+          "g": 50,
+          "kcal": 11,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "深色汤底（含肉汤与调味料）",
+          "g": 250,
+          "kcal": 80,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "绿叶蔬菜（罗勒/空心菜）",
+          "g": 15,
+          "kcal": 3,
+          "source": "model",
+          "confidence": "low"
+        },
+        {
+          "name": "米粉/面条（沉于汤底）",
+          "g": 120,
+          "kcal": 116,
+          "source": "library",
+          "confidence": "low"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "米粉",
+          "raw": "米粉",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "hit": true
+        },
+        {
+          "name": "腐竹",
+          "raw": "炸腐竹",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "hit": false
+        },
+        {
+          "name": "白萝卜",
+          "raw": "酸笋/白萝卜丝",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "hit": true
+        },
+        {
+          "name": "青菜",
+          "raw": "青菜",
+          "measure": "少量约 20g",
+          "grams": 20,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    },
+    {
+      "meal": "街头卤牛肉碗（配泡菜）",
+      "area": "夜市小吃",
+      "file": "images/7cfe9fb2ee5ce707cb5537fbc6a6a0f4.jpg",
+      "latencyMs": 2895,
+      "notFood": false,
+      "itemsPredicted": 4,
+      "itemsGroundTruth": 2,
+      "seasoningCount": 0,
+      "unmatchedGroundTruth": 0,
+      "precision": 0,
+      "recall": 0,
+      "precisionCat": 0.25,
+      "recallCat": 0.5,
+      "coreHit": 0.5,
+      "tp": 0,
+      "intervalOk": 4,
+      "saneOk": 4,
+      "totalKcal": 503,
+      "libraryHit": 2,
+      "libraryRate": 0.5,
+      "gramPairs": [],
+      "predDetail": [
+        {
+          "name": "肉丸",
+          "g": 180,
+          "kcal": 450,
+          "source": "model",
+          "confidence": "medium"
+        },
+        {
+          "name": "腌萝卜丁",
+          "g": 30,
+          "kcal": 6,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "辣椒酱",
+          "g": 15,
+          "kcal": 45,
+          "source": "library",
+          "confidence": "medium"
+        },
+        {
+          "name": "葱花",
+          "g": 5,
+          "kcal": 2,
+          "source": "model",
+          "confidence": "medium"
+        }
+      ],
+      "gtDetail": [
+        {
+          "name": "牛肉",
+          "raw": "卤牛肉块",
+          "measure": "8~10 块约 150g",
+          "grams": 150,
+          "hit": false
+        },
+        {
+          "name": "泡菜",
+          "raw": "辣白菜/泡菜",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "hit": false
+        }
+      ],
+      "gtSeasoning": []
+    }
+  ],
+  "nonFoodRows": []
+}

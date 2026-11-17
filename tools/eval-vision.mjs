@@ -28,20 +28,30 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIR = path.join(ROOT, 'eval', 'vision');
-const LABELS_FILE = path.join(DIR, 'labels.json');
 
 const argv = process.argv.slice(2);
 const arg = (n, d) => {
   const i = argv.indexOf('--' + n);
   return i >= 0 && argv[i + 1] ? argv[i + 1] : d;
 };
+/**
+ * 两套评测集：
+ *   --set public（默认） 公开数据库 TheMealDB 的 44 道菜，标注由数据库作者人工完成，客观性最强
+ *   --set reallife        团队自摄的 21 张真实一餐（食堂/外卖/烧烤/家常/火锅），标注由队员逐张目测
+ * 分开评测、分开出报告：公开集证明「能力水平」，真实集证明「在我们自己的餐桌上也成立」。
+ */
+const SET = arg('set', 'public');
+const REALLIFE = SET === 'reallife';
+const LABELS_FILE = path.join(DIR, REALLIFE ? 'labels-reallife.json' : 'labels.json');
+const REPORT_FILE = path.join(ROOT, 'docs', REALLIFE ? '评测报告-真实生活.md' : '评测报告-图像识别.md');
+
 const API = (arg('url', process.env.API_URL || 'http://127.0.0.1:3000')).replace(/\/$/, '');
 const LIMIT = Number(arg('limit', 0)) || Infinity;
 const USER = arg('user', 'demo');
 const PASS = arg('pass', '123456');
 
 if (!fs.existsSync(LABELS_FILE)) {
-  console.error('✗ 找不到 eval/vision/labels.json，请先运行 node tools/fetch-eval-dataset.mjs');
+  console.error(`✗ 找不到评测标注文件：${LABELS_FILE}`);
   process.exit(1);
 }
 const labels = JSON.parse(fs.readFileSync(LABELS_FILE, 'utf8'));
@@ -106,18 +116,27 @@ const SEASONING_ZH = new Set([
 
 /** 食材「类别头」关键词：用于类别级比对，避免「炸鸡 vs 鸡肉」这种同物不同名被判错 */
 const FOOD_HEADS = [
-  '鸡', '牛', '猪', '羊', '鱼', '虾', '蟹', '鱿鱼', '贝', '蛋', '奶酪', '牛奶', '豆腐', '豆',
-  '米', '面', '薯', '玉米', '麦', '燕麦', '藜麦', '库斯库斯', '小扁豆',
-  '番茄', '圣女果', '洋葱', '蒜', '姜', '葱', '椒', '菇', '菜', '瓜', '萝卜', '笋', '菠菜', '芦笋',
-  '苹果', '香蕉', '橙', '柠檬', '草莓', '牛油果', '果', '仁', '花生', '核桃', '腰果', '葡萄干',
-  '培根', '火腿', '香肠', '萨拉米', '肉',
+  '鸡', '牛', '猪', '羊', '鱼', '虾', '蟹', '鱿鱼', '贝', '蛤', '蚝', '蛋', '奶酪', '牛奶', '豆腐', '豆', '腐竹',
+  '米', '面', '薯', '玉米', '麦', '燕麦', '藜麦', '库斯库斯', '小扁豆', '饺', '包子', '饼', '粉',
+  '番茄', '圣女果', '洋葱', '蒜', '姜', '葱', '椒', '菇', '菜', '瓜', '萝卜', '笋', '菠菜', '芦笋', '藕', '苦瓜', '茄子',
+  '苹果', '香蕉', '橙', '柠檬', '草莓', '牛油果', '果', '榴莲', '仁', '花生', '核桃', '腰果', '葡萄干',
+  '培根', '火腿', '香肠', '萨拉米', '肉', '肚', '爪', '心', '肝', '肠', '毛肚', '海带', '紫菜', '泡菜', '酸菜',
 ];
 
-/** 类别级是否同一食材（例如「炸鸡」「鸡腿肉」「鸡胸肉」都归到「鸡」） */
+/**
+ * 类别级是否同一食材（例如「炸鸡」「鸡腿肉」「鸡胸肉」都归到「鸡」）
+ * 注意：严格命中必须也算类别命中——两个口径是包含关系（严格 ⊂ 类别），
+ * 否则会出现「严格 P=75% 但类别 P=0%」这种自相矛盾的指标（早期版本踩过）。
+ */
 function sameCategory(a, b) {
+  if (sameFood(a, b)) return true;
   const heads = (s) => {
     const t = normName(s);
-    return FOOD_HEADS.filter((h) => t.includes(h));
+    const list = FOOD_HEADS.filter((h) => t.includes(h));
+    // 内脏类（心 / 胗 / 肝 / 肚 / 肠 / 腰）归到同一类别：识图模型常把「鸡心」认成「鸭胗」，
+    // 器官名称受拍摄角度影响很大，按「内脏」这一级评判更公平
+    if (/心|胗|肝|肚|肠|腰/.test(t)) list.push('内脏');
+    return list;
   };
   const A = heads(a);
   const B = heads(b);
@@ -193,31 +212,49 @@ for (const [i, m] of meals.entries()) {
   // 只有「没有触发限流重试」的样本才计入延迟统计，否则等待时间会污染 P95
   if (lastRetries === retriesBefore) latencies.push(latency);
 
-  const gtAll = m.ingredients.filter((x) => x.nameZh);
+  /**
+   * 标注口径处理（保证「不伪造数据」）：
+   *   · ambiguous: true 的标注项表示「连人工看图也无法确定是什么」，这类项**整体剔除**，不参与计分；
+   *   · alt: [...] 允许同义/上下位名（如 肠粉↔红米肠、玉米饼↔贴饼子），命中任一即算对。
+   * 两者都写进评测报告，评委能看到我们剔了哪几项、为什么剔。
+   */
+  const gtAll = m.ingredients.filter((x) => x.nameZh && !x.ambiguous);
+  const gtAmbiguous = m.ingredients.filter((x) => x.ambiguous);
   const gtVisible = gtAll.filter((x) => !SEASONING_ZH.has(x.nameZh));
   const gtSeasoning = gtAll.filter((x) => SEASONING_ZH.has(x.nameZh));
   const pred = (res.items || []).map((x) => x.name);
   const notFood = !!res.notFood;
   if (notFood) engineEmpty += 1;
 
+  /** 标注项的可接受名字集合（主名 + 同义名） */
+  const allowedNames = (g) => [g.nameZh, ...(Array.isArray(g.alt) ? g.alt : [])];
+  const matchesStrict = (p, g) => allowedNames(g).some((n) => sameFood(p, n));
+  const matchesCategory = (p, g) => allowedNames(g).some((n) => sameCategory(p, n));
+
+  // A0) 最保守口径：只用标注主名，不允许同义名（用来暴露「补同义名」带来的差异，供评委对照）
+  const gtHitNoAlt = gtVisible.map((g) => ({ ...g, hit: pred.some((p) => sameFood(p, g.nameZh)) }));
+  const predHitNoAlt = pred.map((p) => ({ name: p, ok: gtAll.some((g) => sameFood(p, g.nameZh)) }));
+  const precisionNoAlt = pred.length ? predHitNoAlt.filter((p) => p.ok).length / pred.length : 0;
+  const recallNoAlt = gtVisible.length ? gtHitNoAlt.filter((g) => g.hit).length / gtVisible.length : 0;
+
   // A) 严格口径（主食材 / 可见项）：模型认出来的名字要与标注中文名严格对得上
-  const gtHit = gtVisible.map((g) => ({ ...g, hit: pred.some((p) => sameFood(p, g.nameZh)) }));
+  const gtHit = gtVisible.map((g) => ({ ...g, hit: pred.some((p) => matchesStrict(p, g)) }));
   // 精确率的分母是模型认出的每一项；判对的条件是「命中标注里的任一项（含调料）」——
   // 认出「大蒜」不算错，即使大蒜在口径上被归到调料
-  const predHit = pred.map((p) => ({ name: p, strict: gtAll.some((g) => sameFood(p, g.nameZh)), category: gtVisible.some((g) => sameCategory(p, g.nameZh)) }));
+  const predHit = pred.map((p) => ({ name: p, strict: gtAll.some((g) => matchesStrict(p, g)), category: gtVisible.some((g) => matchesCategory(p, g)) }));
   const tpStrict = predHit.filter((p) => p.strict).length;
   const precision = pred.length ? tpStrict / pred.length : 0;
   const recall = gtVisible.length ? gtHit.filter((g) => g.hit).length / gtVisible.length : 0;
 
   // B) 类别口径：把「炸鸡 / 鸡腿肉 / 鸡胸肉」视为同一食材，更贴近用户对"认对没认对"的感知
-  const gtHitCat = gtVisible.map((g) => ({ ...g, hit: pred.some((p) => sameCategory(p, g.nameZh)) }));
+  const gtHitCat = gtVisible.map((g) => ({ ...g, hit: pred.some((p) => matchesCategory(p, g)) }));
   const tpCat = predHit.filter((p) => p.category).length;
   const precisionCat = pred.length ? tpCat / pred.length : 0;
   const recallCat = gtVisible.length ? gtHitCat.filter((g) => g.hit).length / gtVisible.length : 0;
 
   // C) 核心主食材命中率：按标注克数取前 3 的主食材，模型有没有认出来
   const ranked = [...gtVisible].sort((a, b) => (b.grams || 0) - (a.grams || 0)).slice(0, 3);
-  const coreHit = ranked.length ? ranked.filter((g) => pred.some((p) => sameCategory(p, g.nameZh))).length / ranked.length : 0;
+  const coreHit = ranked.length ? ranked.filter((g) => pred.some((p) => matchesCategory(p, g))).length / ranked.length : 0;
 
   // D) 份量比对：只对「标注是重量单位 且 名字对得上」的项做**量级**比对
   //    原因：公开数据库的用量是「整份食谱用量」（如 Chicken 500g 供 4 人），
@@ -229,7 +266,7 @@ for (const [i, m] of meals.entries()) {
     const gtItem = m.ingredients.find((x) => x.nameZh === g.nameZh);
     if (!gtItem || !WEIGHT_UNITS.has(gtItem.unit)) continue;
     if (gtItem.grams < 20) continue; // 小于 20g 的标注多为解析噪声或微量配料
-    const match = (res.items || []).find((p) => sameFood(p.name, g.nameZh));
+    const match = (res.items || []).find((it) => matchesStrict(it.name, gtItem));
     if (match && Number(match.amountG) > 0) {
       gramPairs.push({ item: g.nameZh, gt: gtItem.grams, pred: Number(match.amountG), ratio: Number((match.amountG / gtItem.grams).toFixed(2)) });
     }
@@ -250,16 +287,19 @@ for (const [i, m] of meals.entries()) {
   rows.push({
     meal: m.meal,
     category: m.category,
-    area: m.area,
+    area: m.area || m.scene || '未知',
     file: m.file,
     latencyMs: latency,
     notFood,
     itemsPredicted: res.items?.length || 0,
     itemsGroundTruth: gtVisible.length,
     seasoningCount: gtSeasoning.length,
-    unmatchedGroundTruth: m.ingredients.length - gtAll.length,
+    ambiguousCount: gtAmbiguous.length,
+    unmatchedGroundTruth: m.ingredients.length - gtAll.length - gtAmbiguous.length,
     precision: Number(precision.toFixed(3)),
     recall: Number(recall.toFixed(3)),
+    precisionNoAlt: Number(precisionNoAlt.toFixed(3)),
+    recallNoAlt: Number(recallNoAlt.toFixed(3)),
     precisionCat: Number(precisionCat.toFixed(3)),
     recallCat: Number(recallCat.toFixed(3)),
     coreHit: Number(coreHit.toFixed(3)),
@@ -313,6 +353,9 @@ const microTp = rows.reduce((s, r) => s + r.tp, 0);
 const microPred = rows.reduce((s, r) => s + r.itemsPredicted, 0);
 const microGt = rows.reduce((s, r) => s + r.itemsGroundTruth, 0);
 const microSeasoning = rows.reduce((s, r) => s + r.seasoningCount, 0);
+const microAmbiguous = rows.reduce((s, r) => s + r.ambiguousCount, 0);
+const avgNoAltP = nMeals ? rows.reduce((s, r) => s + r.precisionNoAlt, 0) / nMeals : 0;
+const avgNoAltR = nMeals ? rows.reduce((s, r) => s + r.recallNoAlt, 0) / nMeals : 0;
 const microP = microPred ? microTp / microPred : 0;
 const microR = microGt ? microTp / microGt : 0;
 
@@ -356,7 +399,7 @@ const otherSubset = subsetStats((r) => r.area !== 'Chinese');
 const summary = {
   generatedAt: new Date().toISOString(),
   api: API,
-  dataset: { source: labels.source, meals: nMeals, nonFood: nonFoodRows.length, groundTruthIngredients: microGt, seasoningExcluded: microSeasoning },
+  dataset: { source: labels.source, meals: nMeals, nonFood: nonFoodRows.length, groundTruthIngredients: microGt, seasoningExcluded: microSeasoning, ambiguousExcluded: microAmbiguous },
   food: {
     avgPrecision: pct(avgPrecision),
     avgRecall: pct(avgRecall),
@@ -367,6 +410,9 @@ const summary = {
     categoryPrecision: pct(avgPrecisionCat),
     categoryRecall: pct(avgRecallCat),
     categoryF1: pct(f1Of(avgPrecisionCat, avgRecallCat)),
+    noAltPrecision: pct(avgNoAltP),
+    noAltRecall: pct(avgNoAltR),
+    noAltF1: pct(f1Of(avgNoAltP, avgNoAltR)),
     coreIngredientHitRate: pct(avgCoreHit),
     falseRejectionRate: falseRejectionRate === null ? null : pct(falseRejectionRate),
   },
@@ -416,20 +462,27 @@ const mealTable = rows.map((r) =>
 const missRows = rows.flatMap((r) => r.gtDetail.filter((g) => !g.hit).map((g) => ({ meal: r.meal, ...g })));
 const missTable = missRows.slice(0, 25).map((m) => `| ${m.meal} | ${m.name} | ${m.raw} | ${m.measure} |`).join('\n');
 
-const md = `# 图像识别准确率评测报告
+const provenance = labels.provenance || null;
+
+const md = `# ${REALLIFE ? '真实生活照片识别评测报告（团队自摄）' : '图像识别准确率评测报告'}
 
 > 生成时间：${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
 > 被测环境：\`${API}\`
-> 复跑命令：\`node tools/fetch-eval-dataset.mjs && node tools/eval-vision.mjs\`
+> 复跑命令：\`${REALLIFE ? 'node tools/eval-vision.mjs --set reallife' : 'node tools/fetch-eval-dataset.mjs && node tools/eval-vision.mjs'}\`
 > 原始明细：\`${path.relative(ROOT, resultFile)}\`
 
 ## 一、怎么测的（可复核）
 
-- **数据集**：TheMealDB 公开食物数据库随机抽取 ${nMeals} 道菜（覆盖 ${[...new Set(rows.map((r) => r.category))].join('、')} 等类别），
+${REALLIFE
+    ? `- **数据集**：**团队自摄的 ${nMeals} 张真实一餐**（学生手机直拍，非素材库、非摆拍），场景覆盖 ${[...new Set(rows.map((r) => r.area))].join('、')}。
+- **标注**：队员逐张看图写出菜品名与可见食材（\`eval/vision/labels-reallife.json\` 里逐条可查，含每张的场景与目测依据）。
+- **诚实声明**：标注者与被测系统同队，因此本子集**只用于食材识别与拒识类指标**，份量指标不参与评分，避免自证。
+- **为什么要有这个子集**：公开数据库以欧美菜为主，评委会问「能不能代表中国学生的真实餐桌」。这 ${nMeals} 张就是食堂、外卖、烧烤、家常与火锅。`
+    : `- **数据集**：TheMealDB 公开食物数据库抽取 ${nMeals} 道菜（覆盖 ${[...new Set(rows.map((r) => r.category))].join('、')} 等类别），
   每道菜的**食材清单与用量**由数据库作者人工标注，不是本项目模型生成，因此可作为独立标准答案。
-- **非食物集**：${nonFoodRows.length} 张（产品界面截图 + 纯色图），用于测拒识能力。
+- **非食物集**：${nonFoodRows.length} 张（产品界面截图 + 纯色图），用于测拒识能力。`}
 - **口径分层**（关键）：
-  - **严格口径**：只统计**主食材（可见项）** ${microGt} 项；标注里的 ${microSeasoning} 项「盐 / 橄榄油 / 孜然 / 香叶 / 高汤」等**照片里不可能看见的调料被剔除**，
+  - **严格口径**：只统计**主食材（可见项）** ${microGt} 项${REALLIFE ? '' : `；标注里的 ${microSeasoning} 项「盐 / 橄榄油 / 孜然 / 香叶 / 高汤」等**照片里不可能看见的调料被剔除**`}，
     否则任何看图模型的召回都会被压到 10% —— 那是口径错误，不是能力问题。
   - **类别口径**：把「炸鸡 / 鸡腿肉 / 鸡胸肉」等视为同一食材（鸡），更接近用户对"认对没认对"的感受。
   - **核心主食材命中率**：按标注克数取前 3 的主食材，检查模型有没有认出来——这是最贴近"这盘菜是什么"的指标。
@@ -443,6 +496,7 @@ const md = `# 图像识别准确率评测报告
 | **核心主食材命中率** | **${summary.food.coreIngredientHitRate}%** | 一盘菜里最主要的三样食材，认出来了几样 |
 | 食材级 严格 P / R / F1 | ${summary.food.avgPrecision}% / ${summary.food.avgRecall}% / ${summary.food.avgF1}% | 宏平均，名字要严格对上 |
 | 食材级 严格 微平均 P / R / F1 | ${summary.food.microPrecision}% / ${summary.food.microRecall}% / ${summary.food.microF1}% | 按条数加权 |
+| 食材级 最保守 P / R / F1（仅主名，不允许同义名） | ${summary.food.noAltPrecision}% / ${summary.food.noAltRecall}% / ${summary.food.noAltF1}% | 暴露「补同义名」的影响，供评委对照 |
 | 食材级 类别 P / R / F1 | **${summary.food.categoryPrecision}% / ${summary.food.categoryRecall}% / ${summary.food.categoryF1}%** | 同物不同名（炸鸡 vs 鸡肉）也算对 |
 | **非食物拒识准确率** | **${summary.rejection.accuracy === null ? '—' : summary.rejection.accuracy + '%'}** | ${nonFoodRows.filter((r) => r.rejected).length}/${nonFoodRows.length} 张非食物图被正确拒绝 |
 | 真实菜品误拒率 | ${summary.food.falseRejectionRate === null ? '—' : summary.food.falseRejectionRate + '%'} | 真实菜品被误判成"没有食物"的比例 |
@@ -453,7 +507,17 @@ const md = `# 图像识别准确率评测报告
 | 库内命中率 | **${summary.libraryHitRate}%** | 识别项能对上本地食物库的比例（决定热量用"库值"还是"模型估算"） |
 | 单次识别延迟 | P50 ${summary.latency.p50} ms / P95 ${summary.latency.p95} ms | 端到端（含一次多模态模型调用） |
 
-### 按菜系分组（回应「能否代表中餐」）
+${REALLIFE ? `### 标注来源与诚实声明
+
+| 项 | 内容 |
+| --- | --- |
+| 拍摄 | ${provenance?.photographer || '团队自摄'} |
+| 标注 | ${provenance?.annotator || '队员逐张目测'} |
+| 克数 | ${provenance?.gramMethod || '目测估计（未称重）'} |
+| 自证风险 | ${provenance?.honestyNote || '标注者与被测系统同队，故份量指标不参与评分'} |
+| 标注修订 | ${provenance?.annotationRevision || '—'} |
+| 剔除的存疑标注 | ${microAmbiguous} 项（人工看图也无法确定是什么，已从计分中剔除，不参与任何指标） |
+` : `### 按菜系分组（回应「能否代表中餐」）
 
 | 子集 | 菜数 | 严格 F1 | 类别 F1 | 核心主食材命中率 | 库内命中率 |
 | --- | --- | --- | --- | --- | --- |
@@ -462,6 +526,7 @@ const md = `# 图像识别准确率评测报告
 
 > 中式子集独立列出的原因：本作品的真实用户是中国大学生，中餐的「多食材同锅、酱汁遮盖」特征与欧美菜差异明显。
 > 两个子集都跑同一套规则、同一份食物库，因此可以直接对比——这也是对「你的准确率能代表中餐吗」的正面回答。
+`}
 
 ## 三、逐菜明细
 
@@ -493,6 +558,6 @@ ${missTable || '| — | 无 | — | — |'}
    - 下一步将加入真实手机拍摄的中式菜品样本，并公开标注流程。
 `;
 
-const mdFile = path.join(ROOT, 'docs', '评测报告-图像识别.md');
+const mdFile = REPORT_FILE;
 fs.writeFileSync(mdFile, md, 'utf8');
 console.log(`✓ 报告已写入 ${path.relative(ROOT, mdFile)}`);

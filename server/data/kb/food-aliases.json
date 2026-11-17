@@ -171,7 +171,9 @@
     "熟牛肉",
     "牛肉片",
     "酱牛肉",
-    "牛肉"
+    "牛肉",
+    "肥牛",
+    "牛里脊"
   ],
   "fd_x_steak": [
     "西冷牛排",
@@ -250,7 +252,8 @@
     "基围虾",
     "shrimp",
     "prawn",
-    "虾"
+    "虾",
+    "鲜虾"
   ],
   "fd_x_crab": [
     "蟹肉",
@@ -830,7 +833,11 @@
     "水煮蛋",
     "煮鸡蛋",
     "煎蛋",
-    "egg"
+    "egg",
+    "溏心蛋",
+    "温泉蛋",
+    "卤蛋",
+    "茶叶蛋"
   ],
   "fd_pork_loin": [
     "猪里脊",
@@ -971,5 +978,134 @@
     "辣椒粉",
     "red chilli flakes",
     "dried chilli"
+  ],
+  "fd_boiled_egg": [
+    "溏心蛋",
+    "温泉蛋"
+  ],
+  "fd_crab": [
+    "大闸蟹",
+    "梭子蟹",
+    "海蟹"
+  ],
+  "fd_x_chicken_leg_bone": [
+    "带骨鸡肉"
+  ],
+  "fd_x_chicken_thigh_bone": [
+    "带骨鸡肉",
+    "鸡块"
+  ],
+  "fd_x_mantis_shrimp": [
+    "虾蛄",
+    "濑尿虾",
+    "螳螂虾",
+    "mantis shrimp"
+  ],
+  "fd_x_clam": [
+    "蛤蜊",
+    "蚬子",
+    "花甲",
+    "clam"
+  ],
+  "fd_x_fish_ball": [
+    "鱼蛋",
+    "鱼丸串",
+    "fish ball"
+  ],
+  "fd_x_shrimp_dumpling": [
+    "虾饺皇",
+    "shrimp dumpling",
+    "水晶虾饺"
+  ],
+  "fd_x_red_rice_roll": [
+    "肠粉",
+    "米肠",
+    "红米肠粉",
+    "rice noodle roll"
+  ],
+  "fd_x_corn_pancake": [
+    "玉米饼",
+    "玉米面饼",
+    "窝头",
+    "玉米面饽饽"
+  ],
+  "fd_x_duck_gizzard": [
+    "鸭胗",
+    "鸡胗",
+    "卤鸡胗",
+    "gizzard"
+  ],
+  "fd_x_chicken_feet": [
+    "鸡爪",
+    "凤爪",
+    "泡椒凤爪",
+    "chicken feet"
+  ],
+  "fd_x_beef_tripe": [
+    "牛百叶",
+    "毛肚",
+    "牛肚丝",
+    "tripe"
+  ],
+  "fd_x_tofu_skin_roll": [
+    "炸腐皮",
+    "响铃",
+    "腐皮卷",
+    "fried tofu skin"
+  ],
+  "fd_x_udon": [
+    "乌冬",
+    "udon",
+    "乌东面"
+  ],
+  "fd_x_miso_soup": [
+    "大酱汤",
+    "miso soup",
+    "味增汤"
+  ],
+  "fd_x_bamboo_shoot": [
+    "笋",
+    "春笋",
+    "冬笋",
+    "bamboo shoot"
+  ],
+  "fd_x_taro": [
+    "芋艿",
+    "香芋",
+    "taro"
+  ],
+  "fd_x_fatty_beef_roll": [
+    "肥牛",
+    "牛肉卷",
+    "火锅牛肉片",
+    "beef roll"
+  ],
+  "fd_x_nori": [
+    "紫菜",
+    "海苔丝",
+    "nori",
+    "seaweed"
+  ],
+  "fd_x_coriander": [
+    "芫荽",
+    "coriander",
+    "cilantro"
+  ],
+  "fd_x_scallion": [
+    "葱",
+    "葱花",
+    "香葱",
+    "spring onion",
+    "scallion"
+  ],
+  "fd_x_kimchi": [
+    "辣白菜",
+    "韩式泡菜",
+    "kimchi",
+    "腌萝卜"
+  ],
+  "fd_x_rice_noodle_sour": [
+    "酸笋丝",
+    "腌笋"
   ]
 }
