@@ -48,7 +48,7 @@ const existing = new Map(all('SELECT id, name FROM foods').map((r) => [r.id, r.n
 
 // 数据完整性检查：id 唯一、必填字段存在、三大营养素与热量大致自洽（4/9/4 估算偏差 ≤35%）
 // 例外：含酒精的食物不能用 4/9/4 估算（乙醇 7 kcal/g 且不计入三大营养素），单独放行。
-const ALCOHOL_IDS = new Set(['fd_beer', 'fd_x_beer', 'fd_wine', 'fd_x_wine', 'fd_baijiu']);
+const ALCOHOL_IDS = new Set(['fd_beer', 'fd_x_beer', 'fd_wine', 'fd_x_wine', 'fd_baijiu', 'fd_x_cooking_wine']);
 const problems = [];
 const seen = new Set();
 for (const f of merged) {

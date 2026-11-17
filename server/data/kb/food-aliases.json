@@ -4,7 +4,6 @@
     "蒸馒头",
     "馒头"
   ],
-  "fd_x_huajuan": [],
   "fd_x_baozi_meat": [
     "包子",
     "猪肉包",
@@ -445,7 +444,8 @@
   "fd_x_pea": [
     "青豌豆",
     "豌豆粒",
-    "青豆"
+    "青豆",
+    "青豌豆粒"
   ],
   "fd_asparagus": [
     "芦笋段",
@@ -846,5 +846,130 @@
   "fd_whole_bread": [
     "全麦面包",
     "全麦吐司"
+  ],
+  "fd_x_hot_sour_soup": [
+    "酸辣汤羹",
+    "hot and sour soup"
+  ],
+  "fd_x_egg_drop_soup": [
+    "鸡蛋汤",
+    "egg drop soup",
+    "紫菜蛋花汤"
+  ],
+  "fd_x_xiaolongbao": [
+    "小笼汤包",
+    "灌汤包"
+  ],
+  "fd_x_fried_egg": [
+    "荷包蛋",
+    "煎鸡蛋",
+    "太阳蛋",
+    "fried egg"
+  ],
+  "fd_x_scrambled_egg": [
+    "炒蛋",
+    "scrambled egg",
+    "鸡蛋炒蛋"
+  ],
+  "fd_x_tomato_egg_soup": [
+    "西红柿鸡蛋汤",
+    "番茄鸡蛋汤"
+  ],
+  "fd_x_wood_ear_salad": [
+    "拌木耳",
+    "木耳凉拌"
+  ],
+  "fd_x_smashed_cucumber_chinese": [
+    "凉拌黄瓜段",
+    "蒜泥黄瓜"
+  ],
+  "fd_x_long_beans_stir": [
+    "干煸豆角",
+    "炒四季豆",
+    "sichuan long beans"
+  ],
+  "fd_x_egg_roll": [
+    "炸春卷",
+    "egg roll",
+    "spring roll"
+  ],
+  "fd_x_soy_sauce": [
+    "生抽",
+    "黄豆酱油",
+    "soy sauce"
+  ],
+  "fd_x_dark_soy": [
+    "dark soy sauce",
+    "红烧酱油"
+  ],
+  "fd_x_oyster_sauce": [
+    "oyster sauce"
+  ],
+  "fd_x_rice_vinegar": [
+    "白醋",
+    "rice vinegar",
+    "陈醋",
+    "香醋"
+  ],
+  "fd_x_cooking_wine": [
+    "黄酒",
+    "绍兴酒",
+    "cooking wine",
+    "rice wine"
+  ],
+  "fd_x_doubanjiang": [
+    "郫县豆瓣",
+    "豆瓣",
+    "chilli bean paste"
+  ],
+  "fd_x_sesame_paste": [
+    "麻酱",
+    "sesame paste",
+    "chinese sesame sauce"
+  ],
+  "fd_x_sweet_bean_sauce": [
+    "甜酱",
+    "duck sauce",
+    "sweet bean sauce"
+  ],
+  "fd_x_chilli_oil": [
+    "红油",
+    "chilli oil",
+    "辣椒红油"
+  ],
+  "fd_x_cornstarch": [
+    "玉米淀粉",
+    "生粉",
+    "cornstarch",
+    "starch"
+  ],
+  "fd_x_five_spice": [
+    "five spice powder",
+    "chinese five spice"
+  ],
+  "fd_x_chicken_essence": [
+    "鸡粉",
+    "chicken bouillon powder",
+    "鸡精调料"
+  ],
+  "fd_x_sesame_oil": [
+    "芝麻油",
+    "sesame oil"
+  ],
+  "fd_x_peanut_oil": [
+    "食用油",
+    "植物油",
+    "peanut oil",
+    "cooking oil"
+  ],
+  "fd_x_sichuan_pepper": [
+    "花椒粒",
+    "sichuan pepper"
+  ],
+  "fd_x_dried_chilli": [
+    "辣椒碎",
+    "辣椒粉",
+    "red chilli flakes",
+    "dried chilli"
   ]
 }

@@ -1828,5 +1828,442 @@
       "咸菜",
       "酸菜"
     ]
+  },
+  {
+    "id": "fd_x_hot_sour_soup",
+    "name": "酸辣汤",
+    "category": "复合菜",
+    "kcal": 40,
+    "protein": 2.5,
+    "fat": 1.8,
+    "carb": 3.5,
+    "fiber": 0.4,
+    "sodium": 480,
+    "portion": "1 碗约 300g",
+    "aliases": [
+      "酸辣汤羹",
+      "hot and sour soup"
+    ]
+  },
+  {
+    "id": "fd_x_egg_drop_soup",
+    "name": "蛋花汤",
+    "category": "复合菜",
+    "kcal": 25,
+    "protein": 1.8,
+    "fat": 1.2,
+    "carb": 1.5,
+    "fiber": 0.2,
+    "sodium": 380,
+    "portion": "1 碗约 300g",
+    "aliases": [
+      "鸡蛋汤",
+      "egg drop soup",
+      "紫菜蛋花汤"
+    ]
+  },
+  {
+    "id": "fd_x_xiaolongbao",
+    "name": "小笼包",
+    "category": "主食",
+    "kcal": 235,
+    "protein": 8.5,
+    "fat": 11,
+    "carb": 25,
+    "fiber": 0.8,
+    "sodium": 480,
+    "portion": "1 笼 6 个约 150g",
+    "aliases": [
+      "小笼汤包",
+      "灌汤包"
+    ]
+  },
+  {
+    "id": "fd_x_fried_egg",
+    "name": "煎蛋",
+    "category": "蛋白",
+    "kcal": 199,
+    "protein": 13.5,
+    "fat": 15,
+    "carb": 0.8,
+    "fiber": 0,
+    "sodium": 210,
+    "portion": "1 个约 55g",
+    "aliases": [
+      "荷包蛋",
+      "煎鸡蛋",
+      "太阳蛋",
+      "fried egg"
+    ]
+  },
+  {
+    "id": "fd_x_scrambled_egg",
+    "name": "炒鸡蛋",
+    "category": "蛋白",
+    "kcal": 199,
+    "protein": 12,
+    "fat": 15.5,
+    "carb": 2,
+    "fiber": 0,
+    "sodium": 330,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "炒蛋",
+      "scrambled egg",
+      "鸡蛋炒蛋"
+    ]
+  },
+  {
+    "id": "fd_x_tomato_egg_soup",
+    "name": "番茄蛋汤",
+    "category": "复合菜",
+    "kcal": 30,
+    "protein": 2,
+    "fat": 1.3,
+    "carb": 2.8,
+    "fiber": 0.5,
+    "sodium": 400,
+    "portion": "1 碗约 300g",
+    "aliases": [
+      "西红柿鸡蛋汤",
+      "番茄鸡蛋汤"
+    ]
+  },
+  {
+    "id": "fd_x_wood_ear_salad",
+    "name": "凉拌木耳",
+    "category": "复合菜",
+    "kcal": 45,
+    "protein": 1.6,
+    "fat": 2.5,
+    "carb": 5,
+    "fiber": 2.6,
+    "sodium": 420,
+    "portion": "1 盘约 180g",
+    "aliases": [
+      "拌木耳",
+      "木耳凉拌"
+    ]
+  },
+  {
+    "id": "fd_x_smashed_cucumber_chinese",
+    "name": "拍黄瓜",
+    "category": "复合菜",
+    "kcal": 40,
+    "protein": 1,
+    "fat": 2.2,
+    "carb": 4.2,
+    "fiber": 0.8,
+    "sodium": 430,
+    "portion": "1 盘约 200g",
+    "aliases": [
+      "凉拌黄瓜段",
+      "蒜泥黄瓜"
+    ]
+  },
+  {
+    "id": "fd_x_long_beans_stir",
+    "name": "干煸四季豆",
+    "category": "复合菜",
+    "kcal": 150,
+    "protein": 3.5,
+    "fat": 11,
+    "carb": 8,
+    "fiber": 2.2,
+    "sodium": 520,
+    "portion": "1 盘约 220g",
+    "aliases": [
+      "干煸豆角",
+      "炒四季豆",
+      "sichuan long beans"
+    ]
+  },
+  {
+    "id": "fd_x_egg_roll",
+    "name": "春卷（炸）",
+    "category": "主食",
+    "kcal": 240,
+    "protein": 6,
+    "fat": 12,
+    "carb": 27,
+    "fiber": 1,
+    "sodium": 460,
+    "portion": "2 个约 100g",
+    "aliases": [
+      "炸春卷",
+      "egg roll",
+      "spring roll"
+    ]
+  },
+  {
+    "id": "fd_x_soy_sauce",
+    "name": "酱油",
+    "category": "调味",
+    "kcal": 63,
+    "protein": 5.6,
+    "fat": 0.1,
+    "carb": 10.1,
+    "fiber": 0,
+    "sodium": 5757,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "生抽",
+      "黄豆酱油",
+      "soy sauce"
+    ]
+  },
+  {
+    "id": "fd_x_dark_soy",
+    "name": "老抽",
+    "category": "调味",
+    "kcal": 70,
+    "protein": 5,
+    "fat": 0.1,
+    "carb": 12,
+    "fiber": 0,
+    "sodium": 6000,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "dark soy sauce",
+      "红烧酱油"
+    ]
+  },
+  {
+    "id": "fd_x_oyster_sauce",
+    "name": "蚝油",
+    "category": "调味",
+    "kcal": 114,
+    "protein": 5,
+    "fat": 0.3,
+    "carb": 22,
+    "fiber": 0,
+    "sodium": 3600,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "oyster sauce"
+    ]
+  },
+  {
+    "id": "fd_x_rice_vinegar",
+    "name": "米醋",
+    "category": "调味",
+    "kcal": 31,
+    "protein": 0.4,
+    "fat": 0,
+    "carb": 6,
+    "fiber": 0,
+    "sodium": 30,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "白醋",
+      "rice vinegar",
+      "陈醋",
+      "香醋"
+    ]
+  },
+  {
+    "id": "fd_x_cooking_wine",
+    "name": "料酒",
+    "category": "调味",
+    "kcal": 100,
+    "protein": 1,
+    "fat": 0,
+    "carb": 5,
+    "fiber": 0,
+    "sodium": 1200,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "黄酒",
+      "绍兴酒",
+      "cooking wine",
+      "rice wine"
+    ]
+  },
+  {
+    "id": "fd_x_doubanjiang",
+    "name": "豆瓣酱",
+    "category": "调味",
+    "kcal": 178,
+    "protein": 13.6,
+    "fat": 6.8,
+    "carb": 17.1,
+    "fiber": 1.5,
+    "sodium": 6012,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "郫县豆瓣",
+      "豆瓣",
+      "chilli bean paste"
+    ]
+  },
+  {
+    "id": "fd_x_sesame_paste",
+    "name": "芝麻酱",
+    "category": "调味",
+    "kcal": 618,
+    "protein": 19.2,
+    "fat": 52.7,
+    "carb": 16.8,
+    "fiber": 5.9,
+    "sodium": 38,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "麻酱",
+      "sesame paste",
+      "chinese sesame sauce"
+    ]
+  },
+  {
+    "id": "fd_x_sweet_bean_sauce",
+    "name": "甜面酱",
+    "category": "调味",
+    "kcal": 136,
+    "protein": 5.5,
+    "fat": 0.6,
+    "carb": 28,
+    "fiber": 0,
+    "sodium": 2097,
+    "portion": "1 汤匙约 15g",
+    "aliases": [
+      "甜酱",
+      "duck sauce",
+      "sweet bean sauce"
+    ]
+  },
+  {
+    "id": "fd_x_chilli_oil",
+    "name": "辣椒油",
+    "category": "调味",
+    "kcal": 900,
+    "protein": 0,
+    "fat": 99.5,
+    "carb": 0.5,
+    "fiber": 0,
+    "sodium": 120,
+    "portion": "1 汤匙约 10g",
+    "aliases": [
+      "红油",
+      "chilli oil",
+      "辣椒红油"
+    ]
+  },
+  {
+    "id": "fd_x_cornstarch",
+    "name": "淀粉",
+    "category": "调味",
+    "kcal": 346,
+    "protein": 1.2,
+    "fat": 0.1,
+    "carb": 85,
+    "fiber": 0.1,
+    "sodium": 6,
+    "portion": "1 汤匙约 8g",
+    "aliases": [
+      "玉米淀粉",
+      "生粉",
+      "cornstarch",
+      "starch"
+    ]
+  },
+  {
+    "id": "fd_x_five_spice",
+    "name": "五香粉",
+    "category": "调味",
+    "kcal": 348,
+    "protein": 12,
+    "fat": 8,
+    "carb": 55,
+    "fiber": 25,
+    "sodium": 40,
+    "portion": "1 小勺约 3g",
+    "aliases": [
+      "five spice powder",
+      "chinese five spice"
+    ]
+  },
+  {
+    "id": "fd_x_chicken_essence",
+    "name": "鸡精",
+    "category": "调味",
+    "kcal": 195,
+    "protein": 10,
+    "fat": 0.5,
+    "carb": 35,
+    "fiber": 0,
+    "sodium": 21000,
+    "portion": "1 小勺约 3g",
+    "aliases": [
+      "鸡粉",
+      "chicken bouillon powder",
+      "鸡精调料"
+    ]
+  },
+  {
+    "id": "fd_x_sesame_oil",
+    "name": "香油",
+    "category": "调味",
+    "kcal": 898,
+    "protein": 0,
+    "fat": 99.7,
+    "carb": 0.2,
+    "fiber": 0,
+    "sodium": 1,
+    "portion": "1 小勺约 5g",
+    "aliases": [
+      "芝麻油",
+      "sesame oil"
+    ]
+  },
+  {
+    "id": "fd_x_peanut_oil",
+    "name": "花生油",
+    "category": "调味",
+    "kcal": 899,
+    "protein": 0,
+    "fat": 99.9,
+    "carb": 0,
+    "fiber": 0,
+    "sodium": 1,
+    "portion": "1 汤匙约 10g",
+    "aliases": [
+      "食用油",
+      "植物油",
+      "peanut oil",
+      "cooking oil"
+    ]
+  },
+  {
+    "id": "fd_x_sichuan_pepper",
+    "name": "花椒",
+    "category": "调味",
+    "kcal": 258,
+    "protein": 6.7,
+    "fat": 8.9,
+    "carb": 37,
+    "fiber": 28.7,
+    "sodium": 47,
+    "portion": "1 小勺约 2g",
+    "aliases": [
+      "花椒粒",
+      "sichuan pepper"
+    ]
+  },
+  {
+    "id": "fd_x_dried_chilli",
+    "name": "干辣椒",
+    "category": "调味",
+    "kcal": 298,
+    "protein": 15,
+    "fat": 12,
+    "carb": 57,
+    "fiber": 41.7,
+    "sodium": 30,
+    "portion": "3 个约 5g",
+    "aliases": [
+      "辣椒碎",
+      "辣椒粉",
+      "red chilli flakes",
+      "dried chilli"
+    ]
   }
 ]

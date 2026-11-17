@@ -134,7 +134,7 @@
 <div class="box">
   <div class="kv"><b>一句话定位：</b>一个把「AI 健身教练」做成可解释、可校验、可降级工程流水线的个人健康管理平台。</div>
   <div class="kv"><b>作品规模：</b>60 个源码文件、15797 行（后端 6890 / 前端 8907），其中注释 1914 行、注释率 12.1%；统计脚本 <code>tools/count-code.mjs</code> 可复算。</div>
-  <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 <b>194 条</b>（基础 82 条 + 省赛扩充 112 条，另附 494 个口语别名）、训练/营养指南 25 篇，全部为本地结构化语料。</div>
+  <div class="kv"><b>知识库：</b>动作库 65 条（含 MET 值与禁忌）、食物营养库 <b>220 条</b>（基础 82 条 + 省赛扩充 138 条，另附 567 个口语别名）、训练/营养指南 25 篇，全部为本地结构化语料。</div>
   <div class="kv"><b>可运行性：</b>零外部数据库依赖（Node 内置 SQLite），<code>npm install &amp;&amp; npm run init:db &amp;&amp; npm run dev</code> 三步即可完整运行。</div>
 </div>
 
@@ -306,7 +306,7 @@
 │   │   │   ├── cache.js          # LRU + TTL 语义缓存
 │   │   │   └── observability.js  # AI 调用日志与统计
 │   │   └── utils/                # 健康公式 / 安全工具 / 响应封装
-│   └── data/kb/                  # 知识库：动作 65 条 / 食物 194 条（含别名）/ 指南 25 篇
+│   └── data/kb/                  # 知识库：动作 65 条 / 食物 220 条（含别名）/ 指南 25 篇
 ├── web/                          # 前端（Vue 3 + Vite）
 │   └── src/
 │       ├── api/                  # Axios 封装 + SSE 流式客户端
@@ -1170,34 +1170,35 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
 <table>
   <thead><tr><th style="width: 50%;">指标</th><th style="width: 26%;">结果</th><th style="width: 24%;">说明</th></tr></thead>
   <tbody>
-    <tr><td>核心主食材命中率</td><td><b>47.7%</b></td><td>盘中主要三样认出几样</td></tr>
-    <tr><td>食材级 类别 P / R / F1（宏平均）</td><td><b>39.4% / 46.1% / 42.5%</b></td><td>同物不同名也算对</td></tr>
-    <tr><td>食材级 严格 P / R / F1（宏平均）</td><td>37.2% / 35.9% / 36.5%</td><td>名字要严格对上</td></tr>
-    <tr><td>食材级 严格 P / R / F1（微平均）</td><td>38.1% / 42.5% / 40.2%</td><td>按条数加权</td></tr>
+    <tr><td>核心主食材命中率</td><td><b>48.5%</b></td><td>盘中主要三样认出几样</td></tr>
+    <tr><td>食材级 类别 P / R / F1（宏平均）</td><td><b>39.6% / 47.6% / 43.3%</b></td><td>同物不同名也算对</td></tr>
+    <tr><td>食材级 严格 P / R / F1（宏平均）</td><td>35.6% / 36.9% / 36.2%</td><td>名字要严格对上</td></tr>
+    <tr><td>食材级 严格 P / R / F1（微平均）</td><td>38.6% / 43.7% / 41.0%</td><td>按条数加权</td></tr>
     <tr><td>非食物拒识准确率</td><td><b>100%（4/4）</b></td><td>截图 / 纯色图全部拒绝</td></tr>
     <tr><td>真实菜品误拒率</td><td><b>0%</b></td><td>没有把真菜当非食物</td></tr>
-    <tr><td>识别项库内命中率</td><td><b>70.0%</b></td><td>决定热量能否用库值精算</td></tr>
+    <tr><td>识别项库内命中率</td><td><b>75.5%</b></td><td>决定热量能否用库值精算</td></tr>
     <tr><td>份量区间自洽率 / 常识合规率</td><td><b>100% / 100%</b></td><td>min ≤ 估计 ≤ max；5~800g</td></tr>
-    <tr><td>端到端延迟</td><td>P50 <b>2.77 s</b> / P95 3.29 s</td><td>含一次多模态模型调用</td></tr>
+    <tr><td>端到端延迟</td><td>P50 <b>2.89 s</b> / P95 3.91 s</td><td>含一次多模态模型调用</td></tr>
   </tbody>
 </table>
 <p><b>按菜系分组（回应「能否代表中餐」）：</b></p>
 <table>
   <thead><tr><th style="width: 26%;">子集</th><th style="width: 12%;">菜数</th><th style="width: 16%;">严格 F1</th><th style="width: 16%;">类别 F1</th><th style="width: 15%;">核心命中率</th><th style="width: 15%;">库内命中率</th></tr></thead>
   <tbody>
-    <tr><td>中式菜（area=Chinese）</td><td>21</td><td>33.4%</td><td><b>34.5%</b></td><td>42.1%</td><td>63.3%</td></tr>
-    <tr><td>其他菜系</td><td>23</td><td>38.7%</td><td><b>49.5%</b></td><td>52.9%</td><td>76.2%</td></tr>
+    <tr><td>中式菜（area=Chinese）</td><td>21</td><td>34.0%</td><td><b>35.7%</b></td><td>43.7%</td><td><b>75.2%</b></td></tr>
+    <tr><td>其他菜系</td><td>23</td><td>38.1%</td><td><b>49.8%</b></td><td>52.9%</td><td>75.7%</td></tr>
   </tbody>
 </table>
 <p class="small">
-中式子集偏低的原因可解释：中餐多为「一锅多料 + 酱汁覆盖」，能看见的食材本就少于标注清单；
-且中式菜的英文标注会带大量酱料（老抽、料酒、豆瓣酱），这部分已按规则剔除但仍影响可辨识度。
-这条差距是省赛后的改进重点（扩充中式复合菜条目、增加真实手机拍摄样本）。
+中式子集的「类别 F1」（35.7%）仍低于其他菜系（49.8%）：中餐多为「一锅多料 + 酱汁覆盖」，能看见的食材本就少于标注清单，
+且中式菜的英文标注会带大量酱料（老抽、料酒、豆瓣酱）。但补充 26 条中式成品菜与厨房调味后，
+<b>库内命中率的中式 / 其他差距已从 63.3% : 76.2% 缩小到 75.2% : 75.7%</b>——说明"热量能不能用库值精算"这件事，中餐已与其他菜系持平。
+剩下的品类识别差距列入省赛后改进清单（扩充中式复合菜、增加真实手机拍摄样本）。
 </p>
 <p class="small">
 <b>可复现性：</b>识图温度固定为 <code>AI_VISION_TEMPERATURE=0</code>，同一数据集连续两次独立运行：
 类别 F1 <b>41.4% ↔ 42.5%</b>（差 1.1pt）、核心命中率 <b>45.5% ↔ 47.7%</b>（差 2.2pt）、库内命中率 68.6% ↔ 70.0%。
-两项运行记录均已入库（<code>eval/vision/results-*.json</code>），本文取后一次作为正式口径。
+运行记录均已入库（<code>eval/vision/results-*.json</code>），本文取最近一次作为正式口径。
 </p>
 
 <h3>7.1.1 对照实验：指标是怎么被改上去的（同一批菜品，可复算）</h3>
@@ -1209,6 +1210,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
   <thead><tr><th style="width: 44%;">改动</th><th style="width: 26%;">指标变化（同一批 24 道菜）</th><th style="width: 30%;">对应证据</th></tr></thead>
   <tbody>
     <tr><td>食物库 <b>82 → 194 条</b>（补中式家常菜与常见食材），并引入<b>别名表 494 个别名</b>（西红柿→番茄、肯德基炸鸡→炸鸡、青豆→豌豆）</td><td>库内命中率 <b>51.4% → 75.2%</b>（+23.8pt）</td><td><code>tools/merge-food-aliases.mjs</code>、<code>kb/food-aliases.json</code></td></tr>
+    <tr><td>再补 26 条中式成品菜与厨房调味（酸辣汤、蛋花汤、小笼包、煎蛋、酱油、豆瓣酱、香油、淀粉…），食物库 <b>194 → 220 条</b>，别名 <b>494 → 567</b></td><td>（同一批 44 道菜前后测）库内命中率 <b>70.0% → 75.5%</b>，其中<b>中式子集 63.3% → 75.2%</b>，菜系差距基本抹平</td><td><code>tools/sync-foods.mjs</code>、<code>kb/foods.extra.json</code></td></tr>
     <tr><td>识图提示词加入「分层拆解清单」：主食 → 蛋白 → 蔬菜配菜 → 可见配料，目标 4~8 项，<b>但不得编造看不见的盐油香料</b></td><td>严格召回 <b>25.5% → 37.4%</b>，核心命中率 <b>47.2% → 62.5%</b></td><td><code>ai/foodVision.js</code> 的 <code>FOOD_VISION_PROMPT</code></td></tr>
     <tr><td>匹配器支持别名参与打分（正式名 1.0、别名 0.9），保留「泛化词剔除 + 字符重叠率」双闸门防误配</td><td>回归用例 <b>22/22 通过</b></td><td><code>tools/test-food-match.mjs</code></td></tr>
     <tr><td>识图温度由 0.2 固定为 <b>0</b>（<code>AI_VISION_TEMPERATURE=0</code>）</td><td>同配置两次独立重跑：类别 F1 <b>41.4% / 42.5%</b>、核心命中 <b>45.5% / 47.7%</b></td><td>运行记录见 <code>eval/vision/results-*.json</code></td></tr>
@@ -1231,7 +1233,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
 <h2>7.2 知识库是真实检索：五条可验证证据</h2>
 <p>
 <b>证据一 · 索引是真的：</b><code>GET /api/rag/stats</code> 返回运行时从 <code>kb/*.json</code> 与 SQLite 真实建索引的结果——
-动作 65 条（平均文档长度 98.72 字、词表 <b>2012</b>）、指南 25 条、食物 194 条，BM25 参数 <code>k1=1.5 / b=0.75</code>，
+动作 65 条（平均文档长度 98.72 字、词表 <b>2012</b>）、指南 25 条、食物 220 条，BM25 参数 <code>k1=1.5 / b=0.75</code>，
 分词为「中文单字 + 二元组」，并列出高频词 DF（手 53、力 46、徒手 36…）。这些不是写死的常量。
 </p>
 <p>
@@ -1270,7 +1272,7 @@ npm start            # 后端启动并直接托管 web/dist，访问 http://loca
 </p>
 <p>
 <b>证据五 · 输出随输入变：</b>同一教练接口，问「膝盖疼怎么练」与「增肌蛋白质吃多少」，命中的指南、引用条目、
-注入上下文长度与条数全部不同；扩展规则 19 条、golden 集 27 条、别名表 494 个全部在仓库内可查可改，
+注入上下文长度与条数全部不同；扩展规则 19 条、golden 集 27 条、别名表 567 个全部在仓库内可查可改，
 改动后 Recall 指标会立刻变化——这套指标是可被证伪的。
 </p>
 
