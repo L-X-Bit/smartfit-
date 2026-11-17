@@ -2,12 +2,12 @@
   "source": "团队自摄（学生手机拍摄，非摆拍素材库）",
   "generatedAt": "2026-11-17T23:40:00+08:00",
   "provenance": {
-    "photographer": "本队成员日常用餐自摄",
+    "photographer": "本队成员日常用餐自摄（两批共 62 张：2026-11-17 晚 21 张 + 11-18 凌晨 41 张）",
     "annotator": "本队成员人工目测标注（逐张看图写菜品名与可见食材）",
     "gramMethod": "目测估计（未称重）：以餐具/手掌作参照估算常见份量",
-    "annotationRevision": "初版标注完成后重新逐张核对：把「糖醋里脊」修正为更准确的「锅包肉」；为同义/上下位名补 alt（肠粉↔红米肠、玉米饼↔贴饼子、泡菜↔腌萝卜丁）；对确实无法确认的项标 ambiguous，例如铁锅炖里的肉块无法断定部位",
+    "annotationRevision": "初版标注完成后重新逐张核对：把「糖醋里脊」修正为更准确的「锅包肉」；为同义/上下位名补 alt（肠粉↔红米肠、玉米饼↔贴饼子、泡菜↔腌萝卜丁）；对确实无法确认的项标 ambiguous，例如铁锅炖里的肉块无法断定部位；第二批 41 张同样逐张看图标注，凡肉种/部位无法从照片确认的（铁锅炖肉块、火锅白色条状食材、煎鱼饼等）一律标 ambiguous 并从计分剔除",
     "honestyNote": "标注者与被测系统为同一支队，因此本子集只用于『食材识别』与『拒识』类指标；份量指标不参与评分，避免自证。凡人工也无法确定的项一律标 ambiguous 并从计分中剔除，剔除数量在报告中公开。",
-    "whyThisSubset": "公开数据集（TheMealDB）以欧美菜为主，评委会问『能不能代表中国学生的真实餐桌』。这 21 张就是我们的真实一餐：食堂、外卖、烧烤、家常、火锅。"
+    "whyThisSubset": "公开数据集（TheMealDB）以欧美菜为主，评委会问「能不能代表中国学生的真实餐桌」。这 62 张就是我们的真实一餐：食堂、外卖、烧烤、火锅、早茶、家常、宴席、夜宵。"
   },
   "meals": [
     {
@@ -16,10 +16,34 @@
       "meal": "蒜蓉烤茄子",
       "scene": "烧烤店",
       "ingredients": [
-        { "name": "茄子", "nameZh": "茄子", "measure": "目测约 250g", "grams": 250, "unit": "g" },
-        { "name": "肉末", "nameZh": "猪肉末", "measure": "目测约 40g", "grams": 40, "unit": "g" },
-        { "name": "蒜蓉", "nameZh": "大蒜", "measure": "目测约 15g", "grams": 15, "unit": "g" },
-        { "name": "辣椒碎", "nameZh": "辣椒", "measure": "目测约 5g", "grams": 5, "unit": "g" }
+        {
+          "name": "茄子",
+          "nameZh": "茄子",
+          "measure": "目测约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "肉末",
+          "nameZh": "猪肉末",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        },
+        {
+          "name": "蒜蓉",
+          "nameZh": "大蒜",
+          "measure": "目测约 15g",
+          "grams": 15,
+          "unit": "g"
+        },
+        {
+          "name": "辣椒碎",
+          "nameZh": "辣椒",
+          "measure": "目测约 5g",
+          "grams": 5,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -28,9 +52,27 @@
       "meal": "烤串（肉串 + 烤秋葵）",
       "scene": "烧烤店",
       "ingredients": [
-        { "name": "肉串", "nameZh": "羊肉串", "measure": "目测 8~10 串约 120g", "grams": 120, "unit": "g" },
-        { "name": "烤秋葵", "nameZh": "秋葵", "measure": "目测约 80g", "grams": 80, "unit": "g" },
-        { "name": "茶水", "nameZh": "茶", "measure": "1 壶", "grams": null, "unit": "none" }
+        {
+          "name": "肉串",
+          "nameZh": "羊肉串",
+          "measure": "目测 8~10 串约 120g",
+          "grams": 120,
+          "unit": "g"
+        },
+        {
+          "name": "烤秋葵",
+          "nameZh": "秋葵",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "茶水",
+          "nameZh": "茶",
+          "measure": "1 壶",
+          "grams": null,
+          "unit": "none"
+        }
       ]
     },
     {
@@ -39,10 +81,34 @@
       "meal": "干锅鱼（青红椒番茄）",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "鱼", "nameZh": "鱼", "measure": "整条约 400g", "grams": 400, "unit": "g" },
-        { "name": "青椒", "nameZh": "青椒", "measure": "目测约 60g", "grams": 60, "unit": "g" },
-        { "name": "番茄/红椒", "nameZh": "番茄", "measure": "目测约 60g", "grams": 60, "unit": "g" },
-        { "name": "洋葱", "nameZh": "洋葱", "measure": "目测约 50g", "grams": 50, "unit": "g" }
+        {
+          "name": "鱼",
+          "nameZh": "鱼",
+          "measure": "整条约 400g",
+          "grams": 400,
+          "unit": "g"
+        },
+        {
+          "name": "青椒",
+          "nameZh": "青椒",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "番茄/红椒",
+          "nameZh": "番茄",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "洋葱",
+          "nameZh": "洋葱",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -51,10 +117,34 @@
       "meal": "炒米粉（肉片青椒）",
       "scene": "食堂",
       "ingredients": [
-        { "name": "米粉", "nameZh": "米粉", "measure": "1 碗约 200g", "grams": 200, "unit": "g" },
-        { "name": "猪肉", "nameZh": "猪肉", "measure": "目测约 60g", "grams": 60, "unit": "g" },
-        { "name": "青椒", "nameZh": "青椒", "measure": "目测约 30g", "grams": 30, "unit": "g" },
-        { "name": "酸菜", "nameZh": "酸菜", "measure": "目测约 30g", "grams": 30, "unit": "g" }
+        {
+          "name": "米粉",
+          "nameZh": "米粉",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "猪肉",
+          "nameZh": "猪肉",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "青椒",
+          "nameZh": "青椒",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        },
+        {
+          "name": "酸菜",
+          "nameZh": "酸菜",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -63,7 +153,13 @@
       "meal": "炸鸡（3 块，撒辣椒粉）",
       "scene": "外卖",
       "ingredients": [
-        { "name": "炸鸡腿", "nameZh": "炸鸡", "measure": "3 块约 220g", "grams": 220, "unit": "g" }
+        {
+          "name": "炸鸡腿",
+          "nameZh": "炸鸡",
+          "measure": "3 块约 220g",
+          "grams": 220,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -72,10 +168,34 @@
       "meal": "卤味两盒（腐竹海带藕片 + 卤鸡心）",
       "scene": "外卖打包",
       "ingredients": [
-        { "name": "腐竹", "nameZh": "腐竹", "measure": "目测约 80g", "grams": 80, "unit": "g" },
-        { "name": "海带结", "nameZh": "海带", "measure": "目测约 50g", "grams": 50, "unit": "g" },
-        { "name": "莲藕片", "nameZh": "莲藕", "measure": "目测约 50g", "grams": 50, "unit": "g" },
-        { "name": "卤鸡心", "nameZh": "鸡心", "measure": "目测约 120g", "grams": 120, "unit": "g" }
+        {
+          "name": "腐竹",
+          "nameZh": "腐竹",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "海带结",
+          "nameZh": "海带",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        },
+        {
+          "name": "莲藕片",
+          "nameZh": "莲藕",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        },
+        {
+          "name": "卤鸡心",
+          "nameZh": "鸡心",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -84,11 +204,50 @@
       "meal": "早茶点心四碟（虾饺 / 肉丸 / 红米肠 / 卤牛肚）",
       "scene": "餐厅早茶",
       "ingredients": [
-        { "name": "虾饺", "nameZh": "虾饺", "measure": "4 只约 80g", "grams": 80, "unit": "g" },
-        { "name": "肉丸", "nameZh": "牛肉丸", "measure": "3 个约 90g", "grams": 90, "unit": "g" },
-        { "name": "红米肠", "nameZh": "红米肠", "alt": ["肠粉", "米肠"], "measure": "3 段约 120g", "grams": 120, "unit": "g" },
-        { "name": "卤牛肚", "nameZh": "牛肚", "alt": ["猪肚", "牛百叶", "卤味"], "measure": "目测约 100g", "grams": 100, "unit": "g" },
-        { "name": "木耳/菌菇", "nameZh": "木耳", "measure": "目测约 40g", "grams": 40, "unit": "g" }
+        {
+          "name": "虾饺",
+          "nameZh": "虾饺",
+          "measure": "4 只约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "肉丸",
+          "nameZh": "牛肉丸",
+          "measure": "3 个约 90g",
+          "grams": 90,
+          "unit": "g"
+        },
+        {
+          "name": "红米肠",
+          "nameZh": "红米肠",
+          "alt": [
+            "肠粉",
+            "米肠"
+          ],
+          "measure": "3 段约 120g",
+          "grams": 120,
+          "unit": "g"
+        },
+        {
+          "name": "卤牛肚",
+          "nameZh": "牛肚",
+          "alt": [
+            "猪肚",
+            "牛百叶",
+            "卤味"
+          ],
+          "measure": "目测约 100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "木耳/菌菇",
+          "nameZh": "木耳",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -97,11 +256,41 @@
       "meal": "家常拼盆（白灼虾 / 卤肉 / 花生 / 蒸蛋 / 青菜）",
       "scene": "家常",
       "ingredients": [
-        { "name": "白灼虾", "nameZh": "虾", "measure": "7 只约 120g（带壳）", "grams": 120, "unit": "g" },
-        { "name": "卤肉块", "nameZh": "猪肉", "measure": "目测约 100g", "grams": 100, "unit": "g" },
-        { "name": "花生", "nameZh": "花生", "measure": "目测约 40g", "grams": 40, "unit": "g" },
-        { "name": "蒸蛋", "nameZh": "鸡蛋羹", "measure": "目测约 80g", "grams": 80, "unit": "g" },
-        { "name": "炒青菜", "nameZh": "青菜", "measure": "目测约 80g", "grams": 80, "unit": "g" }
+        {
+          "name": "白灼虾",
+          "nameZh": "虾",
+          "measure": "7 只约 120g（带壳）",
+          "grams": 120,
+          "unit": "g"
+        },
+        {
+          "name": "卤肉块",
+          "nameZh": "猪肉",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "花生",
+          "nameZh": "花生",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        },
+        {
+          "name": "蒸蛋",
+          "nameZh": "鸡蛋羹",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "炒青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -110,7 +299,13 @@
       "meal": "榴莲（4 块果肉）",
       "scene": "外卖/自购",
       "ingredients": [
-        { "name": "榴莲肉", "nameZh": "榴莲", "measure": "4 块约 350g", "grams": 350, "unit": "g" }
+        {
+          "name": "榴莲肉",
+          "nameZh": "榴莲",
+          "measure": "4 块约 350g",
+          "grams": 350,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -119,12 +314,48 @@
       "meal": "牛肉盖饭套餐（含沙拉与汤）",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "肥牛", "nameZh": "牛肉", "measure": "目测约 120g", "grams": 120, "unit": "g" },
-        { "name": "洋葱", "nameZh": "洋葱", "measure": "目测约 40g", "grams": 40, "unit": "g" },
-        { "name": "米饭", "nameZh": "米饭", "measure": "目测约 180g", "grams": 180, "unit": "g" },
-        { "name": "生菜沙拉", "nameZh": "生菜", "measure": "目测约 100g", "grams": 100, "unit": "g" },
-        { "name": "沙拉酱", "nameZh": "蛋黄酱", "measure": "目测约 20g", "grams": 20, "unit": "g" },
-        { "name": "海苔", "nameZh": "海苔", "measure": "少量", "grams": null, "unit": "none" }
+        {
+          "name": "肥牛",
+          "nameZh": "牛肉",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "unit": "g"
+        },
+        {
+          "name": "洋葱",
+          "nameZh": "洋葱",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        },
+        {
+          "name": "米饭",
+          "nameZh": "米饭",
+          "measure": "目测约 180g",
+          "grams": 180,
+          "unit": "g"
+        },
+        {
+          "name": "生菜沙拉",
+          "nameZh": "生菜",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "沙拉酱",
+          "nameZh": "蛋黄酱",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        },
+        {
+          "name": "海苔",
+          "nameZh": "海苔",
+          "measure": "少量",
+          "grams": null,
+          "unit": "none"
+        }
       ]
     },
     {
@@ -133,10 +364,34 @@
       "meal": "麻辣拉面（溏心蛋 + 肉片）",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "拉面", "nameZh": "拉面", "measure": "1 碗约 180g", "grams": 180, "unit": "g" },
-        { "name": "溏心蛋", "nameZh": "鸡蛋", "measure": "半个约 25g", "grams": 25, "unit": "g" },
-        { "name": "肉片", "nameZh": "猪肉", "measure": "2~3 片约 80g", "grams": 80, "unit": "g" },
-        { "name": "豆芽青菜", "nameZh": "豆芽", "measure": "目测约 50g", "grams": 50, "unit": "g" }
+        {
+          "name": "拉面",
+          "nameZh": "拉面",
+          "measure": "1 碗约 180g",
+          "grams": 180,
+          "unit": "g"
+        },
+        {
+          "name": "溏心蛋",
+          "nameZh": "鸡蛋",
+          "measure": "半个约 25g",
+          "grams": 25,
+          "unit": "g"
+        },
+        {
+          "name": "肉片",
+          "nameZh": "猪肉",
+          "measure": "2~3 片约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "豆芽青菜",
+          "nameZh": "豆芽",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -145,12 +400,48 @@
       "meal": "家常一锅煮（乌冬面 + 虾 + 猪肉 + 油豆腐）",
       "scene": "家常自制",
       "ingredients": [
-        { "name": "乌冬面", "nameZh": "面条", "measure": "目测约 150g", "grams": 150, "unit": "g" },
-        { "name": "油豆腐", "nameZh": "豆腐", "measure": "目测约 60g", "grams": 60, "unit": "g" },
-        { "name": "虾", "nameZh": "虾", "measure": "2 只约 20g", "grams": 20, "unit": "g" },
-        { "name": "猪肉片", "nameZh": "猪肉", "measure": "目测约 60g", "grams": 60, "unit": "g" },
-        { "name": "青菜", "nameZh": "青菜", "measure": "目测约 60g", "grams": 60, "unit": "g" },
-        { "name": "藕片", "nameZh": "莲藕", "measure": "目测约 20g", "grams": 20, "unit": "g" }
+        {
+          "name": "乌冬面",
+          "nameZh": "面条",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "油豆腐",
+          "nameZh": "豆腐",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "虾",
+          "nameZh": "虾",
+          "measure": "2 只约 20g",
+          "grams": 20,
+          "unit": "g"
+        },
+        {
+          "name": "猪肉片",
+          "nameZh": "猪肉",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "藕片",
+          "nameZh": "莲藕",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -159,8 +450,20 @@
       "meal": "清蒸大闸蟹 + 皮皮虾",
       "scene": "家常",
       "ingredients": [
-        { "name": "大闸蟹", "nameZh": "螃蟹", "measure": "4 只约 500g（可食约 150g）", "grams": 150, "unit": "g" },
-        { "name": "皮皮虾", "nameZh": "虾", "measure": "8 只约 200g（可食约 80g）", "grams": 80, "unit": "g" }
+        {
+          "name": "大闸蟹",
+          "nameZh": "螃蟹",
+          "measure": "4 只约 500g（可食约 150g）",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "皮皮虾",
+          "nameZh": "虾",
+          "measure": "8 只约 200g（可食约 80g）",
+          "grams": 80,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -169,9 +472,31 @@
       "meal": "锅包肉（东北糖醋炸肉）",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "锅包肉", "nameZh": "锅包肉", "alt": ["糖醋里脊", "炸肉段"], "measure": "1 盘约 200g", "grams": 200, "unit": "g" },
-        { "name": "胡萝卜丝", "nameZh": "胡萝卜", "measure": "少量约 10g", "grams": 10, "unit": "g" },
-        { "name": "香菜", "nameZh": "香菜", "measure": "少量", "grams": null, "unit": "none" }
+        {
+          "name": "锅包肉",
+          "nameZh": "锅包肉",
+          "alt": [
+            "糖醋里脊",
+            "炸肉段"
+          ],
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "胡萝卜丝",
+          "nameZh": "胡萝卜",
+          "measure": "少量约 10g",
+          "grams": 10,
+          "unit": "g"
+        },
+        {
+          "name": "香菜",
+          "nameZh": "香菜",
+          "measure": "少量",
+          "grams": null,
+          "unit": "none"
+        }
       ]
     },
     {
@@ -180,9 +505,38 @@
       "meal": "铁锅炖（贴玉米饼 + 土豆炖肉）",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "玉米饼", "nameZh": "玉米饼", "alt": ["贴饼子", "玉米面饼", "玉米面饽饽"], "measure": "8 块约 300g", "grams": 300, "unit": "g" },
-        { "name": "土豆片", "nameZh": "土豆", "measure": "目测约 150g", "grams": 150, "unit": "g" },
-        { "name": "炖肉", "nameZh": "猪肉", "alt": ["鸡肉", "鹅肉", "排骨"], "ambiguous": true, "measure": "目测约 250g（部位与肉种无法从照片确定）", "grams": 250, "unit": "g" }
+        {
+          "name": "玉米饼",
+          "nameZh": "玉米饼",
+          "alt": [
+            "贴饼子",
+            "玉米面饼",
+            "玉米面饽饽"
+          ],
+          "measure": "8 块约 300g",
+          "grams": 300,
+          "unit": "g"
+        },
+        {
+          "name": "土豆片",
+          "nameZh": "土豆",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "炖肉",
+          "nameZh": "猪肉",
+          "alt": [
+            "鸡肉",
+            "鹅肉",
+            "排骨"
+          ],
+          "ambiguous": true,
+          "measure": "目测约 250g（部位与肉种无法从照片确定）",
+          "grams": 250,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -191,12 +545,48 @@
       "meal": "家庭火锅备菜（番茄锅底 + 毛肚 + 肉片 + 花蛤 + 鱼丸）",
       "scene": "家常火锅",
       "ingredients": [
-        { "name": "毛肚", "nameZh": "毛肚", "measure": "1 盘约 150g", "grams": 150, "unit": "g" },
-        { "name": "肉片", "nameZh": "牛肉", "measure": "1 盘约 150g", "grams": 150, "unit": "g" },
-        { "name": "花蛤", "nameZh": "蛤蜊", "measure": "1 盘约 200g", "grams": 200, "unit": "g" },
-        { "name": "鱼丸", "nameZh": "鱼丸", "measure": "1 袋约 200g", "grams": 200, "unit": "g" },
-        { "name": "炸豆皮", "nameZh": "腐竹", "measure": "1 盘约 100g", "grams": 100, "unit": "g" },
-        { "name": "番茄锅底", "nameZh": "番茄", "measure": "1 锅", "grams": null, "unit": "none" }
+        {
+          "name": "毛肚",
+          "nameZh": "毛肚",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "肉片",
+          "nameZh": "牛肉",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "花蛤",
+          "nameZh": "蛤蜊",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "鱼丸",
+          "nameZh": "鱼丸",
+          "measure": "1 袋约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "炸豆皮",
+          "nameZh": "腐竹",
+          "measure": "1 盘约 100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "番茄锅底",
+          "nameZh": "番茄",
+          "measure": "1 锅",
+          "grams": null,
+          "unit": "none"
+        }
       ]
     },
     {
@@ -205,9 +595,27 @@
       "meal": "卤味锅（鸡爪 + 油豆腐 + 生菜）",
       "scene": "连锁小吃店",
       "ingredients": [
-        { "name": "卤鸡爪", "nameZh": "鸡爪", "measure": "目测约 150g", "grams": 150, "unit": "g" },
-        { "name": "油豆腐", "nameZh": "豆腐", "measure": "目测约 80g", "grams": 80, "unit": "g" },
-        { "name": "生菜", "nameZh": "生菜", "measure": "1 盘约 120g", "grams": 120, "unit": "g" }
+        {
+          "name": "卤鸡爪",
+          "nameZh": "鸡爪",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "油豆腐",
+          "nameZh": "豆腐",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "生菜",
+          "nameZh": "生菜",
+          "measure": "1 盘约 120g",
+          "grams": 120,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -216,9 +624,27 @@
       "meal": "蘑菇木耳炒肉盖饭",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "米饭", "nameZh": "米饭", "measure": "1 碗约 200g", "grams": 200, "unit": "g" },
-        { "name": "炒肉片", "nameZh": "猪肉", "measure": "目测约 90g", "grams": 90, "unit": "g" },
-        { "name": "蘑菇", "nameZh": "蘑菇", "measure": "目测约 60g", "grams": 60, "unit": "g" }
+        {
+          "name": "米饭",
+          "nameZh": "米饭",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "炒肉片",
+          "nameZh": "猪肉",
+          "measure": "目测约 90g",
+          "grams": 90,
+          "unit": "g"
+        },
+        {
+          "name": "蘑菇",
+          "nameZh": "蘑菇",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -227,9 +653,27 @@
       "meal": "苦瓜炒肉盖饭",
       "scene": "餐厅",
       "ingredients": [
-        { "name": "米饭", "nameZh": "米饭", "measure": "1 碗约 200g", "grams": 200, "unit": "g" },
-        { "name": "炒肉片", "nameZh": "猪肉", "measure": "目测约 90g", "grams": 90, "unit": "g" },
-        { "name": "苦瓜", "nameZh": "苦瓜", "measure": "目测约 80g", "grams": 80, "unit": "g" }
+        {
+          "name": "米饭",
+          "nameZh": "米饭",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "炒肉片",
+          "nameZh": "猪肉",
+          "measure": "目测约 90g",
+          "grams": 90,
+          "unit": "g"
+        },
+        {
+          "name": "苦瓜",
+          "nameZh": "苦瓜",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -238,10 +682,34 @@
       "meal": "螺蛳粉 / 红油汤粉",
       "scene": "小吃店",
       "ingredients": [
-        { "name": "米粉", "nameZh": "米粉", "measure": "1 碗约 200g", "grams": 200, "unit": "g" },
-        { "name": "炸腐竹", "nameZh": "腐竹", "measure": "目测约 40g", "grams": 40, "unit": "g" },
-        { "name": "酸笋/白萝卜丝", "nameZh": "白萝卜", "measure": "目测约 40g", "grams": 40, "unit": "g" },
-        { "name": "青菜", "nameZh": "青菜", "measure": "少量约 20g", "grams": 20, "unit": "g" }
+        {
+          "name": "米粉",
+          "nameZh": "米粉",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "炸腐竹",
+          "nameZh": "腐竹",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        },
+        {
+          "name": "酸笋/白萝卜丝",
+          "nameZh": "白萝卜",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        },
+        {
+          "name": "青菜",
+          "nameZh": "青菜",
+          "measure": "少量约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
       ]
     },
     {
@@ -250,8 +718,1759 @@
       "meal": "街头卤牛肉碗（配泡菜）",
       "scene": "夜市小吃",
       "ingredients": [
-        { "name": "卤牛肉块", "nameZh": "牛肉", "alt": ["牛肉丸", "卤牛肉", "肉丸"], "measure": "8~10 块约 150g", "grams": 150, "unit": "g" },
-        { "name": "辣白菜/泡菜", "nameZh": "泡菜", "alt": ["腌萝卜", "萝卜丁", "辣白菜"], "measure": "目测约 30g", "grams": 30, "unit": "g" }
+        {
+          "name": "卤牛肉块",
+          "nameZh": "牛肉",
+          "alt": [
+            "牛肉丸",
+            "卤牛肉",
+            "肉丸"
+          ],
+          "measure": "8~10 块约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "辣白菜/泡菜",
+          "nameZh": "泡菜",
+          "alt": [
+            "腌萝卜",
+            "萝卜丁",
+            "辣白菜"
+          ],
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl22",
+      "file": "images/05171664675d607ef50ec1bdfdbb7bc8.jpg",
+      "meal": "凉皮（红油拌）",
+      "scene": "连锁凉皮店",
+      "ingredients": [
+        {
+          "name": "凉皮",
+          "nameZh": "凉皮",
+          "measure": "1 份约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "黄瓜丝",
+          "nameZh": "黄瓜",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        },
+        {
+          "name": "面筋",
+          "nameZh": "面筋",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        },
+        {
+          "name": "辣椒油",
+          "nameZh": "辣椒油",
+          "measure": "目测约 15g",
+          "grams": 15,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl23",
+      "file": "images/0b1a2e66b6e6fc43102e1149811b7371.jpg",
+      "meal": "砂锅白菜粉条炖肉 + 糖醋肉块",
+      "scene": "餐厅",
+      "ingredients": [
+        {
+          "name": "粉条/粉皮",
+          "nameZh": "粉条",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g"
+        },
+        {
+          "name": "白菜",
+          "nameZh": "大白菜",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "unit": "g"
+        },
+        {
+          "name": "肉片",
+          "nameZh": "猪肉",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "糖醋肉块",
+          "nameZh": "糖醋里脊",
+          "measure": "1 小盘约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "咕噜肉",
+            "糖醋肉块",
+            "锅包肉"
+          ]
+        },
+        {
+          "name": "番茄块",
+          "nameZh": "番茄",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl24",
+      "file": "images/0fb171d857072641512909708431e13e.jpg",
+      "meal": "日式涮涮锅（肥牛 + 金针菇）",
+      "scene": "餐厅",
+      "ingredients": [
+        {
+          "name": "肥牛片",
+          "nameZh": "肥牛卷",
+          "measure": "目测约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "牛肉卷",
+            "肥牛"
+          ]
+        },
+        {
+          "name": "金针菇",
+          "nameZh": "金针菇",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "豆芽",
+          "nameZh": "豆芽",
+          "measure": "目测约 40g",
+          "grams": 40,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl25",
+      "file": "images/109918c8c33a24ef92738e0a5ce9bc11.jpg",
+      "meal": "两碗肉丸汤粉 + 干拌河粉",
+      "scene": "小吃店/越南粉",
+      "ingredients": [
+        {
+          "name": "米粉",
+          "nameZh": "米粉",
+          "measure": "两碗合计约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "河粉",
+            "米线"
+          ]
+        },
+        {
+          "name": "牛肉片",
+          "nameZh": "牛肉",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "肉丸",
+          "nameZh": "牛肉丸",
+          "measure": "6 个约 100g",
+          "grams": 100,
+          "unit": "g",
+          "alt": [
+            "肉丸",
+            "丸子"
+          ]
+        },
+        {
+          "name": "花蛤",
+          "nameZh": "花蛤",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        },
+        {
+          "name": "虾",
+          "nameZh": "虾",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        },
+        {
+          "name": "青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        },
+        {
+          "name": "干拌河粉",
+          "nameZh": "河粉",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl26",
+      "file": "images/1408249a58a95cbfb21f4d5234278358.jpg",
+      "meal": "宴席烧鸡/卤鸭（切块）",
+      "scene": "宴席圆桌",
+      "ingredients": [
+        {
+          "name": "烧鸡",
+          "nameZh": "烧鸡",
+          "measure": "整只切块约 400g 可食",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "卤鸭",
+            "烤鸭",
+            "白切鸡",
+            "卤鸡"
+          ]
+        },
+        {
+          "name": "蘸酱",
+          "nameZh": "蘸料",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl27",
+      "file": "images/1841bf858f2ac499138a2989e87a7c48.jpg",
+      "meal": "三碗卤肉/猪脚饭",
+      "scene": "快餐店",
+      "ingredients": [
+        {
+          "name": "米饭",
+          "nameZh": "米饭",
+          "measure": "三碗合计约 600g",
+          "grams": 600,
+          "unit": "g"
+        },
+        {
+          "name": "卤肉",
+          "nameZh": "卤肉",
+          "measure": "三碗合计约 240g",
+          "grams": 240,
+          "unit": "g",
+          "alt": [
+            "猪脚",
+            "肉燥",
+            "红烧肉"
+          ]
+        },
+        {
+          "name": "酸菜",
+          "nameZh": "酸菜",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl28",
+      "file": "images/1acc0a28304446855bc35919dcb0c320.jpg",
+      "meal": "家宴（白切鸡 / 苦瓜酿肉 / 炒牛肉）",
+      "scene": "家宴",
+      "ingredients": [
+        {
+          "name": "白切鸡",
+          "nameZh": "白切鸡",
+          "measure": "1 盆约 400g",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "白斩鸡",
+            "鸡肉"
+          ]
+        },
+        {
+          "name": "苦瓜酿肉",
+          "nameZh": "苦瓜",
+          "measure": "8 段约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "酿苦瓜"
+          ]
+        },
+        {
+          "name": "炒牛肉丝",
+          "nameZh": "牛肉",
+          "measure": "目测约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "卤鸭胗",
+          "nameZh": "鸭胗",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "鸡胗",
+            "内脏"
+          ]
+        },
+        {
+          "name": "酿豆腐",
+          "nameZh": "豆腐",
+          "measure": "目测约 200g",
+          "grams": 200,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl29",
+      "file": "images/1e23daf7c08b2300d98c5bf1e10e03ec.jpg",
+      "meal": "蛋肠粉（浇酱油汁）",
+      "scene": "早餐店/外卖",
+      "ingredients": [
+        {
+          "name": "肠粉",
+          "nameZh": "肠粉",
+          "measure": "1 份约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "蛋肠",
+            "红米肠",
+            "米肠"
+          ]
+        },
+        {
+          "name": "鸡蛋",
+          "nameZh": "鸡蛋",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        },
+        {
+          "name": "青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl30",
+      "file": "images/1fa8d0dde2f5844c2357f4b6c79c71e9.jpg",
+      "meal": "宴席（烧鹅 / 水煮鱼 / 炒米粉 / 铁板茄子）",
+      "scene": "宴席圆桌",
+      "ingredients": [
+        {
+          "name": "烧鹅",
+          "nameZh": "烧鹅",
+          "measure": "1 长盘约 400g",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "烧鸭",
+            "卤鸭",
+            "烤鸭"
+          ]
+        },
+        {
+          "name": "水煮鱼",
+          "nameZh": "鱼",
+          "measure": "目测约 300g",
+          "grams": 300,
+          "unit": "g"
+        },
+        {
+          "name": "烧腊拼盘",
+          "nameZh": "叉烧",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "烧肉",
+            "烧腊"
+          ]
+        },
+        {
+          "name": "铁板茄子",
+          "nameZh": "茄子",
+          "measure": "目测约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "上汤青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "炒米粉",
+          "nameZh": "米粉",
+          "measure": "目测约 250g",
+          "grams": 250,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl31",
+      "file": "images/206f1d2c1dbb8b6aef74fe448b00340c.jpg",
+      "meal": "拌面两碗 + 番茄牛肉汤",
+      "scene": "面馆",
+      "ingredients": [
+        {
+          "name": "拌面",
+          "nameZh": "面条",
+          "measure": "两碗合计约 400g",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "碱水面",
+            "拌面"
+          ]
+        },
+        {
+          "name": "番茄",
+          "nameZh": "番茄",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "牛肉",
+          "nameZh": "牛肉",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "青菜",
+          "nameZh": "青菜",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl32",
+      "file": "images/2089a6aa4460637991dbf4cad2b73709.jpg",
+      "meal": "海鲜卤味家宴（十余盘）",
+      "scene": "家宴",
+      "ingredients": [
+        {
+          "name": "白灼虾",
+          "nameZh": "虾",
+          "measure": "3 盘合计约 400g",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "虾",
+            "鲜虾"
+          ]
+        },
+        {
+          "name": "粉丝蒸虾",
+          "nameZh": "粉丝",
+          "measure": "1 大盘约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "卤鸭",
+          "nameZh": "卤鸭",
+          "measure": "2 盘合计约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "卤鹅",
+            "白切鸡"
+          ]
+        },
+        {
+          "name": "白切鸡",
+          "nameZh": "白切鸡",
+          "measure": "2 盘合计约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "鸡肉"
+          ]
+        },
+        {
+          "name": "清炒青菜",
+          "nameZh": "青菜",
+          "measure": "3 盘合计约 300g",
+          "grams": 300,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl33",
+      "file": "images/271ad48521041eb604e8da127763475e.jpg",
+      "meal": "广式早茶（虾饺 / 凤爪 / 红米肠 / 流沙包）",
+      "scene": "茶楼",
+      "ingredients": [
+        {
+          "name": "虾饺",
+          "nameZh": "虾饺",
+          "measure": "两笼约 220g",
+          "grams": 220,
+          "unit": "g",
+          "alt": [
+            "虾饺皇",
+            "水晶虾饺"
+          ]
+        },
+        {
+          "name": "凤爪",
+          "nameZh": "鸡爪",
+          "measure": "1 笼约 120g",
+          "grams": 120,
+          "unit": "g",
+          "alt": [
+            "卤鸡爪",
+            "凤爪"
+          ]
+        },
+        {
+          "name": "红米肠",
+          "nameZh": "红米肠",
+          "measure": "3 段约 180g",
+          "grams": 180,
+          "unit": "g",
+          "alt": [
+            "肠粉",
+            "米肠"
+          ]
+        },
+        {
+          "name": "流沙包",
+          "nameZh": "流沙包",
+          "measure": "3 个约 120g",
+          "grams": 120,
+          "unit": "g",
+          "alt": [
+            "奶黄包",
+            "包子"
+          ]
+        },
+        {
+          "name": "虾球",
+          "nameZh": "虾",
+          "measure": "3 个约 90g",
+          "grams": 90,
+          "unit": "g",
+          "alt": [
+            "虾丸",
+            "鱼丸"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl34",
+      "file": "images/30a1912a7371db340ad95a05a9bf150b.jpg",
+      "meal": "外卖炒乌冬（蛋 + 鱼板 + 虾）",
+      "scene": "外卖",
+      "ingredients": [
+        {
+          "name": "乌冬面",
+          "nameZh": "乌冬面",
+          "measure": "1 盒约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "面条",
+            "炒面"
+          ]
+        },
+        {
+          "name": "炒鸡蛋",
+          "nameZh": "鸡蛋",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "鱼板",
+          "nameZh": "鱼板",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g",
+          "alt": [
+            "蟹棒",
+            "鸣门卷",
+            "鱼丸"
+          ]
+        },
+        {
+          "name": "虾",
+          "nameZh": "虾",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl35",
+      "file": "images/313af7d1b839314f6e80fad607cd6f28.jpg",
+      "meal": "杨枝甘露（芒果饮品）",
+      "scene": "夜市/门店",
+      "ingredients": [
+        {
+          "name": "杨枝甘露",
+          "nameZh": "奶茶",
+          "measure": "1 杯约 500ml（含芒果肉与西米）",
+          "grams": 500,
+          "unit": "g",
+          "alt": [
+            "杨枝甘露",
+            "芒果饮",
+            "奶昔"
+          ]
+        },
+        {
+          "name": "芒果肉",
+          "nameZh": "芒果",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl36",
+      "file": "images/446268e32f9ead8eb86591b686542d27.jpg",
+      "meal": "煎酿豆腐 / 青椒 + 炒红苋菜",
+      "scene": "家常",
+      "ingredients": [
+        {
+          "name": "煎酿豆腐",
+          "nameZh": "豆腐",
+          "measure": "1 盘约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "酿豆腐",
+            "豆腐块"
+          ]
+        },
+        {
+          "name": "青椒",
+          "nameZh": "青椒",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "猪肉末",
+          "nameZh": "猪肉",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "炒青菜",
+          "nameZh": "青菜",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "苋菜",
+            "空心菜"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl37",
+      "file": "images/4587047aadc20753d0f1f1beab22a56e.jpg",
+      "meal": "家常桌（油焖虾 / 咖喱牛肉 / 凉拌内脏）",
+      "scene": "家常",
+      "ingredients": [
+        {
+          "name": "油焖虾",
+          "nameZh": "虾",
+          "measure": "1 盘约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "红烧虾",
+            "虾"
+          ]
+        },
+        {
+          "name": "咖喱牛肉",
+          "nameZh": "牛肉",
+          "measure": "1 盆约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "牛腩",
+            "炖牛肉"
+          ]
+        },
+        {
+          "name": "凉拌猪耳",
+          "nameZh": "猪耳朵",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "卤味",
+            "猪耳"
+          ]
+        },
+        {
+          "name": "炒鸭胗",
+          "nameZh": "鸭胗",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "鸡胗",
+            "内脏"
+          ]
+        },
+        {
+          "name": "手撕鸡",
+          "nameZh": "鸡肉",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "凉拌鸡丝",
+            "白切鸡"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl38",
+      "file": "images/4b9b600200dca62bedcd05de60d9bcb5.jpg",
+      "meal": "宴席（炸虾串 / 炖盅 / 虾片）",
+      "scene": "宴席",
+      "ingredients": [
+        {
+          "name": "炸虾串",
+          "nameZh": "虾",
+          "measure": "6~8 串约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "皮皮虾",
+            "烤虾"
+          ]
+        },
+        {
+          "name": "炖盅（花胶鸡）",
+          "nameZh": "炖汤",
+          "measure": "1 盅约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "花胶鸡",
+            "佛跳墙",
+            "鸡汤"
+          ]
+        },
+        {
+          "name": "虾片",
+          "nameZh": "虾片",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl39",
+      "file": "images/54860841842a8907d3a05bf4f06285f3.jpg",
+      "meal": "家宴（清蒸鱼 / 白切鸡 / 红烧肉 / 油焖虾）",
+      "scene": "家宴",
+      "ingredients": [
+        {
+          "name": "清蒸鱼",
+          "nameZh": "鱼",
+          "measure": "整条约 400g",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "蒸鱼",
+            "鲈鱼"
+          ]
+        },
+        {
+          "name": "白切鸡",
+          "nameZh": "白切鸡",
+          "measure": "1 盘约 400g",
+          "grams": 400,
+          "unit": "g",
+          "alt": [
+            "鸡肉"
+          ]
+        },
+        {
+          "name": "红烧肉",
+          "nameZh": "红烧肉",
+          "measure": "1 盆约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "五花肉",
+            "扣肉"
+          ]
+        },
+        {
+          "name": "油焖虾",
+          "nameZh": "虾",
+          "measure": "1 盘约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "红烧狮子头",
+          "nameZh": "肉丸",
+          "measure": "1 盘约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "狮子头",
+            "肉丸"
+          ]
+        },
+        {
+          "name": "炒青菜",
+          "nameZh": "青菜",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl40",
+      "file": "images/5d13f9110ff6c904a486d08284f82ac1.jpg",
+      "meal": "大排档（辣炒花蛤 / 凉拌鱿鱼 / 炒青菜 / 鱼丸汤）",
+      "scene": "大排档",
+      "ingredients": [
+        {
+          "name": "辣炒花蛤",
+          "nameZh": "花蛤",
+          "measure": "1 盘约 250g（带壳）",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "蛤蜊",
+            "花甲"
+          ]
+        },
+        {
+          "name": "凉拌鱿鱼",
+          "nameZh": "鱿鱼",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "鱿鱼丝",
+            "鱿鱼须"
+          ]
+        },
+        {
+          "name": "炒青菜",
+          "nameZh": "青菜",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "空心菜",
+            "菠菜"
+          ]
+        },
+        {
+          "name": "鱼丸汤",
+          "nameZh": "鱼丸",
+          "measure": "1 碗约 60g",
+          "grams": 60,
+          "unit": "g",
+          "alt": [
+            "丸子",
+            "肉丸"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl41",
+      "file": "images/604a10b48667727244b65b2ced447839.jpg",
+      "meal": "叉烧/烧肉拼盘（撒芝麻）",
+      "scene": "餐厅/烧腊",
+      "ingredients": [
+        {
+          "name": "叉烧",
+          "nameZh": "叉烧",
+          "measure": "1 大盘约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "烧肉",
+            "腊味拼盘",
+            "烧腊"
+          ]
+        },
+        {
+          "name": "薄荷/香菜",
+          "nameZh": "香菜",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl42",
+      "file": "images/615cf7dfafedb7f58fe1c3225bb0b291.jpg",
+      "meal": "火锅备菜（生）",
+      "scene": "家常火锅",
+      "ingredients": [
+        {
+          "name": "白色条状食材",
+          "nameZh": "鸭肠",
+          "measure": "两盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "ambiguous": true,
+          "alt": [
+            "鸭肠",
+            "鱼片",
+            "毛肚丝",
+            "鸡肠"
+          ]
+        },
+        {
+          "name": "粉丝/金针菇",
+          "nameZh": "金针菇",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "花生米",
+          "nameZh": "花生",
+          "measure": "目测约 30g",
+          "grams": 30,
+          "unit": "g"
+        },
+        {
+          "name": "薄荷",
+          "nameZh": "香菜",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl43",
+      "file": "images/64ac2ad191f1bbc5ab9662bc5ff9e889.jpg",
+      "meal": "烤串大拼盘（外卖）",
+      "scene": "外卖/烧烤",
+      "ingredients": [
+        {
+          "name": "肉串",
+          "nameZh": "羊肉串",
+          "measure": "十余串约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "牛肉串",
+            "五花肉串",
+            "烤串"
+          ]
+        },
+        {
+          "name": "烤虾",
+          "nameZh": "虾",
+          "measure": "5 只约 120g",
+          "grams": 120,
+          "unit": "g"
+        },
+        {
+          "name": "烤鱿鱼",
+          "nameZh": "鱿鱼",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "烤豆腐",
+          "nameZh": "豆腐",
+          "measure": "几片约 80g",
+          "grams": 80,
+          "unit": "g",
+          "alt": [
+            "烤豆腐片"
+          ]
+        },
+        {
+          "name": "烤鱼",
+          "nameZh": "鱼",
+          "measure": "1 条约 200g",
+          "grams": 200,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl44",
+      "file": "images/64d781cb11d9cf37e81c26d9e24fbd85.jpg",
+      "meal": "萝卜红枣炖汤",
+      "scene": "家常",
+      "ingredients": [
+        {
+          "name": "白萝卜",
+          "nameZh": "白萝卜",
+          "measure": "约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "红枣",
+          "nameZh": "红枣",
+          "measure": "十余颗约 30g",
+          "grams": 30,
+          "unit": "g"
+        },
+        {
+          "name": "炖肉",
+          "nameZh": "鸡肉",
+          "measure": "目测约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "排骨",
+            "鸡肉",
+            "鸭肉"
+          ],
+          "ambiguous": true
+        }
+      ]
+    },
+    {
+      "id": "rl45",
+      "file": "images/67db096486e0348679d3c13a5752c04a.jpg",
+      "meal": "龟苓膏（加糖粉）",
+      "scene": "甜品/家常",
+      "ingredients": [
+        {
+          "name": "龟苓膏",
+          "nameZh": "龟苓膏",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "仙草冻",
+            "凉粉"
+          ]
+        },
+        {
+          "name": "糖粉",
+          "nameZh": "糖",
+          "measure": "目测约 10g",
+          "grams": 10,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl46",
+      "file": "images/708d49c44ebc6c04808fb498cd362a44.jpg",
+      "meal": "烧鸭米粉三碗",
+      "scene": "烧腊店",
+      "ingredients": [
+        {
+          "name": "米粉",
+          "nameZh": "米粉",
+          "measure": "三碗合计约 450g",
+          "grams": 450,
+          "unit": "g",
+          "alt": [
+            "米线",
+            "河粉"
+          ]
+        },
+        {
+          "name": "烧鸭",
+          "nameZh": "烧鸭",
+          "measure": "三碗合计约 360g",
+          "grams": 360,
+          "unit": "g",
+          "alt": [
+            "烧鹅",
+            "卤鸭"
+          ]
+        },
+        {
+          "name": "白菜",
+          "nameZh": "大白菜",
+          "measure": "目测约 120g",
+          "grams": 120,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl47",
+      "file": "images/7d48f1e1b57c46c89254bc32c2807f37.jpg",
+      "meal": "家常四样（炖鸡 / 肉丸汤 / 炒青菜 / 扣肉）",
+      "scene": "家常",
+      "ingredients": [
+        {
+          "name": "炖鸡块",
+          "nameZh": "鸡肉",
+          "measure": "1 碗约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "白切鸡",
+            "鸡块"
+          ]
+        },
+        {
+          "name": "肉丸",
+          "nameZh": "肉丸",
+          "measure": "6 个约 120g",
+          "grams": 120,
+          "unit": "g",
+          "alt": [
+            "鱼丸",
+            "丸子"
+          ]
+        },
+        {
+          "name": "炒青菜",
+          "nameZh": "青菜",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "空心菜"
+          ]
+        },
+        {
+          "name": "扣肉/红烧肉",
+          "nameZh": "红烧肉",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "五花肉",
+            "扣肉"
+          ]
+        },
+        {
+          "name": "米饭",
+          "nameZh": "米饭",
+          "measure": "1 碗约 200g",
+          "grams": 200,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl48",
+      "file": "images/7fb4c9993e2ff882a5410b33c2d6bf2c.jpg",
+      "meal": "家宴圆桌九道",
+      "scene": "家宴",
+      "ingredients": [
+        {
+          "name": "白切鸡",
+          "nameZh": "白切鸡",
+          "measure": "1 盘约 350g",
+          "grams": 350,
+          "unit": "g",
+          "alt": [
+            "鸡肉"
+          ]
+        },
+        {
+          "name": "清蒸鱼",
+          "nameZh": "鱼",
+          "measure": "整条约 400g",
+          "grams": 400,
+          "unit": "g"
+        },
+        {
+          "name": "卤鸭",
+          "nameZh": "卤鸭",
+          "measure": "1 盘约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "酱鸭",
+            "烧鸭"
+          ]
+        },
+        {
+          "name": "油焖虾",
+          "nameZh": "虾",
+          "measure": "1 盘约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "红烧肉",
+          "nameZh": "红烧肉",
+          "measure": "1 砂锅约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "五花肉"
+          ]
+        },
+        {
+          "name": "炒青豆油豆腐",
+          "nameZh": "青豆",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "豌豆",
+            "毛豆"
+          ]
+        },
+        {
+          "name": "鹌鹑蛋",
+          "nameZh": "鹌鹑蛋",
+          "measure": "1 盘约 120g",
+          "grams": 120,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl49",
+      "file": "images/856ac03fc52fa03843e6cdf5f26d8729.jpg",
+      "meal": "啫啫煲（鳝段/牛肉）+ 炒面",
+      "scene": "餐厅",
+      "ingredients": [
+        {
+          "name": "砂锅主料",
+          "nameZh": "牛肉",
+          "measure": "1 锅约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "鳝鱼",
+            "黄鳝",
+            "牛筋"
+          ]
+        },
+        {
+          "name": "洋葱",
+          "nameZh": "洋葱",
+          "measure": "目测约 50g",
+          "grams": 50,
+          "unit": "g"
+        },
+        {
+          "name": "炒面",
+          "nameZh": "面条",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "炒粉",
+            "炒面"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl50",
+      "file": "images/8cbb974feaccf3a7a04d33b0389cbadf.jpg",
+      "meal": "外卖凉拌菜（猪耳 / 海带 / 黄瓜）",
+      "scene": "外卖",
+      "ingredients": [
+        {
+          "name": "猪耳",
+          "nameZh": "猪耳朵",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g",
+          "alt": [
+            "卤味",
+            "猪耳"
+          ]
+        },
+        {
+          "name": "海带丝",
+          "nameZh": "海带",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "黄瓜",
+          "nameZh": "黄瓜",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        },
+        {
+          "name": "花生米",
+          "nameZh": "花生",
+          "measure": "目测约 20g",
+          "grams": 20,
+          "unit": "g"
+        },
+        {
+          "name": "香菜",
+          "nameZh": "香菜",
+          "measure": "目测约 10g",
+          "grams": 10,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl51",
+      "file": "images/9836cdc6a4dbee6633b79d3d99d5e85f.jpg",
+      "meal": "煎鱼饼/豆腐 + 肉片炒豆芽",
+      "scene": "外卖/小摊",
+      "ingredients": [
+        {
+          "name": "煎鱼饼",
+          "nameZh": "鱼饼",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g",
+          "ambiguous": true,
+          "alt": [
+            "豆腐",
+            "鱼饼",
+            "萝卜糕"
+          ]
+        },
+        {
+          "name": "肉片",
+          "nameZh": "猪肉",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        },
+        {
+          "name": "豆芽",
+          "nameZh": "豆芽",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl52",
+      "file": "images/a3f4539e5628b296eac2edd0d43e0183.jpg",
+      "meal": "火锅（鸳鸯锅 + 生牛肉 + 花螺）",
+      "scene": "火锅店",
+      "ingredients": [
+        {
+          "name": "生牛肉片",
+          "nameZh": "牛肉",
+          "measure": "两盒约 300g",
+          "grams": 300,
+          "unit": "g",
+          "alt": [
+            "牛肉片",
+            "牛肝"
+          ]
+        },
+        {
+          "name": "白灼虾",
+          "nameZh": "虾",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "炒花螺",
+          "nameZh": "花螺",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "钉螺",
+            "螺肉",
+            "蛤蜊"
+          ]
+        },
+        {
+          "name": "炸鱼块",
+          "nameZh": "鱼",
+          "measure": "目测约 150g",
+          "grams": 150,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl53",
+      "file": "images/a4c860fe895c090129196bd855f78fda.jpg",
+      "meal": "家常（清蒸鱼 / 盐焗鸡 / 炒牛肉 / 青菜）",
+      "scene": "家常",
+      "ingredients": [
+        {
+          "name": "清蒸鱼",
+          "nameZh": "鱼",
+          "measure": "整条约 400g",
+          "grams": 400,
+          "unit": "g"
+        },
+        {
+          "name": "盐焗鸡/白切鸡",
+          "nameZh": "鸡肉",
+          "measure": "1 盆约 350g",
+          "grams": 350,
+          "unit": "g",
+          "alt": [
+            "白切鸡",
+            "盐焗鸡"
+          ]
+        },
+        {
+          "name": "炒青菜",
+          "nameZh": "青菜",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "菜心"
+          ]
+        },
+        {
+          "name": "炒牛肉",
+          "nameZh": "牛肉",
+          "measure": "两盘合计约 400g",
+          "grams": 400,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl54",
+      "file": "images/a85596e36fe090262c1da73b8f91070b.jpg",
+      "meal": "油焖大虾 + 炒青豆油豆腐",
+      "scene": "家常",
+      "ingredients": [
+        {
+          "name": "油焖大虾",
+          "nameZh": "虾",
+          "measure": "1 盘约 350g",
+          "grams": 350,
+          "unit": "g",
+          "alt": [
+            "干锅虾",
+            "虾"
+          ]
+        },
+        {
+          "name": "青豆",
+          "nameZh": "青豆",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g",
+          "alt": [
+            "豌豆",
+            "毛豆"
+          ]
+        },
+        {
+          "name": "油豆腐",
+          "nameZh": "油豆腐",
+          "measure": "目测约 60g",
+          "grams": 60,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl55",
+      "file": "images/ad90077eb3e4f61083b845614f4ef4e3.jpg",
+      "meal": "凉拌海参 + 蒜蓉粉丝蒸虾",
+      "scene": "餐厅",
+      "ingredients": [
+        {
+          "name": "凉拌海参",
+          "nameZh": "海参",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "海参段",
+            "凉拌海参"
+          ]
+        },
+        {
+          "name": "蒜蓉粉丝蒸虾",
+          "nameZh": "虾",
+          "measure": "1 盘约 200g",
+          "grams": 200,
+          "unit": "g",
+          "alt": [
+            "小龙虾",
+            "大虾"
+          ]
+        },
+        {
+          "name": "粉丝",
+          "nameZh": "粉丝",
+          "measure": "目测约 80g",
+          "grams": 80,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl56",
+      "file": "images/b1ed02c7f407e83e5333d5763a8ec549.jpg",
+      "meal": "冰沙甜品",
+      "scene": "甜品店",
+      "ingredients": [
+        {
+          "name": "冰沙",
+          "nameZh": "刨冰",
+          "measure": "1 杯约 250g",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "冰沙",
+            "雪冰",
+            "沙冰"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl57",
+      "file": "images/b37e27c596ade71d46fd7ca84c813940.jpg",
+      "meal": "拌馄饨/红油抄手（外卖）",
+      "scene": "外卖",
+      "ingredients": [
+        {
+          "name": "馄饨",
+          "nameZh": "馄饨",
+          "measure": "1 盒约 180g",
+          "grams": 180,
+          "unit": "g",
+          "alt": [
+            "抄手",
+            "云吞",
+            "饺子"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl58",
+      "file": "images/bef520185ddf89d9bbddd93d014c4bbe.jpg",
+      "meal": "白酒煮花蛤",
+      "scene": "小馆",
+      "ingredients": [
+        {
+          "name": "花蛤",
+          "nameZh": "花蛤",
+          "measure": "1 碗约 250g（带壳）",
+          "grams": 250,
+          "unit": "g",
+          "alt": [
+            "蛤蜊",
+            "花甲"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl59",
+      "file": "images/d15c5c7d347364116f9e6f200446c23b.jpg",
+      "meal": "家常一锅（红油锅 + 备菜）",
+      "scene": "家常火锅",
+      "ingredients": [
+        {
+          "name": "响铃卷/腐竹",
+          "nameZh": "响铃卷",
+          "measure": "1 锅约 100g",
+          "grams": 100,
+          "unit": "g",
+          "alt": [
+            "腐竹",
+            "炸腐皮"
+          ]
+        },
+        {
+          "name": "牛肚/猪皮",
+          "nameZh": "牛肚",
+          "measure": "1 盒约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "猪皮",
+            "毛肚"
+          ]
+        },
+        {
+          "name": "油豆腐",
+          "nameZh": "油豆腐",
+          "measure": "1 盒约 100g",
+          "grams": 100,
+          "unit": "g",
+          "alt": [
+            "豆腐泡"
+          ]
+        },
+        {
+          "name": "鸭血",
+          "nameZh": "鸭血",
+          "measure": "1 盒约 100g",
+          "grams": 100,
+          "unit": "g",
+          "alt": [
+            "猪血",
+            "血豆腐"
+          ]
+        },
+        {
+          "name": "豆芽",
+          "nameZh": "豆芽",
+          "measure": "目测约 100g",
+          "grams": 100,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "rl60",
+      "file": "images/e022c3dedfff0752526544c523b40a2c.jpg",
+      "meal": "街边火锅（红油锅 + 生牛肉 + 鸭血）",
+      "scene": "街边火锅",
+      "ingredients": [
+        {
+          "name": "生牛肉",
+          "nameZh": "牛肉",
+          "measure": "1 盘约 250g",
+          "grams": 250,
+          "unit": "g"
+        },
+        {
+          "name": "鸭血",
+          "nameZh": "鸭血",
+          "measure": "1 盘约 150g",
+          "grams": 150,
+          "unit": "g",
+          "alt": [
+            "猪血",
+            "血豆腐"
+          ]
+        },
+        {
+          "name": "鹅肠/猪肠",
+          "nameZh": "猪肠",
+          "measure": "1 碗约 120g",
+          "grams": 120,
+          "unit": "g",
+          "alt": [
+            "鹅肠",
+            "肥肠"
+          ]
+        },
+        {
+          "name": "茄子片",
+          "nameZh": "茄子",
+          "measure": "1 盘约 100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "蒜苗",
+          "nameZh": "蒜苗",
+          "measure": "锅里约 60g",
+          "grams": 60,
+          "unit": "g",
+          "alt": [
+            "韭菜",
+            "青蒜"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl61",
+      "file": "images/f3bb4d5159774395213e5e0438563ebd.jpg",
+      "meal": "生饺子（未煮，约 40 只）",
+      "scene": "家常自制",
+      "ingredients": [
+        {
+          "name": "生饺子",
+          "nameZh": "饺子",
+          "measure": "约 40 只约 800g",
+          "grams": 800,
+          "unit": "g",
+          "alt": [
+            "水饺",
+            "生饺子"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rl62",
+      "file": "images/fe46c9b8a2c0542a2d67018db7a44600.jpg",
+      "meal": "红心柚子（剥好）",
+      "scene": "家常/自购",
+      "ingredients": [
+        {
+          "name": "红心柚",
+          "nameZh": "柚子",
+          "measure": "1 个约 350g 可食",
+          "grams": 350,
+          "unit": "g",
+          "alt": [
+            "西柚",
+            "蜜柚"
+          ]
+        }
       ]
     }
   ],

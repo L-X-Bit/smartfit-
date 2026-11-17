@@ -741,7 +741,11 @@
   ],
   "fd_x_steamed_chicken": [
     "白斩鸡",
-    "清远鸡"
+    "清远鸡",
+    "带骨鸡肉",
+    "鸡块",
+    "盐焗鸡",
+    "白切鸡块"
   ],
   "fd_x_cold_cucumber": [
     "拍黄瓜",
@@ -820,7 +824,8 @@
   "fd_rice": [
     "白米饭",
     "大米饭",
-    "米饭"
+    "米饭",
+    "白饭"
   ],
   "fd_pasta": [
     "意大利面",
@@ -856,7 +861,8 @@
   ],
   "fd_x_hot_sour_soup": [
     "酸辣汤羹",
-    "hot and sour soup"
+    "hot and sour soup",
+    "酸辣汤底"
   ],
   "fd_x_egg_drop_soup": [
     "鸡蛋汤",
@@ -865,7 +871,9 @@
   ],
   "fd_x_xiaolongbao": [
     "小笼汤包",
-    "灌汤包"
+    "灌汤包",
+    "小笼包",
+    "汤包"
   ],
   "fd_x_fried_egg": [
     "荷包蛋",
@@ -1039,13 +1047,15 @@
     "鸡爪",
     "凤爪",
     "泡椒凤爪",
-    "chicken feet"
+    "chicken feet",
+    "卤凤爪"
   ],
   "fd_x_beef_tripe": [
     "牛百叶",
     "毛肚",
     "牛肚丝",
-    "tripe"
+    "tripe",
+    "牛肚片"
   ],
   "fd_x_tofu_skin_roll": [
     "炸腐皮",
@@ -1102,10 +1112,157 @@
     "辣白菜",
     "韩式泡菜",
     "kimchi",
-    "腌萝卜"
+    "腌萝卜",
+    "泡菜"
   ],
   "fd_x_rice_noodle_sour": [
     "酸笋丝",
     "腌笋"
+  ],
+  "fd_x_roast_duck": [
+    "烧鹅",
+    "烤鸭",
+    "烧腊",
+    "卤鸭",
+    "roast duck"
+  ],
+  "fd_x_char_siu": [
+    "蜜汁叉烧",
+    "char siu",
+    "烧肉",
+    "腊味拼盘"
+  ],
+  "fd_x_braised_pork_meat": [
+    "卤肉碎",
+    "肉燥",
+    "卤五花",
+    "卤汁肉"
+  ],
+  "fd_x_pork_knuckle": [
+    "猪脚",
+    "猪蹄",
+    "卤猪蹄"
+  ],
+  "fd_x_pig_ear": [
+    "猪耳",
+    "卤猪耳",
+    "猪头肉"
+  ],
+  "fd_x_cured_pork": [
+    "酱肉",
+    "腊味",
+    "咸肉"
+  ],
+  "fd_x_duck_blood": [
+    "猪血",
+    "血豆腐",
+    "血旺"
+  ],
+  "fd_x_pork_intestine": [
+    "猪肠",
+    "大肠",
+    "鹅肠",
+    "卤肥肠"
+  ],
+  "fd_x_sea_cucumber": [
+    "海参段",
+    "凉拌海参",
+    "sea cucumber"
+  ],
+  "fd_x_babylonia": [
+    "花螺",
+    "钉螺",
+    "小海瓜子",
+    "海螺丝"
+  ],
+  "fd_x_liangpi": [
+    "米皮",
+    "擀面皮",
+    "面皮"
+  ],
+  "fd_x_custard_bun": [
+    "奶黄包",
+    "金沙包",
+    "流沙奶黄包"
+  ],
+  "fd_x_fish_cake": [
+    "鱼板",
+    "蟹棒",
+    "蟹柳",
+    "鸣门卷",
+    "fish cake"
+  ],
+  "fd_x_fish_paste": [
+    "煎鱼饼",
+    "鱼腐",
+    "萝卜糕"
+  ],
+  "fd_x_shaved_ice": [
+    "冰沙",
+    "雪冰",
+    "沙冰",
+    "shaved ice"
+  ],
+  "fd_x_guilinggao": [
+    "仙草冻",
+    "凉粉",
+    "烧仙草"
+  ],
+  "fd_x_red_date": [
+    "红枣",
+    "大枣",
+    "干枣"
+  ],
+  "fd_x_vermicelli": [
+    "粉丝",
+    "冬粉",
+    "龙口粉丝",
+    "glass noodle"
+  ],
+  "fd_x_gluten": [
+    "烤面筋",
+    "油面筋",
+    "seitan"
+  ],
+  "fd_x_pork_ball": [
+    "肉丸",
+    "丸子",
+    "猪肉丸",
+    "贡丸"
+  ],
+  "fd_x_crab_piece": [
+    "蟹肉块",
+    "梭子蟹块"
+  ],
+  "fd_x_lychee": [
+    "荔枝肉",
+    "lychee"
+  ],
+  "fd_x_dried_fish": [
+    "炸小鱼",
+    "鱼干",
+    "小银鱼"
+  ],
+  "fd_x_crown_daisy": [
+    "蓬蒿",
+    "茼蒿菜"
+  ],
+  "fd_x_sweet_potato_leaf": [
+    "地瓜叶",
+    "番薯叶"
+  ],
+  "fd_x_garlic_sprout_leaf": [
+    "青蒜",
+    "蒜叶",
+    "大蒜叶"
+  ],
+  "fd_x_welsh_onion": [
+    "葱段",
+    "京葱",
+    "大葱段"
+  ],
+  "fd_x_porcini": [
+    "牛肝菌",
+    "野生菌"
   ]
 }

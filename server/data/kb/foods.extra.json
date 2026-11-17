@@ -2618,5 +2618,487 @@
       "酸笋丝",
       "腌笋"
     ]
+  },
+  {
+    "id": "fd_x_roast_duck",
+    "name": "烧鸭（带皮）",
+    "category": "蛋白",
+    "kcal": 250,
+    "protein": 19,
+    "fat": 18,
+    "carb": 2,
+    "fiber": 0,
+    "sodium": 480,
+    "portion": "1 份约 120g",
+    "aliases": [
+      "烧鹅",
+      "烤鸭",
+      "烧腊",
+      "卤鸭",
+      "roast duck"
+    ]
+  },
+  {
+    "id": "fd_x_char_siu",
+    "name": "叉烧",
+    "category": "蛋白",
+    "kcal": 270,
+    "protein": 22,
+    "fat": 15,
+    "carb": 10,
+    "fiber": 0,
+    "sodium": 620,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "蜜汁叉烧",
+      "char siu",
+      "烧肉",
+      "腊味拼盘"
+    ]
+  },
+  {
+    "id": "fd_x_braised_pork_meat",
+    "name": "卤肉",
+    "category": "蛋白",
+    "kcal": 350,
+    "protein": 14,
+    "fat": 30,
+    "carb": 5,
+    "fiber": 0,
+    "sodium": 780,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "卤肉碎",
+      "肉燥",
+      "卤五花",
+      "卤汁肉"
+    ]
+  },
+  {
+    "id": "fd_x_pork_knuckle",
+    "name": "卤猪脚",
+    "category": "蛋白",
+    "kcal": 260,
+    "protein": 22,
+    "fat": 18,
+    "carb": 2,
+    "fiber": 0,
+    "sodium": 720,
+    "portion": "1 份约 150g",
+    "aliases": [
+      "猪脚",
+      "猪蹄",
+      "卤猪蹄"
+    ]
+  },
+  {
+    "id": "fd_x_pig_ear",
+    "name": "猪耳朵",
+    "category": "蛋白",
+    "kcal": 190,
+    "protein": 19,
+    "fat": 12,
+    "carb": 1,
+    "fiber": 0,
+    "sodium": 520,
+    "portion": "1 盘约 100g",
+    "aliases": [
+      "猪耳",
+      "卤猪耳",
+      "猪头肉"
+    ]
+  },
+  {
+    "id": "fd_x_cured_pork",
+    "name": "腊肉",
+    "category": "蛋白",
+    "kcal": 498,
+    "protein": 11,
+    "fat": 48,
+    "carb": 3,
+    "fiber": 0,
+    "sodium": 780,
+    "portion": "1 份约 50g",
+    "aliases": [
+      "酱肉",
+      "腊味",
+      "咸肉"
+    ]
+  },
+  {
+    "id": "fd_x_duck_blood",
+    "name": "鸭血",
+    "category": "蛋白",
+    "kcal": 108,
+    "protein": 13.6,
+    "fat": 0.4,
+    "carb": 12,
+    "fiber": 0,
+    "sodium": 180,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "猪血",
+      "血豆腐",
+      "血旺"
+    ]
+  },
+  {
+    "id": "fd_x_pork_intestine",
+    "name": "肥肠",
+    "category": "蛋白",
+    "kcal": 196,
+    "protein": 8,
+    "fat": 18,
+    "carb": 1,
+    "fiber": 0,
+    "sodium": 320,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "猪肠",
+      "大肠",
+      "鹅肠",
+      "卤肥肠"
+    ]
+  },
+  {
+    "id": "fd_x_sea_cucumber",
+    "name": "海参（水发）",
+    "category": "蛋白",
+    "kcal": 78,
+    "protein": 16,
+    "fat": 0.2,
+    "carb": 0.5,
+    "fiber": 0,
+    "sodium": 500,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "海参段",
+      "凉拌海参",
+      "sea cucumber"
+    ]
+  },
+  {
+    "id": "fd_x_babylonia",
+    "name": "海瓜子",
+    "category": "蛋白",
+    "kcal": 70,
+    "protein": 12,
+    "fat": 1.5,
+    "carb": 2,
+    "fiber": 0,
+    "sodium": 420,
+    "portion": "1 盘约 200g（带壳）",
+    "aliases": [
+      "花螺",
+      "钉螺",
+      "小海瓜子",
+      "海螺丝"
+    ]
+  },
+  {
+    "id": "fd_x_liangpi",
+    "name": "凉皮",
+    "category": "主食",
+    "kcal": 105,
+    "protein": 2.5,
+    "fat": 1,
+    "carb": 22,
+    "fiber": 0.5,
+    "sodium": 380,
+    "portion": "1 份约 250g",
+    "aliases": [
+      "米皮",
+      "擀面皮",
+      "面皮"
+    ]
+  },
+  {
+    "id": "fd_x_custard_bun",
+    "name": "流沙包",
+    "category": "主食",
+    "kcal": 280,
+    "protein": 6,
+    "fat": 9,
+    "carb": 44,
+    "fiber": 0.6,
+    "sodium": 200,
+    "portion": "1 个约 40g",
+    "aliases": [
+      "奶黄包",
+      "金沙包",
+      "流沙奶黄包"
+    ]
+  },
+  {
+    "id": "fd_x_fish_cake",
+    "name": "鱼板（鸣门卷）",
+    "category": "蛋白",
+    "kcal": 90,
+    "protein": 10,
+    "fat": 1.5,
+    "carb": 9,
+    "fiber": 0,
+    "sodium": 640,
+    "portion": "2 片约 30g",
+    "aliases": [
+      "鱼板",
+      "蟹棒",
+      "蟹柳",
+      "鸣门卷",
+      "fish cake"
+    ]
+  },
+  {
+    "id": "fd_x_fish_paste",
+    "name": "鱼饼",
+    "category": "蛋白",
+    "kcal": 130,
+    "protein": 12,
+    "fat": 4,
+    "carb": 10,
+    "fiber": 0,
+    "sodium": 520,
+    "portion": "1 块约 60g",
+    "aliases": [
+      "煎鱼饼",
+      "鱼腐",
+      "萝卜糕"
+    ]
+  },
+  {
+    "id": "fd_x_shaved_ice",
+    "name": "刨冰（甜品）",
+    "category": "零食",
+    "kcal": 80,
+    "protein": 0.5,
+    "fat": 1,
+    "carb": 17,
+    "fiber": 0,
+    "sodium": 20,
+    "portion": "1 杯约 250g",
+    "aliases": [
+      "冰沙",
+      "雪冰",
+      "沙冰",
+      "shaved ice"
+    ]
+  },
+  {
+    "id": "fd_x_guilinggao",
+    "name": "龟苓膏",
+    "category": "零食",
+    "kcal": 40,
+    "protein": 0.5,
+    "fat": 0,
+    "carb": 9,
+    "fiber": 0.3,
+    "sodium": 20,
+    "portion": "1 碗约 200g",
+    "aliases": [
+      "仙草冻",
+      "凉粉",
+      "烧仙草"
+    ]
+  },
+  {
+    "id": "fd_x_red_date",
+    "name": "红枣（干）",
+    "category": "水果",
+    "kcal": 276,
+    "protein": 3.2,
+    "fat": 0.5,
+    "carb": 67,
+    "fiber": 6.2,
+    "sodium": 6,
+    "portion": "5 颗约 30g",
+    "aliases": [
+      "红枣",
+      "大枣",
+      "干枣"
+    ]
+  },
+  {
+    "id": "fd_x_vermicelli",
+    "name": "粉丝（干）",
+    "category": "主食",
+    "kcal": 338,
+    "protein": 0.8,
+    "fat": 0.2,
+    "carb": 83,
+    "fiber": 1.1,
+    "sodium": 10,
+    "portion": "1 小把约 30g（干重）",
+    "aliases": [
+      "粉丝",
+      "冬粉",
+      "龙口粉丝",
+      "glass noodle"
+    ]
+  },
+  {
+    "id": "fd_x_gluten",
+    "name": "面筋",
+    "category": "主食",
+    "kcal": 130,
+    "protein": 20,
+    "fat": 1,
+    "carb": 9,
+    "fiber": 1,
+    "sodium": 60,
+    "portion": "1 份约 60g",
+    "aliases": [
+      "烤面筋",
+      "油面筋",
+      "seitan"
+    ]
+  },
+  {
+    "id": "fd_x_pork_ball",
+    "name": "猪肉丸",
+    "category": "蛋白",
+    "kcal": 230,
+    "protein": 12,
+    "fat": 15,
+    "carb": 12,
+    "fiber": 0,
+    "sodium": 620,
+    "portion": "5 个约 100g",
+    "aliases": [
+      "肉丸",
+      "丸子",
+      "猪肉丸",
+      "贡丸"
+    ]
+  },
+  {
+    "id": "fd_x_crab_piece",
+    "name": "蟹块",
+    "category": "蛋白",
+    "kcal": 95,
+    "protein": 16,
+    "fat": 2.5,
+    "carb": 2,
+    "fiber": 0,
+    "sodium": 300,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "蟹肉块",
+      "梭子蟹块"
+    ]
+  },
+  {
+    "id": "fd_x_lychee",
+    "name": "荔枝",
+    "category": "水果",
+    "kcal": 71,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carb": 16.6,
+    "fiber": 0.5,
+    "sodium": 2,
+    "portion": "10 颗约 150g",
+    "aliases": [
+      "荔枝肉",
+      "lychee"
+    ]
+  },
+  {
+    "id": "fd_x_dried_fish",
+    "name": "小鱼干",
+    "category": "蛋白",
+    "kcal": 250,
+    "protein": 40,
+    "fat": 8,
+    "carb": 5,
+    "fiber": 0,
+    "sodium": 1500,
+    "portion": "1 小碟约 30g",
+    "aliases": [
+      "炸小鱼",
+      "鱼干",
+      "小银鱼"
+    ]
+  },
+  {
+    "id": "fd_x_crown_daisy",
+    "name": "茼蒿",
+    "category": "蔬菜",
+    "kcal": 24,
+    "protein": 1.9,
+    "fat": 0.3,
+    "carb": 3.9,
+    "fiber": 1.2,
+    "sodium": 161,
+    "portion": "1 份约 150g",
+    "aliases": [
+      "蓬蒿",
+      "茼蒿菜"
+    ]
+  },
+  {
+    "id": "fd_x_sweet_potato_leaf",
+    "name": "红薯叶",
+    "category": "蔬菜",
+    "kcal": 28,
+    "protein": 2.3,
+    "fat": 0.4,
+    "carb": 4.5,
+    "fiber": 1.6,
+    "sodium": 20,
+    "portion": "1 份约 150g",
+    "aliases": [
+      "地瓜叶",
+      "番薯叶"
+    ]
+  },
+  {
+    "id": "fd_x_garlic_sprout_leaf",
+    "name": "蒜苗",
+    "category": "蔬菜",
+    "kcal": 40,
+    "protein": 1.8,
+    "fat": 0.2,
+    "carb": 8,
+    "fiber": 1.8,
+    "sodium": 10,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "青蒜",
+      "蒜叶",
+      "大蒜叶"
+    ]
+  },
+  {
+    "id": "fd_x_welsh_onion",
+    "name": "大葱",
+    "category": "调味",
+    "kcal": 33,
+    "protein": 1.7,
+    "fat": 0.3,
+    "carb": 6.5,
+    "fiber": 1.3,
+    "sodium": 5,
+    "portion": "1 段约 30g",
+    "aliases": [
+      "葱段",
+      "京葱",
+      "大葱段"
+    ]
+  },
+  {
+    "id": "fd_x_porcini",
+    "name": "牛肝菌（鲜）",
+    "category": "蔬菜",
+    "kcal": 26,
+    "protein": 2.5,
+    "fat": 0.3,
+    "carb": 4,
+    "fiber": 1.5,
+    "sodium": 5,
+    "portion": "1 份约 100g",
+    "aliases": [
+      "牛肝菌",
+      "野生菌"
+    ]
   }
 ]
