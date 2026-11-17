@@ -329,6 +329,30 @@ const rejectionRate = nonFoodRows.length ? nonFoodRows.filter((r) => r.rejected)
 const falseRejectionRate = nMeals ? engineEmpty / nMeals : null;
 const libraryRate = nMeals ? avg('libraryRate') : 0;
 
+/** 按菜系分组：中式 / 非中式（回应"数据集偏欧美菜、能否代表中餐"的疑问） */
+function subsetStats(predicate) {
+  const sub = rows.filter(predicate);
+  if (!sub.length) return null;
+  const m = (k) => sub.reduce((s, r) => s + r[k], 0) / sub.length;
+  const p = m('precision');
+  const r = m('recall');
+  const pc = m('precisionCat');
+  const rc = m('recallCat');
+  return {
+    meals: sub.length,
+    strictP: pct(p),
+    strictR: pct(r),
+    strictF1: pct(f1Of(p, r)),
+    categoryP: pct(pc),
+    categoryR: pct(rc),
+    categoryF1: pct(f1Of(pc, rc)),
+    coreHit: pct(m('coreHit')),
+    libraryHit: pct(m('libraryRate')),
+  };
+}
+const chineseSubset = subsetStats((r) => r.area === 'Chinese');
+const otherSubset = subsetStats((r) => r.area !== 'Chinese');
+
 const summary = {
   generatedAt: new Date().toISOString(),
   api: API,
@@ -355,6 +379,7 @@ const summary = {
   },
   rejection: { accuracy: rejectionRate === null ? null : pct(rejectionRate), samples: nonFoodRows.length },
   libraryHitRate: pct(libraryRate),
+  subsets: { chinese: chineseSubset, other: otherSubset },
   latency: { p50: percentile(latencies, 50), p95: percentile(latencies, 95), samples: latencies.length },
 };
 
@@ -371,6 +396,11 @@ console.log(`份量 中位 预测/标注   ${summary.portion.medianRatio === nul
 console.log(`份量 区间自洽率       ${summary.portion.intervalConsistencyPct === null ? '—' : summary.portion.intervalConsistencyPct + '%'}（amountMin ≤ amountG ≤ amountMax）`);
 console.log(`份量 常识范围合规率   ${summary.portion.saneRangePct === null ? '—' : summary.portion.saneRangePct + '%'}（5~800g）`);
 console.log(`库内命中率             ${summary.libraryHitRate}%`);
+if (chineseSubset && otherSubset) {
+  console.log(`\n按菜系分组（回应"能否代表中餐"）：`);
+  console.log(`  中式 ${chineseSubset.meals} 道　类别 F1 ${chineseSubset.categoryF1}%　核心命中 ${chineseSubset.coreHit}%　库内命中 ${chineseSubset.libraryHit}%`);
+  console.log(`  其他 ${otherSubset.meals} 道　类别 F1 ${otherSubset.categoryF1}%　核心命中 ${otherSubset.coreHit}%　库内命中 ${otherSubset.libraryHit}%`);
+}
 console.log(`单次识别延迟 P50/P95   ${summary.latency.p50} / ${summary.latency.p95} ms`);
 
 // ---------------------------------------------------------------- 落盘
@@ -422,6 +452,16 @@ const md = `# 图像识别准确率评测报告
 | 份量 常识范围合规率 | ${summary.portion.saneRangePct === null ? '—' : summary.portion.saneRangePct + '%'} | 单项克数落在 5~800g 的比例 |
 | 库内命中率 | **${summary.libraryHitRate}%** | 识别项能对上本地食物库的比例（决定热量用"库值"还是"模型估算"） |
 | 单次识别延迟 | P50 ${summary.latency.p50} ms / P95 ${summary.latency.p95} ms | 端到端（含一次多模态模型调用） |
+
+### 按菜系分组（回应「能否代表中餐」）
+
+| 子集 | 菜数 | 严格 F1 | 类别 F1 | 核心主食材命中率 | 库内命中率 |
+| --- | --- | --- | --- | --- | --- |
+| 中式菜（area=Chinese） | ${chineseSubset?.meals ?? '—'} | ${chineseSubset?.strictF1 ?? '—'}% | **${chineseSubset?.categoryF1 ?? '—'}%** | ${chineseSubset?.coreHit ?? '—'}% | ${chineseSubset?.libraryHit ?? '—'}% |
+| 其他菜系 | ${otherSubset?.meals ?? '—'} | ${otherSubset?.strictF1 ?? '—'}% | ${otherSubset?.categoryF1 ?? '—'}% | ${otherSubset?.coreHit ?? '—'}% | ${otherSubset?.libraryHit ?? '—'}% |
+
+> 中式子集独立列出的原因：本作品的真实用户是中国大学生，中餐的「多食材同锅、酱汁遮盖」特征与欧美菜差异明显。
+> 两个子集都跑同一套规则、同一份食物库，因此可以直接对比——这也是对「你的准确率能代表中餐吗」的正面回答。
 
 ## 三、逐菜明细
 

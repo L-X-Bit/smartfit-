@@ -323,7 +323,7 @@ export function retrieveExercises({ query = '', equipment = [], maxDifficulty = 
   return picked;
 }
 
-/** 检索训练/营养指南 */
+/** 检索训练/营养指南（附打分，便于对话接口把「引用依据的分数」一并回传） */
 export function retrieveGuidelines({ query = '', tags = [], topK = 4 } = {}) {
   ensureIndexes();
   const hits = guidelineIndex.search(`${query} ${tags.join(' ')}`, topK * 2);
@@ -332,7 +332,7 @@ export function retrieveGuidelines({ query = '', tags = [], topK = 4 } = {}) {
     const hitTags = (h.doc.meta.tags || []).filter((t) => tags.includes(t)).length;
     return { ...h, score: h.score + hitTags * 0.4 };
   }).sort((a, b) => b.score - a.score);
-  return boosted.slice(0, topK).map((h) => h.doc.meta);
+  return boosted.slice(0, topK).map((h) => ({ ...h.doc.meta, score: Number(h.score.toFixed(2)) }));
 }
 
 /** 检索食物（饮食推荐 / 拍照识别后的候选匹配都会用到） */

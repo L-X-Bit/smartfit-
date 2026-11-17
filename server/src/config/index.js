@@ -130,6 +130,14 @@ export const config = {
      */
     visionTimeoutMs: num(env.AI_VISION_TIMEOUT_MS, 15000),
     temperature: num(env.AI_TEMPERATURE, 0.6),
+    /**
+     * 识图温度单独可配，默认 0：
+     *   · 识图是「测量类任务」，同一张照片两次识别给不同克数没有产品价值，只会让准确率评测不可复现；
+     *   · 论文/答辩里要报「同一数据集上的准确率」，就必须让模型输出尽量确定，
+     *     否则每次重跑 ±3~5 个百分点，评审自然怀疑数字是挑出来的。
+     *   文本生成（教练/计划）仍沿用 AI_TEMPERATURE=0.6，保留表达多样性。
+     */
+    visionTemperature: num(env.AI_VISION_TEMPERATURE, 0),
     /** 是否具备真实大模型能力：没配 Key 就是 false，AI 层会自动降级 */
     get enabled() {
       return Boolean(env.AI_API_KEY);

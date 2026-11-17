@@ -110,9 +110,16 @@ router.post(
         userId: req.user.id,
         question,
         onDelta: (text, type) => send('delta', { text, type }),
+        // 检索一完成就先推 `rag` 事件：扩展词 + 命中指南及其 BM25 分数 + 上下文长度
+        onRetrieval: (retrieval) => send('rag', retrieval),
       });
-      // 3. 结束事件：带上引用来源，前端可展示「知识库依据」
-      send('done', { provider: result.provider, latencyMs: result.latencyMs, refs: result.refs });
+      // 3. 结束事件：带上引用来源与检索诊断，前端可展示「知识库依据」
+      send('done', {
+        provider: result.provider,
+        latencyMs: result.latencyMs,
+        refs: result.refs,
+        retrieval: result.retrieval,
+      });
     } catch (err) {
       send('error', { message: err.message || 'AI 服务异常' });
     } finally {

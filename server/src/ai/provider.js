@@ -232,7 +232,8 @@ export async function visionChat({ imageDataUrl, question }) {
   const deadline = Date.now() + budget;
   const body = {
     model: config.ai.visionModel,
-    temperature: 0.2,
+    // 默认 0（可配 AI_VISION_TEMPERATURE）：识图是测量类任务，确定性输出才能让准确率评测可复现
+    temperature: config.ai.visionTemperature ?? 0,
     max_tokens: 1200,
     messages: [
       {

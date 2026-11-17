@@ -101,18 +101,37 @@ function buildExtractiveAnswer({ question, guides, exercises, snapshot }) {
  * @param {number} p.userId
  * @param {string} p.question
  * @param {(delta:string, type:'llm'|'fallback')=>void} p.onDelta 增量回调（用于 SSE 推送给前端）
- * @returns {Promise<{content:string, refs:Array, provider:string}>}
+ * @param {(retrieval:object)=>void} [p.onRetrieval] 检索完成后的回调：
+ *        SSE 用它先推一条 `rag` 事件，把「本轮扩展了哪些词、命中了哪些指南、各自多少分」提前告诉客户端，
+ *        客户端即使不展示也不影响原有 meta/delta/done 流程（向后兼容）。
+ * @returns {Promise<{content:string, refs:Array, provider:string, retrieval:object}>}
  */
-export async function coachReply({ userId, question, onDelta }) {
+export async function coachReply({ userId, question, onDelta, onRetrieval }) {
   const start = Date.now();
   const snapshot = buildUserSnapshot(userId);
   // 查询扩展：把口语化提问映射到知识库用词，提升中文小知识库的召回率
-  const expandedQuery = expandQuery(question);
+  const expansion = expandQueryDetailed(question);
+  const expandedQuery = expansion.expanded;
 
   // ---------- RAG ----------
   const guides = retrieveGuidelines({ query: expandedQuery, tags: [], topK: 3 });
   const exercises = retrieveExercises({ query: expandedQuery, topK: 3, equipment: [] });
   const { text: contextText, refs } = buildContext({ exercises, guidelines: guides });
+
+  /**
+   * 检索诊断信息：让「引用了什么、凭什么引用」随对话一起返回。
+   * 这不是前端装饰用的数据，而是把 RAG 的内部状态暴露出来——
+   * 评审在任何客户端抓一次 SSE 流，都能看到 BM25 分数与查询扩展规则。
+   */
+  const retrieval = {
+    expandedQuery,
+    appliedRules: expansion.appliedRules,
+    guides: guides.map((g) => ({ id: g.id, title: g.title, score: g.score })),
+    exercises: exercises.map((e) => ({ id: e.id, name: e.name, score: Number(e.score || 0) })),
+    contextChars: contextText.length,
+    refsCount: refs.length,
+  };
+  onRetrieval?.(retrieval);
 
   let content = '';
   let provider = 'fallback';
@@ -161,7 +180,7 @@ export async function coachReply({ userId, question, onDelta }) {
   run('INSERT INTO ai_messages (user_id, role, content, rag_refs) VALUES (?,?,?,?)', [userId, 'user', question, '[]']);
   run('INSERT INTO ai_messages (user_id, role, content, rag_refs) VALUES (?,?,?,?)', [userId, 'assistant', content, JSON.stringify(refs)]);
 
-  return { content, refs, provider, latencyMs: Date.now() - start };
+  return { content, refs, provider, latencyMs: Date.now() - start, retrieval };
 }
 
 /** 读取历史对话（最近 20 条） */

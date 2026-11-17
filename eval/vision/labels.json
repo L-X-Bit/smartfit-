@@ -1,8 +1,8 @@
 {
   "source": "TheMealDB (https://www.themealdb.com/api.php)",
-  "generatedAt": "2026-11-17T11:29:28.074Z",
+  "generatedAt": "2026-11-17T11:39:11.219Z",
   "note": "标准答案来自 TheMealDB 的人工标注字段（菜名 / 菜系 / 食材 + 用量），不是本项目模型生成",
-  "ingredientMapSize": 229,
+  "ingredientMapSize": 283,
   "meals": [
     {
       "id": "52945",
@@ -13,7 +13,7 @@
       "ingredients": [
         {
           "name": "sake",
-          "nameZh": null,
+          "nameZh": "清酒",
           "measure": "2 tbs",
           "grams": null,
           "unit": "other"
@@ -27,7 +27,7 @@
         },
         {
           "name": "sesame seed oil",
-          "nameZh": "食用油",
+          "nameZh": "芝麻",
           "measure": "2 tbs",
           "grams": null,
           "unit": "other"
@@ -90,7 +90,7 @@
         },
         {
           "name": "water chestnut",
-          "nameZh": null,
+          "nameZh": "马蹄",
           "measure": "220g",
           "grams": 220,
           "unit": "g"
@@ -118,14 +118,14 @@
       "ingredients": [
         {
           "name": "rice stick noodles",
-          "nameZh": "面条",
+          "nameZh": "米饭",
           "measure": "6oz/180g",
           "grams": 6,
           "unit": "g"
         },
         {
           "name": "dark soy sauce",
-          "nameZh": null,
+          "nameZh": "老抽",
           "measure": "2 tbsp",
           "grams": 30,
           "unit": "tbsp"
@@ -146,7 +146,7 @@
         },
         {
           "name": "white vinegar",
-          "nameZh": "醋",
+          "nameZh": "白醋",
           "measure": "2 tsp",
           "grams": 10,
           "unit": "tsp"
@@ -167,7 +167,7 @@
         },
         {
           "name": "peanut oil",
-          "nameZh": "食用油",
+          "nameZh": "花生油",
           "measure": "2 tbsp",
           "grams": 30,
           "unit": "tbsp"
@@ -195,7 +195,7 @@
         },
         {
           "name": "chinese broccoli",
-          "nameZh": "西兰花",
+          "nameZh": "芥蓝",
           "measure": "4 cups",
           "grams": 800,
           "unit": "cup"
@@ -230,7 +230,7 @@
         },
         {
           "name": "egg white",
-          "nameZh": null,
+          "nameZh": "鸡蛋",
           "measure": "1",
           "grams": null,
           "unit": "other"
@@ -265,14 +265,14 @@
         },
         {
           "name": "onion salt",
-          "nameZh": "盐",
+          "nameZh": "洋葱",
           "measure": "2 teaspoons",
           "grams": 10,
           "unit": "tsp"
         },
         {
           "name": "chili powder",
-          "nameZh": null,
+          "nameZh": "辣椒粉",
           "measure": "1 teaspoon",
           "grams": 5,
           "unit": "tsp"
@@ -286,28 +286,28 @@
         },
         {
           "name": "celery salt",
-          "nameZh": "盐",
+          "nameZh": "芹菜",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
         },
         {
           "name": "sage",
-          "nameZh": null,
+          "nameZh": "鼠尾草",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
         },
         {
           "name": "garlic powder",
-          "nameZh": null,
+          "nameZh": "蒜粉",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
         },
         {
           "name": "allspice",
-          "nameZh": null,
+          "nameZh": "多香果",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
@@ -328,7 +328,7 @@
         },
         {
           "name": "marjoram",
-          "nameZh": null,
+          "nameZh": "马郁兰",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
@@ -356,7 +356,7 @@
         },
         {
           "name": "onions",
-          "nameZh": null,
+          "nameZh": "洋葱",
           "measure": "2 chopped",
           "grams": null,
           "unit": "other"
@@ -391,7 +391,7 @@
         },
         {
           "name": "ground beef",
-          "nameZh": "牛肉",
+          "nameZh": "牛肉末",
           "measure": "1 lb",
           "grams": 454,
           "unit": "lb"
@@ -482,7 +482,7 @@
         },
         {
           "name": "onions",
-          "nameZh": null,
+          "nameZh": "洋葱",
           "measure": "3",
           "grams": null,
           "unit": "other"
@@ -503,7 +503,7 @@
         },
         {
           "name": "creme fraiche",
-          "nameZh": null,
+          "nameZh": "酸奶油",
           "measure": "1 pot",
           "grams": null,
           "unit": "other"
@@ -580,7 +580,7 @@
         },
         {
           "name": "chilli flakes",
-          "nameZh": null,
+          "nameZh": "辣椒碎",
           "measure": "Pinch",
           "grams": null,
           "unit": "none"
@@ -720,7 +720,7 @@
       "ingredients": [
         {
           "name": "cannellini beans",
-          "nameZh": "豆类",
+          "nameZh": "白芸豆",
           "measure": "2 cans",
           "grams": null,
           "unit": "other"
@@ -818,7 +818,7 @@
         },
         {
           "name": "onions",
-          "nameZh": null,
+          "nameZh": "洋葱",
           "measure": "175g",
           "grams": 175,
           "unit": "g"
@@ -846,7 +846,7 @@
         },
         {
           "name": "swede",
-          "nameZh": null,
+          "nameZh": "芜菁",
           "measure": "200g",
           "grams": 200,
           "unit": "g"
@@ -902,7 +902,7 @@
         },
         {
           "name": "suet",
-          "nameZh": null,
+          "nameZh": "牛油",
           "measure": "60g",
           "grams": 60,
           "unit": "g"
@@ -951,7 +951,7 @@
         },
         {
           "name": "lard",
-          "nameZh": null,
+          "nameZh": "猪油",
           "measure": "2 tablespoons",
           "grams": 30,
           "unit": "tbsp"
@@ -986,7 +986,7 @@
         },
         {
           "name": "prunes",
-          "nameZh": null,
+          "nameZh": "西梅干",
           "measure": "200g",
           "grams": 200,
           "unit": "g"
@@ -1007,7 +1007,7 @@
         },
         {
           "name": "peppercorns",
-          "nameZh": null,
+          "nameZh": "胡椒粒",
           "measure": "12",
           "grams": null,
           "unit": "other"
@@ -1021,7 +1021,7 @@
         },
         {
           "name": "allspice berries",
-          "nameZh": null,
+          "nameZh": "多香果",
           "measure": "4",
           "grams": null,
           "unit": "other"
@@ -1105,7 +1105,7 @@
         },
         {
           "name": "onions",
-          "nameZh": null,
+          "nameZh": "洋葱",
           "measure": "1",
           "grams": null,
           "unit": "other"
@@ -1133,7 +1133,7 @@
         },
         {
           "name": "beef fillet",
-          "nameZh": null,
+          "nameZh": "牛肉",
           "measure": "500g",
           "grams": 500,
           "unit": "g"
@@ -1147,14 +1147,14 @@
         },
         {
           "name": "creme fraiche",
-          "nameZh": null,
+          "nameZh": "酸奶油",
           "measure": "150g",
           "grams": 150,
           "unit": "g"
         },
         {
           "name": "english mustard",
-          "nameZh": "芥末",
+          "nameZh": null,
           "measure": "1 tbsp",
           "grams": 15,
           "unit": "tbsp"
@@ -1196,7 +1196,7 @@
         },
         {
           "name": "red chilli",
-          "nameZh": "辣椒",
+          "nameZh": null,
           "measure": "1 finely sliced",
           "grams": null,
           "unit": "slice"
@@ -1210,7 +1210,7 @@
         },
         {
           "name": "vegetable stock cube",
-          "nameZh": null,
+          "nameZh": "蔬菜高汤",
           "measure": "1",
           "grams": null,
           "unit": "other"
@@ -1245,7 +1245,7 @@
         },
         {
           "name": "king prawns",
-          "nameZh": "虾仁",
+          "nameZh": null,
           "measure": "150g",
           "grams": 150,
           "unit": "g"
@@ -1273,7 +1273,7 @@
       "ingredients": [
         {
           "name": "dried white beans",
-          "nameZh": "豆类",
+          "nameZh": null,
           "measure": "450g",
           "grams": 450,
           "unit": "g"
@@ -1462,14 +1462,14 @@
         },
         {
           "name": "cayenne pepper",
-          "nameZh": "胡椒",
+          "nameZh": null,
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
         },
         {
           "name": "muscovado sugar",
-          "nameZh": "糖",
+          "nameZh": null,
           "measure": "2 teaspoons",
           "grams": 10,
           "unit": "tsp"
@@ -1490,7 +1490,7 @@
         },
         {
           "name": "tiger prawns",
-          "nameZh": "虾仁",
+          "nameZh": null,
           "measure": "200g",
           "grams": 200,
           "unit": "g"
@@ -1532,7 +1532,7 @@
         },
         {
           "name": "sweet chilli sauce",
-          "nameZh": null,
+          "nameZh": "甜辣酱",
           "measure": "To serve",
           "grams": null,
           "unit": "none"
@@ -1567,14 +1567,14 @@
         },
         {
           "name": "chinese five spice powder",
-          "nameZh": null,
+          "nameZh": "五香粉",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
         },
         {
           "name": "sesame seed oil",
-          "nameZh": "食用油",
+          "nameZh": "芝麻",
           "measure": "Dash",
           "grams": null,
           "unit": "none"
@@ -1588,7 +1588,7 @@
         },
         {
           "name": "sweet chilli sauce",
-          "nameZh": null,
+          "nameZh": "甜辣酱",
           "measure": "Drizzle",
           "grams": null,
           "unit": "none"
@@ -1609,14 +1609,14 @@
       "ingredients": [
         {
           "name": "crab meay",
-          "nameZh": null,
+          "nameZh": "蟹肉",
           "measure": "1 lb",
           "grams": 454,
           "unit": "lb"
         },
         {
           "name": "onions",
-          "nameZh": null,
+          "nameZh": "洋葱",
           "measure": "2 medium",
           "grams": null,
           "unit": "other"
@@ -1679,21 +1679,21 @@
         },
         {
           "name": "mustard powder",
-          "nameZh": null,
+          "nameZh": "芥末",
           "measure": "3/4 teaspoon",
           "grams": 15,
           "unit": "tsp"
         },
         {
           "name": "garlic powder",
-          "nameZh": null,
+          "nameZh": "蒜粉",
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
         },
         {
           "name": "kosher salt",
-          "nameZh": "盐",
+          "nameZh": null,
           "measure": "1/2 teaspoon",
           "grams": 5,
           "unit": "tsp"
@@ -1707,7 +1707,7 @@
         },
         {
           "name": "cayenne pepper",
-          "nameZh": "胡椒",
+          "nameZh": null,
           "measure": "1/8 teaspoon",
           "grams": 5,
           "unit": "tsp"
@@ -1721,21 +1721,21 @@
         },
         {
           "name": "whole milk",
-          "nameZh": "牛奶",
+          "nameZh": null,
           "measure": "1 1/2 cups (360 milliliters)",
           "grams": 1,
           "unit": "ml"
         },
         {
           "name": "heavy cream",
-          "nameZh": "奶油",
+          "nameZh": null,
           "measure": "1 cup (240 milliliters)",
           "grams": 1,
           "unit": "ml"
         },
         {
           "name": "monterey jack cheese",
-          "nameZh": "奶酪",
+          "nameZh": null,
           "measure": "1 pound (455 grams)",
           "grams": 1,
           "unit": "g"
@@ -1749,7 +1749,7 @@
         },
         {
           "name": "garlic powder",
-          "nameZh": null,
+          "nameZh": "蒜粉",
           "measure": "1 teaspoon",
           "grams": 5,
           "unit": "tsp"
@@ -1770,7 +1770,7 @@
         },
         {
           "name": "colby jack cheese",
-          "nameZh": "奶酪",
+          "nameZh": null,
           "measure": "8 slices",
           "grams": null,
           "unit": "slice"
@@ -1812,7 +1812,7 @@
         },
         {
           "name": "dried oregano",
-          "nameZh": "牛至",
+          "nameZh": null,
           "measure": "1/2 tbs",
           "grams": null,
           "unit": "other"
@@ -1966,7 +1966,7 @@
         },
         {
           "name": "red chilli",
-          "nameZh": "辣椒",
+          "nameZh": null,
           "measure": "1",
           "grams": null,
           "unit": "other"
@@ -1987,7 +1987,7 @@
         },
         {
           "name": "black olives",
-          "nameZh": "橄榄",
+          "nameZh": null,
           "measure": "70g",
           "grams": 70,
           "unit": "g"
@@ -2092,14 +2092,14 @@
         },
         {
           "name": "creme fraiche",
-          "nameZh": null,
+          "nameZh": "酸奶油",
           "measure": "400ml",
           "grams": 400,
           "unit": "ml"
         },
         {
           "name": "mozzarella balls",
-          "nameZh": null,
+          "nameZh": "马苏里拉奶酪",
           "measure": "125g",
           "grams": 125,
           "unit": "g"
@@ -2113,7 +2113,7 @@
         },
         {
           "name": "basil leaves",
-          "nameZh": null,
+          "nameZh": "罗勒",
           "measure": "Topping",
           "grams": null,
           "unit": "none"
@@ -2141,7 +2141,7 @@
         },
         {
           "name": "evaporated milk",
-          "nameZh": "牛奶",
+          "nameZh": null,
           "measure": "4 cups",
           "grams": 800,
           "unit": "cup"
@@ -2207,6 +2207,2071 @@
         "strMeal": "Macaroni Pudding",
         "strCategory": "Pasta",
         "strArea": null
+      }
+    },
+    {
+      "id": "53367",
+      "file": "images/meal-53367.jpg",
+      "meal": "Chicken Fried Rice",
+      "category": "Chicken",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "chicken thighs",
+          "nameZh": "鸡腿肉",
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "canola oil",
+          "nameZh": null,
+          "measure": "3  tablespoons",
+          "grams": 45,
+          "unit": "tbsp"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "3 Large",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "2/3 Cup",
+          "grams": 400,
+          "unit": "cup"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves minced",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "ground ginger",
+          "nameZh": null,
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "1 large",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "peas",
+          "nameZh": "豌豆",
+          "measure": "2/3 Cup",
+          "grams": 400,
+          "unit": "cup"
+        },
+        {
+          "name": "jasmine rice",
+          "nameZh": null,
+          "measure": "4 cups",
+          "grams": 800,
+          "unit": "cup"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "2 sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "chinese five spice powder",
+          "nameZh": "五香粉",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "2.5 tbsp",
+          "grams": 38,
+          "unit": "tbsp"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Chicken Fried Rice",
+        "strCategory": "Chicken",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53378",
+      "file": "images/meal-53378.jpg",
+      "meal": "Sesame Cucumber Salad",
+      "category": "Side",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "cucumber",
+          "nameZh": "黄瓜",
+          "measure": "2 medium",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "rice vinegar",
+          "nameZh": "米醋",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "basil leaves",
+          "nameZh": "罗勒",
+          "measure": "6",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "red chilli flakes",
+          "nameZh": "辣椒碎",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sesame seed",
+          "nameZh": "芝麻",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Sesame Cucumber Salad",
+        "strCategory": "Side",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53373",
+      "file": "images/meal-53373.jpg",
+      "meal": "Air Fryer Egg Rolls",
+      "category": "Side",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "ground pork",
+          "nameZh": null,
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "1 clove peeled crushed",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "1 medium",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "3 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "cabbage",
+          "nameZh": "卷心菜",
+          "measure": "3 Cups",
+          "grams": 600,
+          "unit": "cup"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "rice vinegar",
+          "nameZh": "米醋",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "egg roll wrappers",
+          "nameZh": "春卷皮",
+          "measure": "12",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "oil",
+          "nameZh": "食用油",
+          "measure": "For brushing",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "duck sauce",
+          "nameZh": "甜面酱",
+          "measure": "To serve",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "plum sauce",
+          "nameZh": "梅子酱",
+          "measure": "To serve",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "To serve",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Air Fryer Egg Rolls",
+        "strCategory": "Side",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52949",
+      "file": "images/meal-52949.jpg",
+      "meal": "Sweet and Sour Pork",
+      "category": "Pork",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "pork",
+          "nameZh": "猪肉",
+          "measure": "200g",
+          "grams": 200,
+          "unit": "g"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "Dash",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "10g",
+          "grams": 10,
+          "unit": "g"
+        },
+        {
+          "name": "starch",
+          "nameZh": "淀粉",
+          "measure": "10g",
+          "grams": 10,
+          "unit": "g"
+        },
+        {
+          "name": "tomato puree",
+          "nameZh": "番茄酱",
+          "measure": "30g",
+          "grams": 30,
+          "unit": "g"
+        },
+        {
+          "name": "vinegar",
+          "nameZh": "醋",
+          "measure": "10g",
+          "grams": 10,
+          "unit": "g"
+        },
+        {
+          "name": "coriander",
+          "nameZh": "香菜",
+          "measure": "Dash",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Sweet and Sour Pork",
+        "strCategory": "Pork",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53372",
+      "file": "images/meal-53372.jpg",
+      "meal": "Chinese Tomato Egg Stir Fry",
+      "category": "Vegetarian",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "plum tomatoes",
+          "nameZh": null,
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "vegetable oil",
+          "nameZh": "植物油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "eggs",
+          "nameZh": "鸡蛋",
+          "measure": "5 Large",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "chicken bouillon powder",
+          "nameZh": "鸡精",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "jasmine rice",
+          "nameZh": null,
+          "measure": "2 cups",
+          "grams": 400,
+          "unit": "cup"
+        }
+      ],
+      "raw": {
+        "strMeal": "Chinese Tomato Egg Stir Fry",
+        "strCategory": "Vegetarian",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52956",
+      "file": "images/meal-52956.jpg",
+      "meal": "Chicken Congee",
+      "category": "Chicken",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "chicken",
+          "nameZh": "鸡肉",
+          "measure": "8 oz",
+          "grams": 227,
+          "unit": "oz"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "ginger cordial",
+          "nameZh": "姜汁",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "rice",
+          "nameZh": "米饭",
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "8 cups",
+          "grams": 1600,
+          "unit": "cup"
+        },
+        {
+          "name": "coriander",
+          "nameZh": "香菜",
+          "measure": "2 oz",
+          "grams": 57,
+          "unit": "oz"
+        }
+      ],
+      "raw": {
+        "strMeal": "Chicken Congee",
+        "strCategory": "Chicken",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52951",
+      "file": "images/meal-52951.jpg",
+      "meal": "General Tsos Chicken",
+      "category": "Chicken",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "chicken breast",
+          "nameZh": "鸡胸肉",
+          "measure": "1 1/2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "plain flour",
+          "nameZh": "面粉",
+          "measure": "3/4 cup",
+          "grams": 600,
+          "unit": "cup"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "1",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "starch",
+          "nameZh": "淀粉",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "baking powder",
+          "nameZh": "泡打粉",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "onion salt",
+          "nameZh": "洋葱",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "garlic powder",
+          "nameZh": "蒜粉",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "3/4 cup",
+          "grams": 600,
+          "unit": "cup"
+        },
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "duck sauce",
+          "nameZh": "甜面酱",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "3 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "honey",
+          "nameZh": "蜂蜜",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "rice vinegar",
+          "nameZh": "米醋",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "gochujang",
+          "nameZh": "韩式辣酱",
+          "measure": "1/2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "starch",
+          "nameZh": "淀粉",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "1 clove",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "2 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "General Tsos Chicken",
+        "strCategory": "Chicken",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52954",
+      "file": "images/meal-52954.jpg",
+      "meal": "Hot and Sour Soup",
+      "category": "Pork",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "mushrooms",
+          "nameZh": "蘑菇",
+          "measure": "1/3 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "wood ear mushrooms",
+          "nameZh": null,
+          "measure": "1/3 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "tofu",
+          "nameZh": "豆腐",
+          "measure": "2/3 Cup",
+          "grams": 400,
+          "unit": "cup"
+        },
+        {
+          "name": "pork",
+          "nameZh": "猪肉",
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "2-1/2 cups",
+          "grams": 400,
+          "unit": "cup"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "hotsauce",
+          "nameZh": "辣酱",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "vinegar",
+          "nameZh": "醋",
+          "measure": "1-½ cups",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        }
+      ],
+      "raw": {
+        "strMeal": "Hot and Sour Soup",
+        "strCategory": "Pork",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52946",
+      "file": "images/meal-52946.jpg",
+      "meal": "Kung Po Prawns",
+      "category": "Seafood",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "prawns",
+          "nameZh": "虾仁",
+          "measure": "400g",
+          "grams": 400,
+          "unit": "g"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "tomato puree",
+          "nameZh": "番茄酱",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "corn flour",
+          "nameZh": "玉米淀粉",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "caster sugar",
+          "nameZh": "糖",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sunflower oil",
+          "nameZh": "葵花籽油",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "peanuts",
+          "nameZh": "花生",
+          "measure": "85g",
+          "grams": 85,
+          "unit": "g"
+        },
+        {
+          "name": "chilli",
+          "nameZh": "辣椒",
+          "measure": "3 Large",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "brown sugar",
+          "nameZh": "红糖",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic clove",
+          "nameZh": "大蒜",
+          "measure": "6 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "water chestnut",
+          "nameZh": "马蹄",
+          "measure": "450g",
+          "grams": 450,
+          "unit": "g"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "to taste",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Kung Po Prawns",
+        "strCategory": "Seafood",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53369",
+      "file": "images/meal-53369.jpg",
+      "meal": "Silken Tofu with Sesame Soy Sauce",
+      "category": "Vegetarian",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "silken tofu",
+          "nameZh": null,
+          "measure": "16 ounces",
+          "grams": 454,
+          "unit": "oz"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "3  tablespoons",
+          "grams": 45,
+          "unit": "tbsp"
+        },
+        {
+          "name": "chinese sesame sauce",
+          "nameZh": "芝麻酱",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "1 sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "sesame seed",
+          "nameZh": "芝麻",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Silken Tofu with Sesame Soy Sauce",
+        "strCategory": "Vegetarian",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52947",
+      "file": "images/meal-52947.jpg",
+      "meal": "Ma Po Tofu",
+      "category": "Beef",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "tofu",
+          "nameZh": "豆腐",
+          "measure": "450g",
+          "grams": 450,
+          "unit": "g"
+        },
+        {
+          "name": "beef",
+          "nameZh": "牛肉",
+          "measure": "100g",
+          "grams": 100,
+          "unit": "g"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1/2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "doubanjiang",
+          "nameZh": null,
+          "measure": "1 1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "fermented black beans",
+          "nameZh": null,
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sichuan pepper",
+          "nameZh": null,
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "400ml",
+          "grams": 400,
+          "unit": "ml"
+        },
+        {
+          "name": "olive oil",
+          "nameZh": "橄榄油",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "2 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves chopped",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "4 sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "2 1/2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        }
+      ],
+      "raw": {
+        "strMeal": "Ma Po Tofu",
+        "strCategory": "Beef",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52955",
+      "file": "images/meal-52955.jpg",
+      "meal": "Egg Drop Soup",
+      "category": "Vegetarian",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "3 cups",
+          "grams": 600,
+          "unit": "cup"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "peas",
+          "nameZh": "豌豆",
+          "measure": "1/3 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "mushrooms",
+          "nameZh": "蘑菇",
+          "measure": "1/3 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "2 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        }
+      ],
+      "raw": {
+        "strMeal": "Egg Drop Soup",
+        "strCategory": "Vegetarian",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53365",
+      "file": "images/meal-53365.jpg",
+      "meal": "Chinese Orange Chicken",
+      "category": "Chicken",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "orange",
+          "nameZh": "橙子",
+          "measure": "Zest of 1",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "orange juice",
+          "nameZh": "橙子",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "rice vinegar",
+          "nameZh": "米醋",
+          "measure": "1/3 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "chicken thighs",
+          "nameZh": "鸡腿肉",
+          "measure": "650g",
+          "grams": 650,
+          "unit": "g"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "2 large",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "all purpose flour",
+          "nameZh": null,
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "vegetable oil",
+          "nameZh": "植物油",
+          "measure": "2 cups",
+          "grams": 400,
+          "unit": "cup"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves chopped",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "shallots",
+          "nameZh": "红葱头",
+          "measure": "1 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "Sliced",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "sesame seed",
+          "nameZh": "芝麻",
+          "measure": "Garnish",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "rice",
+          "nameZh": "米饭",
+          "measure": "To serve",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Chinese Orange Chicken",
+        "strCategory": "Chicken",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52952",
+      "file": "images/meal-52952.jpg",
+      "meal": "Beef Lo Mein",
+      "category": "Beef",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "beef",
+          "nameZh": "牛肉",
+          "measure": "1/2 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "pinch",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "1/2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "starch",
+          "nameZh": "淀粉",
+          "measure": "3 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "oil",
+          "nameZh": "食用油",
+          "measure": "5 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "noodles",
+          "nameZh": "面条",
+          "measure": "1/4 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "1/2 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "bean sprouts",
+          "nameZh": "豆芽",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "mushrooms",
+          "nameZh": "蘑菇",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "1 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "oyster sauce",
+          "nameZh": "蚝油",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Beef Lo Mein",
+        "strCategory": "Beef",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53368",
+      "file": "images/meal-53368.jpg",
+      "meal": "Singapore Noodles with Shrimp",
+      "category": "Seafood",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "seasoned rice vinegar",
+          "nameZh": null,
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "vermicelli rice noodles",
+          "nameZh": null,
+          "measure": "6 oz",
+          "grams": 170,
+          "unit": "oz"
+        },
+        {
+          "name": "egg",
+          "nameZh": "鸡蛋",
+          "measure": "2 large",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "ground ginger",
+          "nameZh": null,
+          "measure": "2 tblsp",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "1 clove finely chopped",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "jalapeno",
+          "nameZh": null,
+          "measure": "1 sliced",
+          "grams": null,
+          "unit": "slice"
+        },
+        {
+          "name": "onion",
+          "nameZh": "洋葱",
+          "measure": "1/2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "ham",
+          "nameZh": "火腿",
+          "measure": "4 oz",
+          "grams": 113,
+          "unit": "oz"
+        },
+        {
+          "name": "napa cabbage",
+          "nameZh": null,
+          "measure": "1/2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "4",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "red pepper",
+          "nameZh": "彩椒",
+          "measure": "1/2",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "curry powder",
+          "nameZh": "咖喱粉",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "shrimp",
+          "nameZh": "虾仁",
+          "measure": "1/2 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "cilantro leaves",
+          "nameZh": null,
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Singapore Noodles with Shrimp",
+        "strCategory": "Seafood",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53366",
+      "file": "images/meal-53366.jpg",
+      "meal": "Beef and Broccoli Stir-Fry",
+      "category": "Beef",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "dry sherry",
+          "nameZh": null,
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "black pepper",
+          "nameZh": "黑胡椒",
+          "measure": "1/8 teaspoon",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sirloin steak",
+          "nameZh": null,
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "oyster sauce",
+          "nameZh": "蚝油",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "dry sherry",
+          "nameZh": null,
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "broccoli",
+          "nameZh": "西兰花",
+          "measure": "1 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "high heat cooking oil",
+          "nameZh": null,
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "2 cloves minced",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Beef and Broccoli Stir-Fry",
+        "strCategory": "Beef",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53377",
+      "file": "images/meal-53377.jpg",
+      "meal": "Napa Cabbage with Dried Shrimp",
+      "category": "Seafood",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "dried shrimp",
+          "nameZh": null,
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "boiling water",
+          "nameZh": null,
+          "measure": "3/4 cup",
+          "grams": 600,
+          "unit": "cup"
+        },
+        {
+          "name": "napa cabbage",
+          "nameZh": null,
+          "measure": "1 head",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "peanut oil",
+          "nameZh": "花生油",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "4 Chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "kosher salt",
+          "nameZh": null,
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "pepper",
+          "nameZh": "胡椒",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        }
+      ],
+      "raw": {
+        "strMeal": "Napa Cabbage with Dried Shrimp",
+        "strCategory": "Seafood",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53374",
+      "file": "images/meal-53374.jpg",
+      "meal": "Sichuan Eggplant",
+      "category": "Vegetarian",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "egg plants",
+          "nameZh": "鸡蛋",
+          "measure": "1.5 pounds sliced",
+          "grams": 680,
+          "unit": "lb"
+        },
+        {
+          "name": "peanut oil",
+          "nameZh": "花生油",
+          "measure": "2 tablespoons",
+          "grams": 30,
+          "unit": "tbsp"
+        },
+        {
+          "name": "chicken stock",
+          "nameZh": "鸡汤",
+          "measure": "1/4 cup",
+          "grams": 200,
+          "unit": "cup"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "chilli bean paste",
+          "nameZh": "辣椒",
+          "measure": "1 ½ tbsp",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "sichuan pepper",
+          "nameZh": null,
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "garlic",
+          "nameZh": "大蒜",
+          "measure": "5 cloves",
+          "grams": null,
+          "unit": "clove"
+        },
+        {
+          "name": "cornstarch",
+          "nameZh": "淀粉",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "apple cider vinegar",
+          "nameZh": "苹果",
+          "measure": "2 tsp",
+          "grams": 10,
+          "unit": "tsp"
+        },
+        {
+          "name": "scallions",
+          "nameZh": "小葱",
+          "measure": "4 Chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "cilantro",
+          "nameZh": null,
+          "measure": "Garnish",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Sichuan Eggplant",
+        "strCategory": "Vegetarian",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "52948",
+      "file": "images/meal-52948.jpg",
+      "meal": "Wontons",
+      "category": "Pork",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "pork",
+          "nameZh": "猪肉",
+          "measure": "1lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "garlic clove",
+          "nameZh": "大蒜",
+          "measure": "3 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "ginger",
+          "nameZh": "姜",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "1 tbs",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "carrots",
+          "nameZh": "胡萝卜",
+          "measure": "3 finely chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "celery",
+          "nameZh": "芹菜",
+          "measure": "3 finely chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "spring onions",
+          "nameZh": "小葱",
+          "measure": "6 chopped",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "wonton skin",
+          "nameZh": null,
+          "measure": "1 Packet",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "oil",
+          "nameZh": "食用油",
+          "measure": "Fry",
+          "grams": null,
+          "unit": "none"
+        },
+        {
+          "name": "water",
+          "nameZh": "水",
+          "measure": "Bottle",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Wontons",
+        "strCategory": "Pork",
+        "strArea": "Chinese"
+      }
+    },
+    {
+      "id": "53371",
+      "file": "images/meal-53371.jpg",
+      "meal": "Sichuan Style Stir-Fried Chinese Long Beans",
+      "category": "Vegetarian",
+      "area": "Chinese",
+      "ingredients": [
+        {
+          "name": "chinese long beans",
+          "nameZh": null,
+          "measure": "1/2 lb",
+          "grams": 454,
+          "unit": "lb"
+        },
+        {
+          "name": "peanut oil",
+          "nameZh": "花生油",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "dried chillies",
+          "nameZh": null,
+          "measure": "6",
+          "grams": null,
+          "unit": "other"
+        },
+        {
+          "name": "sichuan pepper",
+          "nameZh": null,
+          "measure": "1 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "salt",
+          "nameZh": "盐",
+          "measure": "1/4 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sugar",
+          "nameZh": "糖",
+          "measure": "1/2 tsp",
+          "grams": 5,
+          "unit": "tsp"
+        },
+        {
+          "name": "sesame seed oil",
+          "nameZh": "芝麻",
+          "measure": "1 tablespoon",
+          "grams": 15,
+          "unit": "tbsp"
+        },
+        {
+          "name": "soy sauce",
+          "nameZh": "酱油",
+          "measure": "Splash",
+          "grams": null,
+          "unit": "none"
+        }
+      ],
+      "raw": {
+        "strMeal": "Sichuan Style Stir-Fried Chinese Long Beans",
+        "strCategory": "Vegetarian",
+        "strArea": "Chinese"
       }
     }
   ],
